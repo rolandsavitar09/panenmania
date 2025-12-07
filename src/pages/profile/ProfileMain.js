@@ -1,12 +1,15 @@
+// src/pages/afterLogin/ProfileMain.js
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import NavbarAfterLogin from "../../components/layout/NavbarAfterLogin";
-import Footer from "../../components/layout/Footer";
 import Popup from "../../components/common/Popup";
-import {
-  UserCircleIcon,
-  ArrowLeftOnRectangleIcon,
-} from "@heroicons/react/24/solid";
+
+// ICONS & IMAGES
+import EditIcon from "../../assets/images/icons/edit.svg";
+import ProfileIcon from "../../assets/images/icons/profile.svg";
+import CheckIcon from "../../assets/images/icons/ceklis.svg";
+import OutIcon from "../../assets/images/icons/out.svg";
+import ProfilePhoto from "../../assets/images/icons/pp.svg";
 
 const ProfileMain = () => {
   const navigate = useNavigate();
@@ -15,6 +18,7 @@ const ProfileMain = () => {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
   const [profilePic, setProfilePic] = useState(null);
+  const [gender, setGender] = useState("");
 
   const handleSave = (e) => {
     e.preventDefault();
@@ -35,167 +39,242 @@ const ProfileMain = () => {
     if (file) setProfilePic(URL.createObjectURL(file));
   };
 
-  // Helper untuk aktif menu
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-white text-[#344E41] font-poppins flex flex-col">
+    <div className="min-h-screen bg-[#FFFEF6] text-[#344E41] font-poppins flex flex-col">
       <NavbarAfterLogin />
 
-      {/* MAIN CONTENT */}
-      <div className="flex w-full pt-24 pb-12 px-10 gap-8">
-        {/* Sidebar */}
-        <div className="w-72 bg-[#C3C3C3] p-6 rounded-lg flex-shrink-0">
+      {/* MAIN CONTENT – mulai tepat di bawah navbar (h-14 = 56px) */}
+      <div className="flex w-full mt-14 gap-8">
+        {/* SIDEBAR – tinggi FIX dari bawah navbar sampai bawah layar */}
+        <div className="w-72 bg-white px-6 py-8 rounded-[10px] shadow flex flex-col overflow-y-auto min-h-[calc(100vh-56px)]">
           <div className="flex flex-col items-center text-center">
-            {/* Profile Pic */}
-            <label className="relative cursor-pointer">
+            {/* Profile Pic + Edit */}
+            <label className="relative cursor-pointer inline-block">
               <input type="file" className="hidden" onChange={handleUploadPic} />
-              <div className="w-40 h-40 bg-white rounded-full flex items-center justify-center overflow-hidden">
-                {profilePic ? (
-                  <img
-                    src={profilePic}
-                    alt="profile"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <UserCircleIcon className="w-36 h-36 text-gray-300" />
-                )}
+              <div className="w-40 h-40 bg-[#F2F2F2] rounded-full flex items-center justify-center overflow-hidden">
+                <img
+                  src={profilePic || ProfilePhoto}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <span className="absolute bottom-4 right-4 bg-white p-1 rounded-full shadow text-black text-xs">
-                ✏️
-              </span>
+              <div className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white shadow-[0_4px_12px_rgba(0,0,0,0.12)] flex items-center justify-center">
+                <img src={EditIcon} alt="Edit" className="w-4 h-4" />
+              </div>
             </label>
 
-            <p className="mt-3 font-semibold text-lg">Lorem Ipsum</p>
+            <p className="mt-3 font-semibold text-lg">Dearni Lambardo</p>
           </div>
 
-          {/* Menu */}
-          <div className="mt-10 space-y-6 text-left w-full">
-            {/* Akun Saya */}
+          {/* MENU */}
+          <div className="mt-8 space-y-6 text-left w-full">
+            {/* PROFILE SECTION */}
             <div>
-              <p className="font-bold text-black text-base mb-1">Akun Saya</p>
+              <div className="flex items-center gap-2">
+                <img src={ProfileIcon} alt="Profile icon" className="w-5 h-5" />
+                <Link to="/profile">
+                  <p
+                    className={`text-sm cursor-pointer ${
+                      isActive("/profile")
+                        ? "font-semibold text-[#344E41]"
+                        : "text-gray-600 hover:text-[#344E41]"
+                    }`}
+                  >
+                    Profile
+                  </p>
+                </Link>
+              </div>
 
-              <Link to="/profile">
-                <p
-                  className={`text-sm cursor-pointer ${
-                    isActive("/profile")
-                      ? "font-bold text-black"
-                      : "text-gray-700 hover:text-black"
-                  }`}
-                >
-                  Profile
-                </p>
-              </Link>
+              <div className="ml-7 mt-1 space-y-1">
+                <Link to="/profile/address">
+                  <p
+                    className={`text-sm cursor-pointer ${
+                      isActive("/profile/address")
+                        ? "font-semibold text-[#344E41]"
+                        : "text-gray-600 hover:text-[#344E41]"
+                    }`}
+                  >
+                    Alamat
+                  </p>
+                </Link>
 
-              <Link to="/profile/address">
-                <p
-                  className={`text-sm cursor-pointer ${
-                    isActive("/profile/address")
-                      ? "font-bold text-black"
-                      : "text-gray-700 hover:text-black"
-                  }`}
-                >
-                  Alamat
-                </p>
-              </Link>
-
-              <Link to="/profile/password">
-                <p
-                  className={`text-sm cursor-pointer ${
-                    isActive("/profile/password")
-                      ? "font-bold text-black"
-                      : "text-gray-700 hover:text-black"
-                  }`}
-                >
-                  Kata Sandi
-                </p>
-              </Link>
+                <Link to="/profile/password">
+                  <p
+                    className={`text-sm cursor-pointer ${
+                      isActive("/profile/password")
+                        ? "font-semibold text-[#344E41]"
+                        : "text-gray-600 hover:text-[#344E41]"
+                    }`}
+                  >
+                    Kata Sandi
+                  </p>
+                </Link>
+              </div>
             </div>
 
-            {/* Pesanan Saya */}
+            {/* ORDERS SECTION */}
             <div>
-              <p className="font-bold text-black text-base mb-1">Pesanan Saya</p>
-              <Link to="/orders-status">
-                <p
-                  className={`text-sm cursor-pointer ${
-                    isActive("/orders-status")
-                      ? "font-bold text-black"
-                      : "text-gray-700 hover:text-black"
-                  }`}
-                >
-                  Status Pesanan
-                </p>
-              </Link>
-              <Link to="/orders-history">
-                <p
-                  className={`text-sm cursor-pointer ${
-                    isActive("/orders-history")
-                      ? "font-bold text-black"
-                      : "text-gray-700 hover:text-black"
-                  }`}
-                >
-                  Riwayat Pesanan
-                </p>
-              </Link>
+              <div className="flex items-center gap-2">
+                <img src={CheckIcon} alt="Orders icon" className="w-5 h-5" />
+                <Link to="/orders-status">
+                  <p
+                    className={`text-sm cursor-pointer ${
+                      isActive("/orders-status")
+                        ? "font-semibold text-[#344E41]"
+                        : "text-gray-600 hover:text-[#344E41]"
+                    }`}
+                  >
+                    Status Pesanan
+                  </p>
+                </Link>
+              </div>
+
+              <div className="ml-7 mt-1 space-y-1">
+                <Link to="/orders-history">
+                  <p
+                    className={`text-sm cursor-pointer ${
+                      isActive("/orders-history")
+                        ? "font-semibold text-[#344E41]"
+                        : "text-gray-600 hover:text-[#344E41]"
+                    }`}
+                  >
+                    Riwayat Pesanan
+                  </p>
+                </Link>
+              </div>
             </div>
           </div>
 
-          {/* Tombol Keluar */}
+          {/* BUTTON KELUAR */}
           <button
             onClick={handleLogout}
-            className="mt-12 w-full flex items-center justify-center gap-3 bg-white py-2 rounded-lg font-semibold shadow text-[#344E41] hover:bg-gray-100 transition"
+            className="mt-20 self-center flex items-center justify-center gap-2 bg-[#3A5B40] px-8 py-2 rounded-[10px] text-sm font-semibold text-white hover:bg-[#314c35] transition"
           >
-            <ArrowLeftOnRectangleIcon className="w-5" />
+            <img src={OutIcon} alt="Keluar" className="w-4 h-4" />
             Keluar
           </button>
         </div>
 
-        {/* Profile Form */}
-        <div className="flex-1 bg-[#C3C3C3] p-10 rounded-lg">
-          <h2 className="text-xl font-bold mb-2">Profile</h2>
-          <p className="text-sm mb-4">
-            Lorem ipsum dolor sit amet consectetur. Scelerisque cursus nunc mus
-            vivamus venenatis enim.
-          </p>
-          <hr className="border-black mb-6" />
+        {/* PROFILE FORM CARD */}
+        <div className="flex-1 mr-6 lg:mr-20 flex">
+          <div className="w-full bg-[#B8D68F40] p-10 rounded-[10px] shadow-[0_10px_30px_rgba(0,0,0,0.06)] mt-10 mb-10">
+            <h2 className="text-xl font-bold mb-2">Profile</h2>
+            <p className="text-sm mb-4">
+              Perbarui informasi akun Anda untuk pengalaman belanja yang lebih
+              nyaman dan personal.
+            </p>
+            {/* GARIS HORIZONTAL TEBAL 2, WARNA #3A5B40 */}
+            <hr className="border-t-2 border-[#3A5B40] mb-6" />
 
-          <form onSubmit={handleSave} className="space-y-6">
-            {[
-              "Username",
-              "Nama",
-              "E-mail",
-              "Nomor Telepon",
-              "Jenis Kelamin",
-              "Tanggal Lahir",
-            ].map((field, index) => (
-              <div key={index}>
-                <label className="text-sm font-medium">{field}</label>
+            <form onSubmit={handleSave} className="space-y-6">
+              {/* Nama Lengkap */}
+              <div>
+                <label className="text-sm font-medium">Nama Lengkap</label>
                 <input
                   type="text"
-                  className="w-full bg-white py-3 px-4 rounded-md mt-1 outline-none text-sm"
+                  className="w-full bg-white py-3 px-4 rounded-[10px] mt-1 outline-none text-sm"
                 />
               </div>
-            ))}
 
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                className="bg-[#E0E0E0] text-[#222] font-semibold px-6 py-2 rounded-lg hover:bg-gray-300 transition"
-              >
-                Simpan
-              </button>
-            </div>
-          </form>
+              {/* Email */}
+              <div>
+                <label className="text-sm font-medium">Email</label>
+                <input
+                  type="email"
+                  className="w-full bg-white py-3 px-4 rounded-[10px] mt-1 outline-none text-sm"
+                />
+              </div>
+
+              {/* No. Telepon */}
+              <div>
+                <label className="text-sm font-medium">No. Telepon</label>
+                <input
+                  type="text"
+                  className="w-full bg-white py-3 px-4 rounded-[10px] mt-1 outline-none text-sm"
+                />
+              </div>
+
+              {/* JENIS KELAMIN – custom radio + button putih */}
+              <div>
+                <label className="text-sm font-medium block mb-2">
+                  Jenis Kelamin
+                </label>
+
+                <div className="flex flex-wrap gap-8">
+                  {/* Perempuan */}
+                  <div
+                    onClick={() => setGender("Perempuan")}
+                    className="flex items-center gap-3 cursor-pointer"
+                  >
+                    <span
+                      className={`w-5 h-5 rounded-full border-2 border-[#3A5B40] flex items-center justify-center ${
+                        gender === "Perempuan"
+                          ? "bg-[#3A5B40]/10"
+                          : "bg-transparent"
+                      }`}
+                    >
+                      {gender === "Perempuan" && (
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#3A5B40]" />
+                      )}
+                    </span>
+
+                    <div className="bg-white rounded-[10px] px-10 py-2 min-w-[150px] text-center">
+                      Perempuan
+                    </div>
+                  </div>
+
+                  {/* Laki-Laki */}
+                  <div
+                    onClick={() => setGender("Laki-Laki")}
+                    className="flex items-center gap-3 cursor-pointer"
+                  >
+                    <span
+                      className={`w-5 h-5 rounded-full border-2 border-[#3A5B40] flex items-center justify-center ${
+                        gender === "Laki-Laki"
+                          ? "bg-[#3A5B40]/10"
+                          : "bg-transparent"
+                      }`}
+                    >
+                      {gender === "Laki-Laki" && (
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#3A5B40]" />
+                      )}
+                    </span>
+
+                    <div className="bg-white rounded-[10px] px-10 py-2 min-w-[150px] text-center">
+                      Laki-Laki
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tanggal Lahir */}
+              <div>
+                <label className="text-sm font-medium">Tanggal Lahir</label>
+                <input
+                  type="date"
+                  className="w-full bg-white py-3 px-4 rounded-[10px] mt-1 outline-none text-sm"
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="bg-[#344E41] text-white font-semibold px-8 py-2 rounded-[10px] hover:bg-[#2a3e33] transition"
+                >
+                  Simpan
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
 
-      <Footer />
-
-      {/* ✅ POPUP SIMPAN */}
+      {/* POPUP SIMPAN */}
       {showSuccessPopup && (
         <Popup onClose={() => setShowSuccessPopup(false)}>
           <div className="text-center px-6 py-8 bg-white rounded-xl shadow-lg max-w-md mx-auto relative">
-            {/* Tombol Close (X) */}
             <button
               onClick={() => setShowSuccessPopup(false)}
               className="absolute top-3 right-3 text-gray-600 hover:text-black"
@@ -203,7 +282,6 @@ const ProfileMain = () => {
               ✕
             </button>
 
-            {/* Icon Centang */}
             <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-5">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -228,7 +306,7 @@ const ProfileMain = () => {
         </Popup>
       )}
 
-      {/* ✅ POPUP LOGOUT */}
+      {/* POPUP LOGOUT */}
       {showLogoutPopup && (
         <Popup onClose={closeLogoutPopup}>
           <div className="text-center px-6 py-8 bg-white rounded-xl shadow-lg max-w-md mx-auto">
@@ -238,13 +316,13 @@ const ProfileMain = () => {
             <div className="flex gap-4 justify-center mt-4">
               <button
                 onClick={closeLogoutPopup}
-                className="bg-gray-300 text-[#344E41] px-6 py-2 rounded-lg hover:bg-gray-400 transition"
+                className="bg-gray-300 text-[#344E41] px-6 py-2 rounded-[10px] hover:bg-gray-400 transition"
               >
                 Kembali
               </button>
               <button
                 onClick={confirmLogout}
-                className="bg-[#344E41] text-white px-6 py-2 rounded-lg hover:bg-[#2a3e33] transition"
+                className="bg-[#344E41] text-white px-6 py-2 rounded-[10px] hover:bg-[#2a3e33] transition"
               >
                 Yakin
               </button>

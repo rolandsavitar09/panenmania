@@ -1,5 +1,10 @@
+// src/pages/auth/SignUp.js
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+
+// Gambar
+import FarmerSignup from "../../assets/images/banners/petani signup.svg";
+import GoogleIcon from "../../assets/images/icons/google.svg";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -28,53 +33,47 @@ const SignUp = () => {
 
   return (
     <div className="bg-[#F8F8ED] min-h-screen flex justify-center items-center font-poppins px-4">
-      <div className="max-w-5xl w-full bg-white rounded-3xl shadow-md overflow-hidden border border-[#DCE5D4]">
+      {/* CARD: fixed height di desktop, auto di layar kecil */}
+      <div className="max-w-4xl w-full bg-white rounded-[32px] border-2 border-[#588157] overflow-hidden h-auto lg:h-[580px]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 h-full">
+          {/* ============ LEFT (disamakan layout-nya dengan SignIn) ============ */}
+          <div className="p-8 lg:p-10 flex flex-col items-center">
+            <div className="flex flex-col items-center mt-2 lg:mt-4">
+              {/* FOTO PETANI */}
+              <img
+                src={FarmerSignup}
+                alt="Petani membawa hasil panen"
+                className="rounded-[28px] mb-8 w-full max-w-[360px] h-[220px] lg:h-[240px] object-cover"
+              />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2">
+              <h2 className="text-[20px] lg:text-[22px] font-bold text-[#3A5A40] text-center">
+                Selamat Datang di PaMan!
+              </h2>
 
-          {/* LEFT */}
-          <div className="p-10 flex flex-col items-center justify-center">
-            <img
-              src="https://via.placeholder.com/330x230"
-              alt="petani"
-              className="rounded-2xl mb-6 w-[330px] h-[230px] object-cover"
-            />
+              <p className="text-xs sm:text-sm text-[#3A5A40] text-center mt-3 max-w-xs leading-relaxed">
+                Temukan produk pertanian segar pilihan langsung dari petani
+                terbaik.
+              </p>
 
-            <h2 className="text-[22px] font-bold text-[#3A5A40] text-center">
-              Selamat Datang di PaMan!
-            </h2>
+              {/* GARIS – posisi & ukuran sama dengan SignIn */}
+              <div className="w-[70%] border-t border-[#3A5B40] mt-6" />
 
-            <p className="text-sm text-gray-600 text-center mt-3">
-              Selamat Datang di <span className="font-semibold">PaMan!</span> 
-              Temukan produk pertanian segar pilihan langsung dari petani terbaik.
-            </p>
-
-            <div className="mt-6">
-              <button className="text-lg">
+              {/* IKON GOOGLE di bawah garis */}
+              <button className="mt-6">
                 <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"
-                  className="w-7"
+                  src={GoogleIcon}
+                  className="w-7 h-7 object-contain"
                   alt="Google"
                 />
               </button>
             </div>
-
-            {/* ✅ TOMBOL KEMBALI */}
-            <div className="mt-4">
-              <Link to="/">
-                <button className="bg-[#3A5A40] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#2d3e36] transition">
-                  ← Kembali
-                </button>
-              </Link>
-            </div>
           </div>
 
-          {/* RIGHT */}
-          <div className="bg-[#3A5A40] text-white rounded-l-2xl p-10 relative">
-
+          {/* ============ RIGHT ============ */}
+          <div className="bg-[#3A5A40] text-white p-8 lg:p-10 relative flex flex-col">
             {/* Toggle Masuk / Daftar */}
             <div className="absolute top-6 right-8 flex gap-4 text-sm font-semibold">
-              <Link className="opacity-80 hover:opacity-100" to="/signin">
+              <Link to="/signin" className="opacity-80 hover:opacity-100">
                 Masuk
               </Link>
               <span className="bg-white text-[#3A5A40] px-4 py-1 rounded-lg shadow-md">
@@ -85,27 +84,68 @@ const SignUp = () => {
             <h2 className="text-2xl font-bold mb-6 mt-10">Daftar Akun</h2>
 
             {/* FORM */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input name="nama" type="text" placeholder="Nama Lengkap" onChange={handleChange} required className="w-full py-3 px-4 rounded-lg bg-[#3A5A40] border border-white text-white placeholder-white/80 focus:outline-none" />
-              <input name="phone" type="text" placeholder="No. Telepon" onChange={handleChange} required className="w-full py-3 px-4 rounded-lg bg-[#3A5A40] border border-white text-white placeholder-white/80 focus:outline-none" />
-              <input name="email" type="email" placeholder="E-mail" onChange={handleChange} required className="w-full py-3 px-4 rounded-lg bg-[#3A5A40] border border-white text-white placeholder-white/80 focus:outline-none" />
-              <input name="password" type="password" placeholder="Kata Sandi" onChange={handleChange} required className="w-full py-3 px-4 rounded-lg bg-[#3A5A40] border border-white text-white placeholder-white/80 focus:outline-none" />
-              <input name="address" type="text" placeholder="Alamat" onChange={handleChange} required className="w-full py-3 px-4 rounded-lg bg-[#3A5A40] border border-white text-white placeholder-white/80 focus:outline-none" />
-              <input name="gender" type="text" placeholder="Jenis Kelamin" onChange={handleChange} required className="w-full py-3 px-4 rounded-lg bg-[#3A5A40] border border-white text-white placeholder-white/80 focus:outline-none" />
+            <form onSubmit={handleSubmit} className="space-y-3 text-sm">
+              <input
+                name="nama"
+                type="text"
+                placeholder="Nama Lengkap"
+                onChange={handleChange}
+                required
+                className="w-full py-3 px-4 rounded-lg bg-[#3A5A40] border border-white text-white placeholder-white/80 focus:outline-none"
+              />
+              <input
+                name="phone"
+                type="text"
+                placeholder="No. Telepon"
+                onChange={handleChange}
+                required
+                className="w-full py-3 px-4 rounded-lg bg-[#3A5A40] border border-white text-white placeholder-white/80 focus:outline-none"
+              />
+              <input
+                name="email"
+                type="email"
+                placeholder="E-mail"
+                onChange={handleChange}
+                required
+                className="w-full py-3 px-4 rounded-lg bg-[#3A5A40] border border-white text-white placeholder-white/80 focus:outline-none"
+              />
+              <input
+                name="password"
+                type="password"
+                placeholder="Kata Sandi"
+                onChange={handleChange}
+                required
+                className="w-full py-3 px-4 rounded-lg bg-[#3A5A40] border border-white text-white placeholder-white/80 focus:outline-none"
+              />
+              <input
+                name="address"
+                type="text"
+                placeholder="Alamat"
+                onChange={handleChange}
+                required
+                className="w-full py-3 px-4 rounded-lg bg-[#3A5A40] border border-white text-white placeholder-white/80 focus:outline-none"
+              />
+              <input
+                name="gender"
+                type="text"
+                placeholder="Jenis Kelamin"
+                onChange={handleChange}
+                required
+                className="w-full py-3 px-4 rounded-lg bg-[#3A5A40] border border-white text-white placeholder-white/80 focus:outline-none"
+              />
 
-              <label className="flex items-center gap-2 text-[12px]">
+              <label className="flex items-center gap-2 text-[12px] mt-1">
                 <input type="checkbox" required />
-                Saya menyetujui ketentuan yang berlaku.
+                <span>Saya menyetujui ketentuan yang berlaku.</span>
               </label>
 
               <button
                 type="submit"
-                className="w-full bg-gray-300 text-black py-3 rounded-lg font-semibold hover:bg-gray-400 transition"
+                className="w-full bg-white text-[#3A5A40] py-3 rounded-lg font-semibold mt-1 hover:bg-[#F1F1F1] transition"
               >
                 Daftar
               </button>
             </form>
-
           </div>
         </div>
       </div>

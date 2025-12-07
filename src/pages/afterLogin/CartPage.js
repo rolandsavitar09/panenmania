@@ -1,39 +1,83 @@
+// src/pages/afterLogin/CartPage.js
 import React, { useState, useEffect } from "react";
 import NavbarAfterLogin from "../../components/layout/NavbarAfterLogin";
-import Footer from "../../components/layout/Footer";
 import { useNavigate } from "react-router-dom";
-import {
-  TrashIcon,
-  MinusIcon,
-  PlusIcon,
-} from "@heroicons/react/24/outline";
+
+import BerasImage from "../../assets/images/products/beras.svg";
+import IconTrash from "../../assets/images/icons/trash.svg";
+
+/* ----- QtyControl: sama persis seperti di detail produk ----- */
+const QtyControl = ({ quantity, setQuantity }) => (
+  <div className="flex h-[32px]">
+    <button
+      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+      className="px-3 flex items-center justify-center bg-white text-black font-semibold text-lg border-2 border-[#3A5B40] rounded-l-[8px]"
+      aria-label="kurangi"
+    >
+      −
+    </button>
+
+    <span className="px-4 flex items-center justify-center text-black font-semibold border-y-2 border-[#3A5B40] min-w-[40px] h-full bg-white">
+      {quantity}
+    </span>
+
+    <button
+      onClick={() => setQuantity((q) => q + 1)}
+      className="px-3 flex items-center justify-center bg-white text-black font-semibold text-lg border-2 border-[#3A5B40] rounded-r-[8px] -ml-[2px]"
+      aria-label="tambah"
+    >
+      +
+    </button>
+  </div>
+);
 
 const CartPage = () => {
   const navigate = useNavigate();
 
+  // sementara: 3 item sama persis beras pulen
   const [cartItems, setCartItems] = useState([
-    { id: 1, name: "Lorem Ipsum", price: 70000, qty: 1, checked: false },
-    { id: 2, name: "Lorem Ipsum", price: 70000, qty: 1, checked: false },
-    { id: 3, name: "Lorem Ipsum", price: 70000, qty: 1, checked: false },
+    {
+      id: 1,
+      name: "Beras Pulen Berkualitas Cap Dero 5kg",
+      price: 79500,
+      qty: 1,
+      checked: false,
+    },
+    {
+      id: 2,
+      name: "Beras Pulen Berkualitas Cap Dero 5kg",
+      price: 79500,
+      qty: 1,
+      checked: false,
+    },
+    {
+      id: 3,
+      name: "Beras Pulen Berkualitas Cap Dero 5kg",
+      price: 79500,
+      qty: 1,
+      checked: false,
+    },
   ]);
 
   const [checkAll, setCheckAll] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
 
-  // Hitung total harga untuk item yang dicek
+  // Hitung total & sinkronkan status "Pilih Semua"
   useEffect(() => {
     const total = cartItems
       .filter((item) => item.checked)
       .reduce((sum, item) => sum + item.price * item.qty, 0);
     setTotalPrice(total);
+
+    const allChecked =
+      cartItems.length > 0 && cartItems.every((item) => item.checked);
+    setCheckAll(allChecked);
   }, [cartItems]);
 
   const toggleCheckAll = () => {
     const newValue = !checkAll;
     setCheckAll(newValue);
-    setCartItems((prev) =>
-      prev.map((item) => ({ ...item, checked: newValue }))
-    );
+    setCartItems((prev) => prev.map((item) => ({ ...item, checked: newValue })));
   };
 
   const toggleCheckItem = (id) => {
@@ -72,16 +116,9 @@ const CartPage = () => {
     <div className="bg-[#FFFEF6] min-h-screen font-poppins text-[#344E41]">
       <NavbarAfterLogin />
 
-      <div className="pt-24 px-10 lg:px-24 pb-10">
-        {/* ✅ Tombol Kembali */}
-        <button
-          onClick={() => navigate(-1)}
-          className="text-[#344E41] font-semibold hover:underline mb-6"
-        >
-          ← Kembali
-        </button>
-
-        <h1 className="text-xl font-bold mb-6">Keranjang Anda</h1>
+      <div className="pt-24 pb-16 max-w-[1350px] mx-auto px-6 lg:px-16">
+        {/* Judul */}
+        <h1 className="text-[22px] font-bold mb-8">Keranjang Anda</h1>
 
         {/* Pilih Semua */}
         <div className="flex justify-end items-center gap-2 mb-4">
@@ -89,94 +126,105 @@ const CartPage = () => {
             type="checkbox"
             checked={checkAll}
             onChange={toggleCheckAll}
-            className="w-5 h-5 accent-[#3A5A40]"
+            className="w-4 h-4 border-2 border-[#3A5B40] rounded-sm accent-[#3A5B40]"
           />
-          <span className="text-sm font-medium">Pilih Semua</span>
+          <span className="text-sm font-medium text-[#344E41]">
+            Pilih Semua
+          </span>
         </div>
 
-        {/* List Item Keranjang */}
+        {/* List item keranjang */}
         <div className="space-y-5">
           {cartItems.map((item) => (
             <div
               key={item.id}
-              className="relative bg-[#DADADA] rounded-xl px-4 py-5 flex items-center gap-4"
+              className="bg-[#B8D68F]/25 border-2 border-[#3A5B40] rounded-[10px] px-6 py-4 flex items-center gap-5"
             >
-              {/* Tombol hapus di pojok atas */}
-              <button
-                onClick={() => removeItem(item.id)}
-                className="absolute top-3 right-3 text-red-600 hover:text-red-800 transition"
-                aria-label={`Hapus ${item.name}`}
-              >
-                <TrashIcon className="w-6 h-6" />
-              </button>
-
               {/* Checkbox */}
               <input
                 type="checkbox"
                 checked={item.checked}
                 onChange={() => toggleCheckItem(item.id)}
-                className="w-5 h-5 accent-[#3A5A40]"
+                className="w-4 h-4 border-2 border-[#3A5B40] rounded-sm accent-[#3A5B40]"
               />
 
               {/* Gambar */}
-              <div className="w-24 h-24 bg-gray-300 rounded-xl shrink-0"></div>
+              <div className="w-[96px] h-[96px] rounded-[14px] bg-white flex items-center justify-center overflow-hidden shrink-0">
+                <img
+                  src={BerasImage}
+                  alt={item.name}
+                  className="w-full h-full object-contain"
+                />
+              </div>
 
-              {/* Info Produk (nama + harga) */}
+              {/* Info Produk */}
               <div className="flex-1">
-                <p className="font-semibold text-[15px]">{item.name}</p>
-                <p className="font-bold text-[16px] mt-1">
-                  Rp. {item.price.toLocaleString()}
+                <p className="font-semibold text-[15px]">
+                  {item.name}
+                </p>
+                {/* harga REGULER, bukan bold */}
+                <p className="font-normal text-[15px] mt-2 text-[#3A5B40]">
+                  Rp {item.price.toLocaleString("id-ID")}
                 </p>
               </div>
 
-              {/* Kanan: Barang Tersisa (di atas) lalu kontrol qty di bawah */}
-              <div className="flex flex-col items-end justify-between h-full">
-                {/* Barang Tersisa di atas */}
-                <p className="text-xs text-[#333] mb-2">Barang Tersisa: xx</p>
+              {/* Kolom kanan: trash di atas, stok + qty di bawah (dalam satu baris) */}
+              <div className="flex flex-col justify-between items-end h-[96px] ml-auto">
+                {/* Trash di atas button -+ */}
+                <button
+                  onClick={() => removeItem(item.id)}
+                  className="mb-2"
+                  aria-label={`Hapus ${item.name}`}
+                >
+                  <img src={IconTrash} alt="hapus" className="w-6 h-6" />
+                </button>
 
-                {/* Kontrol Jumlah (di bawah) */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => decreaseQty(item.id)}
-                    className="bg-gray-700 text-white px-2 py-1 rounded-md"
-                    aria-label={`Kurangi ${item.name}`}
-                  >
-                    <MinusIcon className="w-4 h-4" />
-                  </button>
-
-                  <span className="font-semibold">{item.qty}</span>
-
-                  <button
-                    onClick={() => increaseQty(item.id)}
-                    className="bg-gray-700 text-white px-2 py-1 rounded-md"
-                    aria-label={`Tambah ${item.name}`}
-                  >
-                    <PlusIcon className="w-4 h-4" />
-                  </button>
+                {/* Baris: Tersisa (kiri) + QtyControl (kanan) */}
+                <div className="flex items-center gap-4">
+                  <p className="text-xs text-[#3A5B40] whitespace-nowrap">
+                    Tersisa: 25 Barang
+                  </p>
+                  <QtyControl
+                    quantity={item.qty}
+                    setQuantity={(q) =>
+                      setCartItems((prev) =>
+                        prev.map((x) =>
+                          x.id === item.id ? { ...x, qty: q } : x
+                        )
+                      )
+                    }
+                  />
                 </div>
               </div>
             </div>
           ))}
+
+          {cartItems.length === 0 && (
+            <p className="text-center text-sm text-[#6B6B6B] mt-6">
+              Keranjang Anda masih kosong.
+            </p>
+          )}
         </div>
 
-        {/* Total */}
-        <div className="mt-10 bg-[#DADADA] p-6 rounded-xl flex justify-between items-center">
-          <p className="font-semibold text-md">
+        {/* Total bar bawah */}
+        <div className="mt-10 bg-[#3A5B40] rounded-[10px] px-6 sm:px-8 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between text-white">
+          <p className="font-semibold text-[15px]">
             Total Produk ({totalCheckedItems})
           </p>
-          <div className="flex items-center gap-5">
-            <p className="font-bold text-md">Rp{totalPrice.toLocaleString()}</p>
+
+          <div className="flex items-center gap-6 mt-3 sm:mt-0">
+            <p className="font-bold text-[16px]">
+              Rp {totalPrice.toLocaleString("id-ID")}
+            </p>
             <button
               onClick={() => navigate("/checkout")}
-              className="bg-gray-500 text-white font-semibold px-6 py-2 rounded-lg hover:bg-gray-600 transition"
+              className="bg-white text-[#3A5B40] font-semibold text-[15px] px-6 py-2 rounded-[8px] hover:bg-[#F4F4F4] transition"
             >
-              Pesan
+              Pesan Sekarang
             </button>
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 };

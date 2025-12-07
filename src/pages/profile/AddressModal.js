@@ -1,3 +1,4 @@
+// src/pages/afterLogin/AddressModal.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -10,18 +11,16 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
   const [postal, setPostal] = useState("");
   const [street, setStreet] = useState("");
   const [extra, setExtra] = useState("");
-  const [isPrimary, setIsPrimary] = useState(false);
 
   // Dropdown Lists
   const [provinsiList, setProvinsiList] = useState([]);
   const [cityList, setCityList] = useState([]);
 
-  // Loading & Error
+  // Error
   const [errors, setErrors] = useState({});
 
-  // Fade Animation Class
+  // Fade Animation
   const [fadeIn, setFadeIn] = useState(false);
-
   useEffect(() => setFadeIn(true), []);
 
   // Fetch daftar provinsi
@@ -47,13 +46,13 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
   // Load data saat edit
   useEffect(() => {
     if (initialData) {
-      setLabel(initialData.label);
-      setStreet(initialData.detail);
-      setIsPrimary(initialData.isPrimary);
+      setLabel(initialData.label || "");
+      setStreet(initialData.detail || "");
+      // prov, city, dst tidak di-parse dari detail
     }
   }, [initialData]);
 
-  // ✅ Validasi Input
+  // Validasi Input
   const validate = () => {
     let temp = {};
     if (!label) temp.label = "Nama alamat wajib diisi!";
@@ -69,7 +68,13 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
   const handleSave = () => {
     if (!validate()) return;
 
-    const detail = `${street}, ${city}, ${prov}, ${subdist} ${postal}. ${extra}`;
+    const provName =
+      provinsiList.find((p) => String(p.id) === String(prov))?.name || prov;
+    const cityName = city;
+
+    const detail = `${street}, ${cityName}, ${provName}, ${subdist} ${postal}. ${extra}`.trim();
+
+    const isPrimary = initialData?.isPrimary ?? false;
 
     onSave({
       label,
@@ -78,125 +83,150 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
     });
   };
 
+  // helper class untuk input/select
+  const inputBaseClass =
+    "w-full bg-white py-3 px-4 rounded-[10px] mt-1 outline-none text-sm shadow-[0_8px_24px_rgba(0,0,0,0.06)] border border-transparent focus:border-[#344E41]/40";
+
   return (
     <div className="fixed inset-0 bg-black/40 z-[999] flex justify-center items-center transition-opacity">
       <div
-        className={`bg-white w-full max-w-2xl rounded-2xl p-10 shadow-lg overflow-y-auto max-h-[95vh] transform transition-all duration-300 ${
+        className={`w-full max-w-2xl rounded-[16px] p-8 md:p-10 bg-[#FFFEF6] shadow-[0_16px_40px_rgba(0,0,0,0.18)] overflow-y-auto max-h-[95vh] transform transition-all duration-300 ${
           fadeIn ? "opacity-100 scale-100" : "opacity-0 scale-95"
         }`}
       >
-        <h2 className="text-xl font-bold mb-6">Alamat Baru</h2>
+        <h2 className="text-xl font-bold mb-2 text-[#344E41]">
+          {initialData ? "Ubah Alamat" : "Alamat Baru"}
+        </h2>
+        <hr className="border-t border-[#344E41]/30 mb-6" />
 
         <div className="space-y-4">
-          {/* Label */}
+          {/* Label / Nama alamat */}
           <div>
-            <label className="text-sm">Nama</label>
+            <label className="text-sm text-[#344E41]">Nama</label>
             <input
               value={label}
               onChange={(e) => setLabel(e.target.value)}
-              className={`w-full bg-[#D9D9D9] py-3 px-4 rounded-lg mt-1 outline-none ${
-                errors.label && "border border-red-500"
+              className={`${inputBaseClass} ${
+                errors.label ? "border-red-500" : ""
               }`}
             />
-            {errors.label && <p className="text-red-500 text-xs">{errors.label}</p>}
+            {errors.label && (
+              <p className="text-red-500 text-xs mt-1">{errors.label}</p>
+            )}
           </div>
 
           {/* Provinsi */}
           <div>
-            <label className="text-sm">Provinsi</label>
+            <label className="text-sm text-[#344E41]">Provinsi</label>
             <select
               value={prov}
               onChange={(e) => {
                 setProv(e.target.value);
                 setCity("");
               }}
-              className={`w-full bg-[#D9D9D9] py-3 px-4 rounded-lg mt-1 outline-none ${
-                errors.prov && "border border-red-500"
+              className={`${inputBaseClass} ${
+                errors.prov ? "border-red-500" : ""
               }`}
             >
               <option value="">Pilih Provinsi</option>
               {provinsiList.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
               ))}
             </select>
-            {errors.prov && <p className="text-red-500 text-xs">{errors.prov}</p>}
+            {errors.prov && (
+              <p className="text-red-500 text-xs mt-1">{errors.prov}</p>
+            )}
           </div>
 
           {/* Kota */}
           <div>
-            <label className="text-sm">Kota</label>
+            <label className="text-sm text-[#344E41]">Kota</label>
             <select
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              className={`w-full bg-[#D9D9D9] py-3 px-4 rounded-lg mt-1 outline-none ${
-                errors.city && "border border-red-500"
+              className={`${inputBaseClass} ${
+                errors.city ? "border-red-500" : ""
               }`}
             >
               <option value="">Pilih Kota</option>
               {cityList.map((c) => (
-                <option key={c.id} value={c.name}>{c.name}</option>
+                <option key={c.id} value={c.name}>
+                  {c.name}
+                </option>
               ))}
             </select>
-            {errors.city && <p className="text-red-500 text-xs">{errors.city}</p>}
+            {errors.city && (
+              <p className="text-red-500 text-xs mt-1">{errors.city}</p>
+            )}
           </div>
 
           {/* Kecamatan */}
           <div>
-            <label className="text-sm">Kecamatan</label>
+            <label className="text-sm text-[#344E41]">Kecamatan</label>
             <input
               value={subdist}
               onChange={(e) => setSubdist(e.target.value)}
-              className="w-full bg-[#D9D9D9] py-3 px-4 rounded-lg mt-1 outline-none"
+              className={inputBaseClass}
             />
           </div>
 
           {/* Kode Pos */}
           <div>
-            <label className="text-sm">Kode Pos</label>
+            <label className="text-sm text-[#344E41]">Kode Pos</label>
             <input
               value={postal}
               onChange={(e) => setPostal(e.target.value)}
-              className={`w-full bg-[#D9D9D9] py-3 px-4 rounded-lg mt-1 outline-none ${
-                errors.postal && "border border-red-500"
+              className={`${inputBaseClass} ${
+                errors.postal ? "border-red-500" : ""
               }`}
             />
-            {errors.postal && <p className="text-red-500 text-xs">{errors.postal}</p>}
+            {errors.postal && (
+              <p className="text-red-500 text-xs mt-1">{errors.postal}</p>
+            )}
           </div>
 
           {/* Jalan */}
           <div>
-            <label className="text-sm">Nama Jalan, Gedung, No. Rumah</label>
+            <label className="text-sm text-[#344E41]">
+              Nama Jalan, Gedung, No. Rumah
+            </label>
             <input
               value={street}
               onChange={(e) => setStreet(e.target.value)}
-              className={`w-full bg-[#D9D9D9] py-3 px-4 rounded-lg mt-1 outline-none ${
-                errors.street && "border border-red-500"
+              className={`${inputBaseClass} ${
+                errors.street ? "border-red-500" : ""
               }`}
             />
-            {errors.street && <p className="text-red-500 text-xs">{errors.street}</p>}
+            {errors.street && (
+              <p className="text-red-500 text-xs mt-1">{errors.street}</p>
+            )}
           </div>
 
-          {/* Checkbox */}
-          <label className="flex items-center gap-2 text-sm mt-2">
+          {/* Keterangan tambahan (opsional) */}
+          <div>
+            <label className="text-sm text-[#344E41]">
+              Detail Tambahan (opsional)
+            </label>
             <input
-              type="checkbox"
-              checked={isPrimary}
-              onChange={() => setIsPrimary(!isPrimary)}
+              value={extra}
+              onChange={(e) => setExtra(e.target.value)}
+              className={inputBaseClass}
             />
-            Tandai sebagai Alamat Utama
-          </label>
+          </div>
 
           {/* Buttons */}
           <div className="flex justify-end gap-4 pt-4">
             <button
               onClick={onClose}
-              className="bg-gray-300 text-[#344E41] px-5 py-2 rounded-lg hover:bg-gray-400 transition"
+              className="bg-gray-300 text-[#344E41] px-5 py-2 rounded-[10px] hover:bg-gray-400 transition text-sm font-semibold"
             >
               Kembali
             </button>
             <button
               onClick={handleSave}
-              className="bg-[#344E41] text-white px-5 py-2 rounded-lg hover:bg-[#2a3e33] transition"
+              className="bg-[#344E41] text-white px-6 py-2 rounded-[10px] hover:bg-[#2a3e33] transition text-sm font-semibold"
             >
               Simpan
             </button>

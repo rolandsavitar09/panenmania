@@ -1,16 +1,21 @@
+// src/pages/afterLogin/OrderStatus.js
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import NavbarAfterLogin from "../../components/layout/NavbarAfterLogin";
-import Footer from "../../components/layout/Footer";
 import Popup from "../../components/common/Popup";
-import {
-  UserCircleIcon,
-  ArrowLeftOnRectangleIcon,
-  WalletIcon,
-  ArchiveBoxIcon,
-  TruckIcon,
-  CheckBadgeIcon,
-} from "@heroicons/react/24/solid";
+
+// ICONS & IMAGES (sidebar & status)
+import EditIcon from "../../assets/images/icons/edit.svg";
+import ProfileIcon from "../../assets/images/icons/profile.svg";
+import CheckIcon from "../../assets/images/icons/ceklis.svg";
+import OutIcon from "../../assets/images/icons/out.svg";
+import ProfilePhoto from "../../assets/images/icons/pp.svg";
+
+// STATUS TABS ICONS
+import IconBelumBayar from "../../assets/images/icons/belum bayar.svg";
+import IconDikemas from "../../assets/images/icons/dikemas.svg";
+import IconDikirim from "../../assets/images/icons/dikirim.svg";
+import IconSelesai from "../../assets/images/icons/selesai.svg";
 
 const OrderStatus = () => {
   const navigate = useNavigate();
@@ -18,7 +23,9 @@ const OrderStatus = () => {
 
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
   const [profilePic, setProfilePic] = useState(null);
-  const [activeTab, setActiveTab] = useState("selesai"); // default tab
+
+  // null = semua status aktif (default)
+  const [activeTab, setActiveTab] = useState(null);
 
   const handleLogout = () => setShowLogoutPopup(true);
   const closeLogoutPopup = () => setShowLogoutPopup(false);
@@ -34,211 +41,257 @@ const OrderStatus = () => {
     if (file) setProfilePic(URL.createObjectURL(file));
   };
 
-  const isActive = (path) => location.pathname === path;
+  const isActiveMenu = (path) => location.pathname === path;
 
-  // contoh orders — jika di app kamu id memakai string seperti "PNM-20230101-001"
-  // ganti id di data ini agar konsisten dengan route detail yang kamu punya
+  // DATA PESANAN (status: belum, dikemas, dikirim, selesai)
   const orders = [
     {
-      id: "ORD20241015-001",
+      id: "ORD20251015-001",
+      status: "belum",
       title: "Pembelian",
-      item: "Judul",
-      price: "Rp. 150.000",
+      product: "Bawang Merah Lokal kering besar 500g (x1)",
       date: "15-10-2025 | 07:25",
     },
     {
-      id: "ORD20241015-002",
+      id: "ORD20251015-002",
+      status: "selesai",
       title: "Pembelian",
-      item: "Judul",
-      price: "Rp. 150.000",
+      product: "Beras Pulen Berkualitas Cap Dero 5Kg (x1)",
       date: "15-10-2025 | 07:25",
     },
     {
-      id: "ORD20241015-003",
+      id: "ORD20251015-003",
+      status: "selesai",
       title: "Pembelian",
-      item: "Judul",
-      price: "Rp. 150.000",
+      product: "Tomat Merah Segar Hasil Petik Dadakan (x1)",
       date: "15-10-2025 | 07:25",
     },
     {
-      id: "ORD20241015-004",
+      id: "ORD20251015-004",
+      status: "dikirim",
       title: "Pembelian",
-      item: "Judul",
-      price: "Rp. 150.000",
+      product: "Beras Pulen Berkualitas Cap Dero 5Kg (x1)",
       date: "15-10-2025 | 07:25",
     },
   ];
 
+  // FILTER BERDASARKAN TAB
+  const filteredOrders = activeTab
+    ? orders.filter((o) => o.status === activeTab)
+    : orders;
+
+  const tabs = [
+    { key: "belum", label: "Belum Bayar", icon: IconBelumBayar },
+    { key: "dikemas", label: "Dikemas", icon: IconDikemas },
+    { key: "dikirim", label: "Dikirim", icon: IconDikirim },
+    { key: "selesai", label: "Selesai", icon: IconSelesai },
+  ];
+
+  const handleTabClick = (key) => {
+    // kalau klik tab yang sama → reset filter (lihat semua status)
+    if (activeTab === key) {
+      setActiveTab(null);
+    } else {
+      setActiveTab(key);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white text-[#344E41] font-poppins flex flex-col">
+    <div className="min-h-screen bg-[#FFFEF6] text-[#344E41] font-poppins flex flex-col">
       <NavbarAfterLogin />
 
-      {/* MAIN CONTENT */}
-      <div className="flex w-full pt-24 pb-12 px-10 gap-8">
-        {/* Sidebar */}
-        <div className="w-72 bg-[#C3C3C3] p-6 rounded-lg flex-shrink-0">
+      {/* MAIN CONTENT (di bawah navbar) */}
+      <div className="flex w-full mt-14 gap-8">
+        {/* SIDEBAR – sama tema dengan ProfileMain */}
+        <div className="w-72 bg-white px-6 py-8 rounded-[10px] shadow flex flex-col overflow-y-auto min-h-[calc(100vh-56px)]">
           <div className="flex flex-col items-center text-center">
-            {/* Profile Pic */}
-            <label className="relative cursor-pointer">
+            {/* Profile Pic + Edit */}
+            <label className="relative cursor-pointer inline-block">
               <input type="file" className="hidden" onChange={handleUploadPic} />
-              <div className="w-40 h-40 bg-white rounded-full flex items-center justify-center overflow-hidden">
-                {profilePic ? (
-                  <img
-                    src={profilePic}
-                    alt="profile"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <UserCircleIcon className="w-36 h-36 text-gray-300" />
-                )}
+              <div className="w-40 h-40 bg-[#F2F2F2] rounded-full flex items-center justify-center overflow-hidden">
+                <img
+                  src={profilePic || ProfilePhoto}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <span className="absolute bottom-4 right-4 bg-white p-1 rounded-full shadow text-black text-xs">
-                ✏️
-              </span>
+              <div className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white shadow-[0_4px_12px_rgba(0,0,0,0.12)] flex items-center justify-center">
+                <img src={EditIcon} alt="Edit" className="w-4 h-4" />
+              </div>
             </label>
 
-            <p className="mt-3 font-semibold text-lg">Lorem Ipsum</p>
+            <p className="mt-3 font-semibold text-lg">Dearni Lambardo</p>
           </div>
 
-          {/* Menu */}
-          <div className="mt-10 space-y-6 text-left w-full">
-            {/* Akun Saya */}
+          {/* MENU SIDEBAR */}
+          <div className="mt-8 space-y-6 text-left w-full">
+            {/* PROFILE SECTION */}
             <div>
-              <p className="font-bold text-black text-base mb-1">Akun Saya</p>
+              <div className="flex items-center gap-2">
+                <img src={ProfileIcon} alt="Profile icon" className="w-5 h-5" />
+                <Link to="/profile">
+                  <p
+                    className={`text-sm cursor-pointer ${
+                      isActiveMenu("/profile")
+                        ? "font-semibold text-[#344E41]"
+                        : "text-gray-600 hover:text-[#344E41]"
+                    }`}
+                  >
+                    Profile
+                  </p>
+                </Link>
+              </div>
 
-              <Link to="/profile">
-                <p
-                  className={`text-sm cursor-pointer ${
-                    isActive("/profile")
-                      ? "font-bold text-black"
-                      : "text-gray-700 hover:text-black"
-                  }`}
-                >
-                  Profile
-                </p>
-              </Link>
+              <div className="ml-7 mt-1 space-y-1">
+                <Link to="/profile/address">
+                  <p
+                    className={`text-sm cursor-pointer ${
+                      isActiveMenu("/profile/address")
+                        ? "font-semibold text-[#344E41]"
+                        : "text-gray-600 hover:text-[#344E41]"
+                    }`}
+                  >
+                    Alamat
+                  </p>
+                </Link>
 
-              <Link to="/profile/address">
-                <p
-                  className={`text-sm cursor-pointer ${
-                    isActive("/profile/address")
-                      ? "font-bold text-black"
-                      : "text-gray-700 hover:text-black"
-                  }`}
-                >
-                  Alamat
-                </p>
-              </Link>
-
-              <Link to="/profile/password">
-                <p
-                  className={`text-sm cursor-pointer ${
-                    isActive("/profile/password")
-                      ? "font-bold text-black"
-                      : "text-gray-700 hover:text-black"
-                  }`}
-                >
-                  Kata Sandi
-                </p>
-              </Link>
+                <Link to="/profile/password">
+                  <p
+                    className={`text-sm cursor-pointer ${
+                      isActiveMenu("/profile/password")
+                        ? "font-semibold text-[#344E41]"
+                        : "text-gray-600 hover:text-[#344E41]"
+                    }`}
+                  >
+                    Kata Sandi
+                  </p>
+                </Link>
+              </div>
             </div>
 
-            {/* Pesanan Saya */}
+            {/* ORDERS SECTION */}
             <div>
-              <p className="font-bold text-black text-base mb-1">Pesanan Saya</p>
-              <Link to="/orders-status">
-                <p
-                  className={`text-sm cursor-pointer ${
-                    isActive("/orders-status")
-                      ? "font-bold text-black"
-                      : "text-gray-700 hover:text-black"
-                  }`}
-                >
-                  Status Pesanan
-                </p>
-              </Link>
-              <Link to="/orders-history">
-                <p
-                  className={`text-sm cursor-pointer ${
-                    isActive("/orders-history")
-                      ? "font-bold text-black"
-                      : "text-gray-700 hover:text-black"
-                  }`}
-                >
-                  Riwayat Pesanan
-                </p>
-              </Link>
+              <div className="flex items-center gap-2">
+                <img src={CheckIcon} alt="Orders icon" className="w-5 h-5" />
+                <Link to="/orders-status">
+                  <p
+                    className={`text-sm cursor-pointer ${
+                      isActiveMenu("/orders-status")
+                        ? "font-semibold text-[#344E41]"
+                        : "text-gray-600 hover:text-[#344E41]"
+                    }`}
+                  >
+                    Status Pesanan
+                  </p>
+                </Link>
+              </div>
+
+              <div className="ml-7 mt-1 space-y-1">
+                <Link to="/orders-history">
+                  <p
+                    className={`text-sm cursor-pointer ${
+                      isActiveMenu("/orders-history")
+                        ? "font-semibold text-[#344E41]"
+                        : "text-gray-600 hover:text-[#344E41]"
+                    }`}
+                  >
+                    Riwayat Pesanan
+                  </p>
+                </Link>
+              </div>
             </div>
           </div>
 
-          {/* Tombol Keluar */}
+          {/* BUTTON KELUAR */}
           <button
             onClick={handleLogout}
-            className="mt-12 w-full flex items-center justify-center gap-3 bg-white py-2 rounded-lg font-semibold shadow text-[#344E41] hover:bg-gray-100 transition"
+            className="mt-20 self-center flex items-center justify-center gap-2 bg-[#3A5B40] px-8 py-2 rounded-[10px] text-sm font-semibold text-white hover:bg-[#314c35] transition"
           >
-            <ArrowLeftOnRectangleIcon className="w-5" />
+            <img src={OutIcon} alt="Keluar" className="w-4 h-4" />
             Keluar
           </button>
         </div>
 
-        {/* MAIN CONTENT - ORDER STATUS */}
-        <div className="flex-1 bg-[#C3C3C3] p-10 rounded-lg">
-          <h2 className="text-xl font-bold mb-6">Status Pesanan</h2>
-
-          {/* Tabs */}
-          <div className="flex justify-around bg-[#E0E0E0] rounded-lg py-4 mb-8">
-            {[
-              { name: "Belum Bayar", icon: WalletIcon, key: "belum" },
-              { name: "Dikemas", icon: ArchiveBoxIcon, key: "dikemas" },
-              { name: "Dikirim", icon: TruckIcon, key: "dikirim" },
-              { name: "Selesai", icon: CheckBadgeIcon, key: "selesai" },
-            ].map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`flex flex-col items-center px-4 py-2 rounded-lg transition ${
-                  activeTab === tab.key ? "bg-[#C3C3C3] text-[#344E41]" : "text-gray-500"
-                }`}
-              >
-                <tab.icon className="w-8 h-8 mb-1" />
-                <span className="text-sm font-semibold">{tab.name}</span>
-              </button>
-            ))}
+        {/* KONTEN STATUS PESANAN */}
+        <div className="flex-1 mr-6 lg:mr-20 flex flex-col mt-10 mb-10 gap-6">
+          {/* CARD TAB STATUS */}
+          <div className="w-full bg-white rounded-[10px] shadow-[0_10px_30px_rgba(0,0,0,0.06)] px-10 py-6 flex justify-between">
+            {tabs.map((tab) => {
+              const isTabActive = !activeTab || activeTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => handleTabClick(tab.key)}
+                  className="flex flex-col items-center gap-2 focus:outline-none"
+                >
+                  <img
+                    src={tab.icon}
+                    alt={tab.label}
+                    className={`w-10 h-10 transition ${
+                      isTabActive ? "opacity-100" : "opacity-40"
+                    }`}
+                  />
+                  <span
+                    className={`text-sm font-semibold ${
+                      isTabActive ? "text-[#344E41]" : "text-gray-500"
+                    }`}
+                  >
+                    {tab.label}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* Order List */}
+          {/* LIST PESANAN */}
           <div className="space-y-4">
-            {orders.map((order) => (
+            {filteredOrders.map((order) => (
               <div
                 key={order.id}
-                className="flex justify-between items-center bg-[#E0E0E0] rounded-lg p-4 shadow"
+                className="flex justify-between items-center bg-white rounded-[10px] px-6 py-4 shadow-[0_6px_20px_rgba(0,0,0,0.04)]"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-24 h-24 bg-white rounded-md border" />
+                  {/* Thumbnail produk */}
+                  <div className="w-24 h-24 bg-[#F2F2F2] rounded-[10px] overflow-hidden flex items-center justify-center">
+                    {/* ganti dengan gambar produk asli jika sudah ada */}
+                    {/* <img src={BawangMerahImg} alt="Bawang Merah" className="w-full h-full object-cover" /> */}
+                  </div>
+
                   <div className="flex flex-col text-sm">
                     <p className="font-semibold">{order.title}</p>
-                    <p>{order.item}</p>
-                    <p>{order.price}</p>
-                    <p className="font-semibold mt-1">{order.date}</p>
+                    <p>{order.product}</p>
+                    <p className="mt-1 text-xs text-gray-700">{order.date}</p>
                   </div>
                 </div>
 
-                {/* NAVIGATE TO DETAIL: gunakan route /orders-history/:id */}
                 <button
                   onClick={() => navigate(`/orders-history/${order.id}`)}
-                  className="bg-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-200 transition"
+                  className="bg-[#3A5B40] text-white px-5 py-2 rounded-[10px] text-xs md:text-sm font-semibold hover:bg-[#2a3e33] transition"
                 >
                   Tampilkan Detail Pesanan
                 </button>
               </div>
             ))}
+
+            {/* Kalau setelah filter tidak ada pesanan */}
+            {filteredOrders.length === 0 && (
+              <p className="text-sm text-gray-600">
+                Belum ada pesanan untuk status ini.
+                <button
+                  type="button"
+                  onClick={() => setActiveTab(null)}
+                  className="ml-1 underline text-[#344E41]"
+                >
+                  Lihat semua pesanan
+                </button>
+              </p>
+            )}
           </div>
         </div>
       </div>
 
-      <Footer />
-
-      {/* ✅ POPUP LOGOUT */}
+      {/* POPUP LOGOUT */}
       {showLogoutPopup && (
         <Popup onClose={closeLogoutPopup}>
           <div className="text-center px-6 py-8 bg-white rounded-xl shadow-lg max-w-md mx-auto">
@@ -248,13 +301,13 @@ const OrderStatus = () => {
             <div className="flex gap-4 justify-center mt-4">
               <button
                 onClick={closeLogoutPopup}
-                className="bg-gray-300 text-[#344E41] px-6 py-2 rounded-lg hover:bg-gray-400 transition"
+                className="bg-gray-300 text-[#344E41] px-6 py-2 rounded-[10px] hover:bg-gray-400 transition"
               >
                 Kembali
               </button>
               <button
                 onClick={confirmLogout}
-                className="bg-[#344E41] text-white px-6 py-2 rounded-lg hover:bg-[#2a3e33] transition"
+                className="bg-[#344E41] text-white px-6 py-2 rounded-[10px] hover:bg-[#2a3e33] transition"
               >
                 Yakin
               </button>
