@@ -21,26 +21,35 @@ const OrderStatus = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // State untuk kontrol popup logout
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+
+  // State untuk foto profil sementara (preview)
   const [profilePic, setProfilePic] = useState(null);
 
-  // null = semua status aktif (default)
+  // State untuk filter tab status pesanan (null = semua)
   const [activeTab, setActiveTab] = useState(null);
 
+  // Handler buka popup logout
   const handleLogout = () => setShowLogoutPopup(true);
+
+  // Handler tutup popup logout
   const closeLogoutPopup = () => setShowLogoutPopup(false);
 
+  // Handler konfirmasi logout
   const confirmLogout = () => {
     localStorage.removeItem("token");
     setShowLogoutPopup(false);
     navigate("/", { replace: true });
   };
 
+  // Handler unggah foto profil (hanya untuk preview lokal)
   const handleUploadPic = (e) => {
     const file = e.target.files[0];
     if (file) setProfilePic(URL.createObjectURL(file));
   };
 
+  // Fungsi penanda menu aktif pada sidebar
   const isActiveMenu = (path) => location.pathname === path;
 
   // DATA PESANAN (status: belum, dikemas, dikirim, selesai)
@@ -75,11 +84,12 @@ const OrderStatus = () => {
     },
   ];
 
-  // FILTER BERDASARKAN TAB
+  // Filter pesanan berdasarkan tab aktif
   const filteredOrders = activeTab
     ? orders.filter((o) => o.status === activeTab)
     : orders;
 
+  // Data tab status
   const tabs = [
     { key: "belum", label: "Belum Bayar", icon: IconBelumBayar },
     { key: "dikemas", label: "Dikemas", icon: IconDikemas },
@@ -87,8 +97,9 @@ const OrderStatus = () => {
     { key: "selesai", label: "Selesai", icon: IconSelesai },
   ];
 
+  // Handler klik tab status
   const handleTabClick = (key) => {
-    // kalau klik tab yang sama → reset filter (lihat semua status)
+    // jika tab yang sama diklik lagi, reset ke semua status
     if (activeTab === key) {
       setActiveTab(null);
     } else {
@@ -100,12 +111,12 @@ const OrderStatus = () => {
     <div className="min-h-screen bg-[#FFFEF6] text-[#344E41] font-poppins flex flex-col">
       <NavbarAfterLogin />
 
-      {/* MAIN CONTENT (di bawah navbar) */}
-      <div className="flex w-full mt-14 gap-8">
-        {/* SIDEBAR – sama tema dengan ProfileMain */}
-        <div className="w-72 bg-white px-6 py-8 rounded-[10px] shadow flex flex-col overflow-y-auto min-h-[calc(100vh-56px)]">
+      {/* MAIN CONTENT (di bawah navbar) – responsif kolom/row */}
+      <div className="flex w-full mt-14 gap-8 flex-col lg:flex-row px-4 sm:px-6 lg:px-0">
+        {/* SIDEBAR – tema sama dengan ProfileMain */}
+        <div className="w-full lg:w-72 bg-white px-6 py-8 rounded-[10px] shadow flex flex-col overflow-y-auto min-h-[calc(100vh-56px)]">
           <div className="flex flex-col items-center text-center">
-            {/* Profile Pic + Edit */}
+            {/* Foto profil + tombol edit (input file) */}
             <label className="relative cursor-pointer inline-block">
               <input type="file" className="hidden" onChange={handleUploadPic} />
               <div className="w-40 h-40 bg-[#F2F2F2] rounded-full flex items-center justify-center overflow-hidden">
@@ -213,9 +224,9 @@ const OrderStatus = () => {
         </div>
 
         {/* KONTEN STATUS PESANAN */}
-        <div className="flex-1 mr-6 lg:mr-20 flex flex-col mt-10 mb-10 gap-6">
-          {/* CARD TAB STATUS */}
-          <div className="w-full bg-white rounded-[10px] shadow-[0_10px_30px_rgba(0,0,0,0.06)] px-10 py-6 flex justify-between">
+        <div className="flex-1 mr-0 md:mr-6 lg:mr-20 flex flex-col mt-10 mb-10 gap-6">
+          {/* CARD TAB STATUS – responsif dan masih rata seperti desktop di lg */}
+          <div className="w-full bg-white rounded-[10px] shadow-[0_10px_30px_rgba(0,0,0,0.06)] px-4 sm:px-6 lg:px-10 py-4 sm:py-6 flex flex-wrap gap-4 sm:gap-6 justify-between">
             {tabs.map((tab) => {
               const isTabActive = !activeTab || activeTab === tab.key;
               return (
@@ -223,7 +234,7 @@ const OrderStatus = () => {
                   key={tab.key}
                   type="button"
                   onClick={() => handleTabClick(tab.key)}
-                  className="flex flex-col items-center gap-2 focus:outline-none"
+                  className="flex flex-col items-center gap-2 focus:outline-none flex-1 min-w-[90px] sm:min-w-[120px]"
                 >
                   <img
                     src={tab.icon}
@@ -233,7 +244,7 @@ const OrderStatus = () => {
                     }`}
                   />
                   <span
-                    className={`text-sm font-semibold ${
+                    className={`text-xs sm:text-sm font-semibold text-center ${
                       isTabActive ? "text-[#344E41]" : "text-gray-500"
                     }`}
                   >
@@ -249,12 +260,12 @@ const OrderStatus = () => {
             {filteredOrders.map((order) => (
               <div
                 key={order.id}
-                className="flex justify-between items-center bg-white rounded-[10px] px-6 py-4 shadow-[0_6px_20px_rgba(0,0,0,0.04)]"
+                className="flex flex-col md:flex-row md:justify-between md:items-center bg-white rounded-[10px] px-4 sm:px-6 py-4 shadow-[0_6px_20px_rgba(0,0,0,0.04)] gap-4"
               >
                 <div className="flex items-center gap-4">
-                  {/* Thumbnail produk */}
-                  <div className="w-24 h-24 bg-[#F2F2F2] rounded-[10px] overflow-hidden flex items-center justify-center">
-                    {/* ganti dengan gambar produk asli jika sudah ada */}
+                  {/* Thumbnail produk (placeholder) */}
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#F2F2F2] rounded-[10px] overflow-hidden flex items-center justify-center">
+                    {/* ganti dengan gambar produk jika tersedia */}
                     {/* <img src={BawangMerahImg} alt="Bawang Merah" className="w-full h-full object-cover" /> */}
                   </div>
 
@@ -267,14 +278,14 @@ const OrderStatus = () => {
 
                 <button
                   onClick={() => navigate(`/orders-history/${order.id}`)}
-                  className="bg-[#3A5B40] text-white px-5 py-2 rounded-[10px] text-xs md:text-sm font-semibold hover:bg-[#2a3e33] transition"
+                  className="bg-[#3A5B40] text-white px-4 sm:px-5 py-2 rounded-[10px] text-xs md:text-sm font-semibold hover:bg-[#2a3e33] transition self-start md:self-auto"
                 >
                   Tampilkan Detail Pesanan
                 </button>
               </div>
             ))}
 
-            {/* Kalau setelah filter tidak ada pesanan */}
+            {/* Jika setelah filter tidak ada pesanan */}
             {filteredOrders.length === 0 && (
               <p className="text-sm text-gray-600">
                 Belum ada pesanan untuk status ini.
@@ -291,29 +302,16 @@ const OrderStatus = () => {
         </div>
       </div>
 
-      {/* POPUP LOGOUT */}
+      {/* POPUP LOGOUT – menggunakan Popup generik variant "logout" */}
       {showLogoutPopup && (
-        <Popup onClose={closeLogoutPopup}>
-          <div className="text-center px-6 py-8 bg-white rounded-xl shadow-lg max-w-md mx-auto">
-            <h3 className="text-lg font-semibold mb-5 text-[#344E41]">
-              Anda Yakin Ingin Keluar?
-            </h3>
-            <div className="flex gap-4 justify-center mt-4">
-              <button
-                onClick={closeLogoutPopup}
-                className="bg-gray-300 text-[#344E41] px-6 py-2 rounded-[10px] hover:bg-gray-400 transition"
-              >
-                Kembali
-              </button>
-              <button
-                onClick={confirmLogout}
-                className="bg-[#344E41] text-white px-6 py-2 rounded-[10px] hover:bg-[#2a3e33] transition"
-              >
-                Yakin
-              </button>
-            </div>
-          </div>
-        </Popup>
+        <Popup
+          variant="logout"
+          title="Anda Yakin Ingin Keluar?"
+          message="Anda akan keluar dari akun ini. Apakah Anda yakin?"
+          onClose={closeLogoutPopup}    // tutup saat klik backdrop
+          onCancel={closeLogoutPopup}   // batal keluar
+          onConfirm={confirmLogout}     // konfirmasi keluar
+        />
       )}
     </div>
   );

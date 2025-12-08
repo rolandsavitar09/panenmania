@@ -3,8 +3,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const AddressModal = ({ onClose, onSave, initialData }) => {
-  // Input State
-  const [label, setLabel] = useState("");
+  // === STATE INPUT FORM ===
+  const [label, setLabel] = useState(""); // nama alamat
   const [prov, setProv] = useState("");
   const [city, setCity] = useState("");
   const [subdist, setSubdist] = useState("");
@@ -12,26 +12,27 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
   const [street, setStreet] = useState("");
   const [extra, setExtra] = useState("");
 
-  // Dropdown Lists
+  // === LIST DROPDOWN ===
   const [provinsiList, setProvinsiList] = useState([]);
   const [cityList, setCityList] = useState([]);
+  const [subdistList, setSubdistList] = useState([]);
 
-  // Error
+  // === ERROR VALIDATION ===
   const [errors, setErrors] = useState({});
 
-  // Fade Animation
+  // === FADE ANIMATION ===
   const [fadeIn, setFadeIn] = useState(false);
   useEffect(() => setFadeIn(true), []);
 
-  // Fetch daftar provinsi
+  // === LOAD PROVINSI ===
   useEffect(() => {
     axios
       .get("https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json")
       .then((res) => setProvinsiList(res.data))
-      .catch((err) => console.error("Provinsi load failed", err));
+      .catch(() => console.error("Gagal memuat provinsi"));
   }, []);
 
-  // Fetch daftar kota setelah pilih prov
+  // === LOAD KOTA ===
   useEffect(() => {
     if (prov) {
       axios
@@ -39,70 +40,86 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
           `https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${prov}.json`
         )
         .then((res) => setCityList(res.data))
-        .catch((err) => console.error("City load failed", err));
+        .catch(() => console.error("Gagal memuat kota"));
     }
   }, [prov]);
 
-  // Load data saat edit
+  // === LOAD KECAMATAN ===
+  useEffect(() => {
+    if (city) {
+      const selectedCity = cityList.find((c) => c.name === city);
+
+      if (selectedCity) {
+        axios
+          .get(
+            `https://www.emsifa.com/api-wilayah-indonesia/api/districts/${selectedCity.id}.json`
+          )
+          .then((res) => setSubdistList(res.data))
+          .catch(() => console.error("Gagal memuat kecamatan"));
+      }
+    }
+  }, [city, cityList]);
+
+  // === LOAD DATA EDIT ===
   useEffect(() => {
     if (initialData) {
-      setLabel(initialData.label || "");
+      setLabel(initialData.name || "");
       setStreet(initialData.detail || "");
-      // prov, city, dst tidak di-parse dari detail
     }
   }, [initialData]);
 
-  // Validasi Input
+  // === VALIDASI INPUT ===
   const validate = () => {
     let temp = {};
     if (!label) temp.label = "Nama alamat wajib diisi!";
-    if (!prov) temp.prov = "Pilih provinsi!";
-    if (!city) temp.city = "Pilih kota!";
-    if (!street) temp.street = "Isi nama jalan!";
+    if (!prov) temp.prov = "Provinsi wajib dipilih!";
+    if (!city) temp.city = "Kota wajib dipilih!";
+    if (!subdist) temp.subdist = "Kecamatan wajib dipilih!";
+    if (!street) temp.street = "Nama jalan wajib diisi!";
     if (!postal) temp.postal = "Kode pos wajib diisi!";
     setErrors(temp);
     return Object.keys(temp).length === 0;
   };
 
-  // Save data
+  // === SIMPAN DATA ===
   const handleSave = () => {
     if (!validate()) return;
 
     const provName =
       provinsiList.find((p) => String(p.id) === String(prov))?.name || prov;
-    const cityName = city;
 
-    const detail = `${street}, ${cityName}, ${provName}, ${subdist} ${postal}. ${extra}`.trim();
-
-    const isPrimary = initialData?.isPrimary ?? false;
+    const detail = `${street}, ${subdist}, ${city}, ${provName}, ${postal}. ${extra}`.trim();
 
     onSave({
-      label,
+      name: label,
       detail,
-      isPrimary,
+      isPrimary: initialData?.isPrimary ?? false,
     });
   };
 
-  // helper class untuk input/select
+  // === STYLE INPUT ===
   const inputBaseClass =
     "w-full bg-white py-3 px-4 rounded-[10px] mt-1 outline-none text-sm shadow-[0_8px_24px_rgba(0,0,0,0.06)] border border-transparent focus:border-[#344E41]/40";
 
   return (
-    <div className="fixed inset-0 bg-black/40 z-[999] flex justify-center items-center transition-opacity">
+    <div className="fixed inset-0 bg-black/40 z-[999] flex justify-center items-center px-4">
+      {/* === WRAPPER MODAL === */}
       <div
-        className={`w-full max-w-2xl rounded-[16px] p-8 md:p-10 bg-[#FFFEF6] shadow-[0_16px_40px_rgba(0,0,0,0.18)] overflow-y-auto max-h-[95vh] transform transition-all duration-300 ${
+        className={`w-full max-w-2xl rounded-[16px] bg-[#FFFEF6] shadow-[0_16px_40px_rgba(0,0,0,0.18)] p-6 md:p-10 overflow-y-auto max-h-[95vh] transition-all duration-300 ${
           fadeIn ? "opacity-100 scale-100" : "opacity-0 scale-95"
         }`}
       >
+        {/* === TITLE === */}
         <h2 className="text-xl font-bold mb-2 text-[#344E41]">
           {initialData ? "Ubah Alamat" : "Alamat Baru"}
         </h2>
         <hr className="border-t border-[#344E41]/30 mb-6" />
 
+        {/* === FORM === */}
         <div className="space-y-4">
-          {/* Label / Nama alamat */}
+          {/* Nama Alamat */}
           <div>
-            <label className="text-sm text-[#344E41]">Nama</label>
+            <label className="text-sm text-[#344E41]">Nama Alamat</label>
             <input
               value={label}
               onChange={(e) => setLabel(e.target.value)}
@@ -123,6 +140,7 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
               onChange={(e) => {
                 setProv(e.target.value);
                 setCity("");
+                setSubdist("");
               }}
               className={`${inputBaseClass} ${
                 errors.prov ? "border-red-500" : ""
@@ -145,7 +163,10 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
             <label className="text-sm text-[#344E41]">Kota</label>
             <select
               value={city}
-              onChange={(e) => setCity(e.target.value)}
+              onChange={(e) => {
+                setCity(e.target.value);
+                setSubdist("");
+              }}
               className={`${inputBaseClass} ${
                 errors.city ? "border-red-500" : ""
               }`}
@@ -165,11 +186,23 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
           {/* Kecamatan */}
           <div>
             <label className="text-sm text-[#344E41]">Kecamatan</label>
-            <input
+            <select
               value={subdist}
               onChange={(e) => setSubdist(e.target.value)}
-              className={inputBaseClass}
-            />
+              className={`${inputBaseClass} ${
+                errors.subdist ? "border-red-500" : ""
+              }`}
+            >
+              <option value="">Pilih Kecamatan</option>
+              {subdistList.map((s) => (
+                <option key={s.id} value={s.name}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+            {errors.subdist && (
+              <p className="text-red-500 text-xs mt-1">{errors.subdist}</p>
+            )}
           </div>
 
           {/* Kode Pos */}
@@ -190,7 +223,7 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
           {/* Jalan */}
           <div>
             <label className="text-sm text-[#344E41]">
-              Nama Jalan, Gedung, No. Rumah
+              Nama Jalan / Gedung / No. Rumah
             </label>
             <input
               value={street}
@@ -204,11 +237,9 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
             )}
           </div>
 
-          {/* Keterangan tambahan (opsional) */}
+          {/* Detail tambahan */}
           <div>
-            <label className="text-sm text-[#344E41]">
-              Detail Tambahan (opsional)
-            </label>
+            <label className="text-sm text-[#344E41]">Detail Tambahan</label>
             <input
               value={extra}
               onChange={(e) => setExtra(e.target.value)}
@@ -216,7 +247,7 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
             />
           </div>
 
-          {/* Buttons */}
+          {/* ==== BUTTON AKSI ==== */}
           <div className="flex justify-end gap-4 pt-4">
             <button
               onClick={onClose}
@@ -224,6 +255,7 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
             >
               Kembali
             </button>
+
             <button
               onClick={handleSave}
               className="bg-[#344E41] text-white px-6 py-2 rounded-[10px] hover:bg-[#2a3e33] transition text-sm font-semibold"

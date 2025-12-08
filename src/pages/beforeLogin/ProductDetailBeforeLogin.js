@@ -20,7 +20,7 @@ import BerasImage from "../../assets/images/products/beras.svg";
 
 /* ---------- Reusable components ---------- */
 
-// QtyControl: angka benar-benar di tengah, border 2px, radius 8 (tinggi sedikit dipendekkan)
+// Kontrol jumlah produk
 const QtyControl = ({ quantity, setQuantity }) => (
   <div className="flex h-[32px]">
     <button
@@ -45,22 +45,26 @@ const QtyControl = ({ quantity, setQuantity }) => (
   </div>
 );
 
-const StepCard = ({ icon, label }) => (
-  <div className="flex flex-col items-center">
-    <div className="w-[90px] h-[90px] rounded-xl flex items-center justify-center bg-[#588157]/45">
-      <img src={icon} alt={label} className="object-contain w-[70px]" />
+// Kartu langkah belanja
+const StepCard = ({ icon, label }) => {
+  const parts = label.split(" ");
+  return (
+    <div className="flex flex-col items-center">
+      <div className="w-[90px] h-[90px] rounded-xl flex items-center justify-center bg-[#588157]/45">
+        <img src={icon} alt={label} className="object-contain w-[70px]" />
+      </div>
+      <p className="text-[#344E41] font-semibold text-[15px] leading-tight mt-4 text-center">
+        {parts[0]} <br />
+        {parts.slice(1).join(" ")}
+      </p>
     </div>
-    <p className="text-[#344E41] font-semibold text-[15px] leading-tight mt-4 text-center">
-      {label.split(" ")[0]} <br />
-      {label.split(" ").slice(1).join(" ")}
-    </p>
-  </div>
-);
+  );
+};
 
-// ReviewItem: garis 3A5B40, jarak lega
+// Item ulasan
 const ReviewItem = ({ name, rating, text }) => (
   <div className="flex flex-col border-b-2 border-[#3A5B40] pb-6 mb-6">
-    <div className="flex justify-between items-start">
+    <div className="flex justify-between items-start gap-4">
       <div className="flex gap-5">
         <div className="w-14 h-14 rounded-full bg-gray-300 shrink-0" />
         <div className="flex-1">
@@ -74,7 +78,7 @@ const ReviewItem = ({ name, rating, text }) => (
         </div>
       </div>
 
-      <div className="flex items-center gap-4 ml-4">
+      <div className="flex items-center gap-4 ml-0 sm:ml-4">
         <button className="p-1" aria-label="like">
           <img src={IconLike} alt="like" className="w-6 h-6" />
         </button>
@@ -93,24 +97,26 @@ const ProductDetailBeforeLogin = () => {
   const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
 
+  // Buka popup akses terkunci
   const handleAction = () => setShowPopup(true);
+  // Tutup popup
   const closePopup = () => setShowPopup(false);
 
   return (
     <div className="bg-[#FFFEF6] min-h-screen font-poppins flex flex-col">
       <NavbarBeforeLogin />
 
-      {/* Spacer supaya tidak nempel navbar */}
+      {/* Spacer agar konten tidak tertutup navbar */}
       <div className="pt-24" />
 
       {/* ========== DETAIL PRODUK ========== */}
       <section className="w-full mt-0">
         <div className="max-w-[1350px] mx-auto">
-          {/* Card product: B8D68F/25, radius 10, tanpa shadow */}
+          {/* Card produk utama */}
           <div className="bg-[#B8D68F]/25 rounded-[10px] py-10 sm:py-16 mx-4 sm:mx-10 lg:mx-16 px-4 sm:px-10">
-            {/* Grid isi card diratakan tengah (max-w + mx-auto) */}
+            {/* Grid isi card */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start max-w-[1050px] mx-auto">
-              {/* LEFT - IMAGE */}
+              {/* Kiri: gambar produk */}
               <div className="flex flex-col items-center">
                 <img
                   src={BerasImage}
@@ -118,7 +124,7 @@ const ProductDetailBeforeLogin = () => {
                   className="w-full max-w-[340px] h-[360px] object-contain rounded-xl border border-[#E0E6D8] bg-white"
                 />
 
-                {/* 3 thumbnail sejajar dengan lebar gambar besar */}
+                {/* Thumbnail kecil */}
                 <div className="flex justify-between gap-4 mt-6 w-full max-w-[340px]">
                   {[1, 2, 3].map((_, i) => (
                     <div
@@ -135,13 +141,13 @@ const ProductDetailBeforeLogin = () => {
                 </div>
               </div>
 
-              {/* RIGHT - INFO */}
+              {/* Kanan: informasi produk */}
               <div className="text-left text-[#3A5B40] md:-ml-4 lg:-ml-16">
-                <h2 className="text-[24px] sm:text-[26px] font-extrabold text-[#3A5B40] mb-3 whitespace-nowrap">
+                <h2 className="text-[22px] sm:text-[24px] md:text-[26px] font-extrabold text-[#3A5B40] mb-3">
                   Beras Pulen Berkualitas Cap Dero 5kg
                 </h2>
 
-                {/* Rating + bintang */}
+                {/* Rating dan info singkat */}
                 <div className="flex flex-wrap items-center gap-3 text-[#3A5B40] text-[14px] font-medium mb-4">
                   <span>5.0</span>
                   <span className="text-[16px] leading-none text-[#3A5B40]">
@@ -153,7 +159,7 @@ const ProductDetailBeforeLogin = () => {
                   <span>50 Terjual</span>
                 </div>
 
-                {/* Button harga */}
+                {/* Harga utama */}
                 <div className="inline-block mb-6">
                   <div className="bg-[#3A5B40] rounded-[10px] px-5 py-3">
                     <p className="text-[20px] sm:text-[22px] font-extrabold text-white">
@@ -162,7 +168,7 @@ const ProductDetailBeforeLogin = () => {
                   </div>
                 </div>
 
-                {/* Deskripsi: dibuat 3 baris */}
+                {/* Deskripsi produk */}
                 <p className="text-[#3A5B40] text-[14px] sm:text-[13px] leading-relaxed mb-6 max-w-[515px]">
                   Beras yang diproses dengan baik sehingga menghasilkan beras
                   premium yang sangat pulen dan sehat.
@@ -173,7 +179,7 @@ const ProductDetailBeforeLogin = () => {
                   sehingga aman digunakan untuk kebutuhan pokok keluarga Anda.
                 </p>
 
-                {/* Pengiriman + stok + qty */}
+                {/* Info pengiriman, stok, dan qty */}
                 <div className="flex flex-wrap items-center gap-4 text-[#3A5B40] text-[14px] sm:text-[15px] font-medium mb-8">
                   <div className="flex flex-wrap items-center gap-3">
                     <span>Pengiriman</span>
@@ -189,7 +195,6 @@ const ProductDetailBeforeLogin = () => {
                     <span>Tersisa: 20 barang</span>
                   </div>
 
-                  {/* Qty di ujung kanan, sejajar batas kanan button bawah */}
                   <div className="lg:-ml-0">
                     <QtyControl
                       quantity={quantity}
@@ -198,7 +203,7 @@ const ProductDetailBeforeLogin = () => {
                   </div>
                 </div>
 
-                {/* Tombol aksi */}
+                {/* Tombol aksi utama */}
                 <div className="flex flex-wrap gap-4 mt-8">
                   <button
                     onClick={handleAction}
@@ -222,16 +227,16 @@ const ProductDetailBeforeLogin = () => {
 
       {/* ========== PENILAIAN & ULASAN ========== */}
       <section className="w-full mt-10">
-        {/* Header "Penilaian & Ulasan" */}
+        {/* Header penilaian */}
         <div className="max-w-[1350px] mx-auto px-4 sm:px-10 lg:px-16">
           <div className="bg-[#3A5B40] text-white py-3 px-6 sm:px-8 font-semibold text-[17px] rounded-[10px]">
             Penilaian & Ulasan
           </div>
         </div>
 
-        {/* Isi penilaian */}
+        {/* Ringkasan rating */}
         <div className="max-w-[1150px] mx-auto px-4 sm:px-10 lg:px-16 bg-[#FFFEF6] pt-6 pb-8">
-          <div className="grid grid-cols-1 md:grid-cols-[210px_auto] gap-4 md:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-[210px_auto] gap-4">
             <div>
               <p className="text-[32px] sm:text-[36px] font-extrabold text-[#3A5B40] mb-1">
                 5.0/
@@ -249,18 +254,18 @@ const ProductDetailBeforeLogin = () => {
             <div className="flex flex-col gap-2">
               {[5, 4, 3, 2, 1].map((star, index) => (
                 <div key={star} className="flex items-center gap-3 text-sm">
-                  <span className="text-[#3A5B40]">
+                  <span className="text-[#3A5B40] whitespace-nowrap">
                     {"★".repeat(star)}
                     {"☆".repeat(5 - star)}
                   </span>
-                  <div className="w-[230px] h-3 bg-[#588157]/25">
+                  <div className="w-full max-w-[230px] h-3 bg-[#588157]/25">
                     <div
                       className={`h-full bg-[#3A5A40] ${
                         index === 0 ? "w-full" : "w-0"
                       }`}
                     />
                   </div>
-                  <span className="text-[#3A5B40]">
+                  <span className="text-[#3A5B40] w-4 text-right">
                     {index === 0 ? "5" : "0"}
                   </span>
                 </div>
@@ -269,14 +274,14 @@ const ProductDetailBeforeLogin = () => {
           </div>
         </div>
 
-        {/* Header "Ulasan Produk" */}
+        {/* Header ulasan produk */}
         <div className="max-w-[1350px] mx-auto px-4 sm:px-10 lg:px-16 mt-6">
           <div className="bg-[#3A5B40] text-white py-3 px-6 sm:px-8 font-semibold text-[17px] rounded-[10px]">
             Ulasan Produk
           </div>
         </div>
 
-        {/* Isi ulasan */}
+        {/* Daftar ulasan */}
         <div className="max-w-[1350px] mx-auto bg-[#FFFEF6] pt-6 pb-6">
           <div className="max-w-[1150px] mx-auto px-4 sm:px-8 lg:px-10">
             <ReviewItem
@@ -311,12 +316,16 @@ const ProductDetailBeforeLogin = () => {
 
       <Footer />
 
-      {/* Popup Belum Login */}
+      {/* Popup akses terkunci (belum login) */}
       {showPopup && (
         <Popup
-          title="Anda belum login"
-          message="Silakan masuk terlebih dahulu sebelum menambahkan produk ke keranjang."
+          variant="locked"
           onClose={closePopup}
+          onCancel={closePopup}
+          onConfirm={() => {
+            closePopup();
+            navigate("/signup");
+          }}
         />
       )}
     </div>

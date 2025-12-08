@@ -2,11 +2,13 @@
 import React, { useState, useEffect } from "react";
 import NavbarAfterLogin from "../../components/layout/NavbarAfterLogin";
 import { useNavigate } from "react-router-dom";
+import Popup from "../../components/common/Popup";
 
 import BerasImage from "../../assets/images/products/beras.svg";
 import IconTrash from "../../assets/images/icons/trash.svg";
 
 /* ----- QtyControl: sama persis seperti di detail produk ----- */
+// Komponen kontrol jumlah produk
 const QtyControl = ({ quantity, setQuantity }) => (
   <div className="flex h-[32px]">
     <button
@@ -34,7 +36,7 @@ const QtyControl = ({ quantity, setQuantity }) => (
 const CartPage = () => {
   const navigate = useNavigate();
 
-  // sementara: 3 item sama persis beras pulen
+  // Data sementara keranjang
   const [cartItems, setCartItems] = useState([
     {
       id: 1,
@@ -62,7 +64,10 @@ const CartPage = () => {
   const [checkAll, setCheckAll] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
 
-  // Hitung total & sinkronkan status "Pilih Semua"
+  // State popup hapus (item yang akan dihapus)
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
+  // Hitung total dan sinkron status "Pilih Semua"
   useEffect(() => {
     const total = cartItems
       .filter((item) => item.checked)
@@ -74,12 +79,14 @@ const CartPage = () => {
     setCheckAll(allChecked);
   }, [cartItems]);
 
+  // Toggle pilih semua
   const toggleCheckAll = () => {
     const newValue = !checkAll;
     setCheckAll(newValue);
     setCartItems((prev) => prev.map((item) => ({ ...item, checked: newValue })));
   };
 
+  // Toggle checkbox per item
   const toggleCheckItem = (id) => {
     setCartItems((prev) =>
       prev.map((item) =>
@@ -88,6 +95,7 @@ const CartPage = () => {
     );
   };
 
+  // Tambah qty
   const increaseQty = (id) => {
     setCartItems((prev) =>
       prev.map((item) =>
@@ -96,6 +104,7 @@ const CartPage = () => {
     );
   };
 
+  // Kurangi qty
   const decreaseQty = (id) => {
     setCartItems((prev) =>
       prev.map((item) =>
@@ -106,6 +115,7 @@ const CartPage = () => {
     );
   };
 
+  // Hapus item (dipanggil setelah konfirmasi popup)
   const removeItem = (id) => {
     setCartItems((prev) => prev.filter((item) => item.id !== id));
   };
@@ -116,9 +126,11 @@ const CartPage = () => {
     <div className="bg-[#FFFEF6] min-h-screen font-poppins text-[#344E41]">
       <NavbarAfterLogin />
 
-      <div className="pt-24 pb-16 max-w-[1350px] mx-auto px-6 lg:px-16">
-        {/* Judul */}
-        <h1 className="text-[22px] font-bold mb-8">Keranjang Anda</h1>
+      <div className="pt-24 pb-16 max-w-[1350px] mx-auto px-4 sm:px-6 lg:px-16">
+        {/* Judul halaman */}
+        <h1 className="text-[20px] sm:text-[22px] font-bold mb-6 sm:mb-8">
+          Keranjang Anda
+        </h1>
 
         {/* Pilih Semua */}
         <div className="flex justify-end items-center gap-2 mb-4">
@@ -128,28 +140,28 @@ const CartPage = () => {
             onChange={toggleCheckAll}
             className="w-4 h-4 border-2 border-[#3A5B40] rounded-sm accent-[#3A5B40]"
           />
-          <span className="text-sm font-medium text-[#344E41]">
+          <span className="text-xs sm:text-sm font-medium text-[#344E41]">
             Pilih Semua
           </span>
         </div>
 
         {/* List item keranjang */}
-        <div className="space-y-5">
+        <div className="space-y-4 sm:space-y-5">
           {cartItems.map((item) => (
             <div
               key={item.id}
-              className="bg-[#B8D68F]/25 border-2 border-[#3A5B40] rounded-[10px] px-6 py-4 flex items-center gap-5"
+              className="bg-[#B8D68F]/25 border-2 border-[#3A5B40] rounded-[10px] px-4 sm:px-6 py-4 flex flex-wrap md:flex-nowrap items-start md:items-center gap-4 sm:gap-5"
             >
               {/* Checkbox */}
               <input
                 type="checkbox"
                 checked={item.checked}
                 onChange={() => toggleCheckItem(item.id)}
-                className="w-4 h-4 border-2 border-[#3A5B40] rounded-sm accent-[#3A5B40]"
+                className="mt-1 w-4 h-4 border-2 border-[#3A5B40] rounded-sm accent-[#3A5B40]"
               />
 
-              {/* Gambar */}
-              <div className="w-[96px] h-[96px] rounded-[14px] bg-white flex items-center justify-center overflow-hidden shrink-0">
+              {/* Gambar produk */}
+              <div className="w-[80px] h-[80px] sm:w-[96px] sm:h-[96px] rounded-[14px] bg-white flex items-center justify-center overflow-hidden shrink-0">
                 <img
                   src={BerasImage}
                   alt={item.name}
@@ -157,31 +169,30 @@ const CartPage = () => {
                 />
               </div>
 
-              {/* Info Produk */}
-              <div className="flex-1">
-                <p className="font-semibold text-[15px]">
+              {/* Info produk */}
+              <div className="flex-1 min-w-[160px]">
+                <p className="font-semibold text-[14px] sm:text-[15px] leading-snug">
                   {item.name}
                 </p>
-                {/* harga REGULER, bukan bold */}
-                <p className="font-normal text-[15px] mt-2 text-[#3A5B40]">
+                <p className="font-normal text-[14px] sm:text-[15px] mt-2 text-[#3A5B40]">
                   Rp {item.price.toLocaleString("id-ID")}
                 </p>
               </div>
 
-              {/* Kolom kanan: trash di atas, stok + qty di bawah (dalam satu baris) */}
-              <div className="flex flex-col justify-between items-end h-[96px] ml-auto">
-                {/* Trash di atas button -+ */}
+              {/* Kolom kanan: trash di atas, stok + qty di bawah */}
+              <div className="flex flex-col justify-between items-end h-[96px] ml-auto mt-2 md:mt-0">
+                {/* Tombol hapus (tetap di pojok kanan atas card) */}
                 <button
-                  onClick={() => removeItem(item.id)}
+                  onClick={() => setDeleteTarget(item)} // buka popup hapus
                   className="mb-2"
                   aria-label={`Hapus ${item.name}`}
                 >
                   <img src={IconTrash} alt="hapus" className="w-6 h-6" />
                 </button>
 
-                {/* Baris: Tersisa (kiri) + QtyControl (kanan) */}
-                <div className="flex items-center gap-4">
-                  <p className="text-xs text-[#3A5B40] whitespace-nowrap">
+                {/* Baris: Tersisa + QtyControl */}
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <p className="text-[11px] sm:text-xs text-[#3A5B40] whitespace-nowrap">
                     Tersisa: 25 Barang
                   </p>
                   <QtyControl
@@ -206,25 +217,38 @@ const CartPage = () => {
           )}
         </div>
 
-        {/* Total bar bawah */}
-        <div className="mt-10 bg-[#3A5B40] rounded-[10px] px-6 sm:px-8 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between text-white">
-          <p className="font-semibold text-[15px]">
+        {/* Bar total bawah */}
+        <div className="mt-8 sm:mt-10 bg-[#3A5B40] rounded-[10px] px-5 sm:px-8 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between text-white gap-3 sm:gap-0">
+          <p className="font-semibold text-[14px] sm:text-[15px]">
             Total Produk ({totalCheckedItems})
           </p>
 
-          <div className="flex items-center gap-6 mt-3 sm:mt-0">
-            <p className="font-bold text-[16px]">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+            <p className="font-bold text-[15px] sm:text-[16px]">
               Rp {totalPrice.toLocaleString("id-ID")}
             </p>
             <button
               onClick={() => navigate("/checkout")}
-              className="bg-white text-[#3A5B40] font-semibold text-[15px] px-6 py-2 rounded-[8px] hover:bg-[#F4F4F4] transition"
+              className="bg-white text-[#3A5B40] font-semibold text-[14px] sm:text-[15px] px-6 py-2 rounded-[8px] hover:bg-[#F4F4F4] transition text-center"
             >
               Pesan Sekarang
             </button>
           </div>
         </div>
       </div>
+
+      {/* POPUP HAPUS KERANJANG (desain baru) */}
+      {deleteTarget && (
+        <Popup
+          variant="delete"
+          onClose={() => setDeleteTarget(null)}
+          onCancel={() => setDeleteTarget(null)}
+          onConfirm={() => {
+            removeItem(deleteTarget.id);
+            setDeleteTarget(null);
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -15,19 +15,26 @@ const ProfilePassword = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // State untuk input kata sandi dan pesan kesalahan
   const [oldPass, setOldPass] = useState("");
   const [newPass, setNewPass] = useState("");
   const [confirm, setConfirm] = useState("");
   const [errors, setErrors] = useState({});
+
+  // State untuk kontrol tampilan popup
   const [showSuccess, setShowSuccess] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
+
+  // State untuk menyimpan sementara foto profil yang diunggah
   const [profilePic, setProfilePic] = useState(null);
 
+  // Handler unggah foto profil (hanya untuk keperluan preview)
   const handleUploadPic = (e) => {
     const f = e.target.files[0];
     if (f) setProfilePic(URL.createObjectURL(f));
   };
 
+  // Fungsi validasi sederhana untuk form ubah kata sandi
   const validate = () => {
     let temp = {};
     if (!oldPass) temp.old = "Kata sandi lama tidak boleh kosong!";
@@ -38,27 +45,30 @@ const ProfilePassword = () => {
     return Object.keys(temp).length === 0;
   };
 
+  // Handler ketika tombol simpan ditekan
   const handleSave = (e) => {
     e.preventDefault();
     if (!validate()) return;
     setShowSuccess(true);
   };
 
+  // Handler konfirmasi logout dan penghapusan token
   const confirmLogout = () => {
     localStorage.removeItem("token");
     navigate("/", { replace: true });
   };
 
+  // Fungsi untuk menentukan menu aktif pada sidebar
   const isActive = (path) => location.pathname === path;
 
   return (
     <div className="min-h-screen bg-[#FFFEF6] text-[#344E41] font-poppins flex flex-col">
       <NavbarAfterLogin />
 
-      {/* MAIN CONTENT – tepat di bawah navbar */}
-      <div className="flex w-full mt-14 gap-8">
+      {/* MAIN CONTENT – tepat di bawah navbar, responsif kolom/row */}
+      <div className="flex w-full mt-14 gap-8 flex-col lg:flex-row px-4 sm:px-6 lg:px-0">
         {/* SIDEBAR – sama seperti ProfileMain */}
-        <div className="w-72 bg-white px-6 py-8 rounded-[10px] shadow flex flex-col overflow-y-auto min-h-[calc(100vh-56px)]">
+        <div className="w-full lg:w-72 bg-white px-6 py-8 rounded-[10px] shadow flex flex-col overflow-y-auto min-h-[calc(100vh-56px)]">
           <div className="flex flex-col items-center text-center">
             <label className="relative cursor-pointer inline-block">
               <input type="file" className="hidden" onChange={handleUploadPic} />
@@ -167,8 +177,8 @@ const ProfilePassword = () => {
         </div>
 
         {/* CONTENT CARD – ubah kata sandi */}
-        <div className="flex-1 mr-6 lg:mr-20 flex">
-          <div className="w-full bg-[#B8D68F40] p-10 rounded-[10px] shadow-[0_10px_30px_rgba(0,0,0,0.06)] mt-10 mb-10">
+        <div className="flex-1 mr-0 md:mr-6 lg:mr-20 flex">
+          <div className="w-full bg-[#B8D68F40] p-6 md:p-10 rounded-[10px] shadow-[0_10px_30px_rgba(0,0,0,0.06)] mt-10 mb-10">
             <h2 className="text-xl font-bold mb-2">Ubah Kata Sandi</h2>
             {/* garis horizontal ukuran 2 warna hijau */}
             <hr className="border-t-2 border-[#3A5B40] mb-6" />
@@ -232,60 +242,27 @@ const ProfilePassword = () => {
         </div>
       </div>
 
-      {/* Popup Berhasil */}
+      {/* Popup Berhasil – menggunakan Popup generik variant "success" */}
       {showSuccess && (
-        <Popup onClose={() => setShowSuccess(false)}>
-          <div className="text-center px-6 py-8 bg-white rounded-xl shadow-lg max-w-md mx-auto relative">
-            <button
-              onClick={() => setShowSuccess(false)}
-              className="absolute top-3 right-3 text-gray-600 hover:text-black"
-            >
-              ✕
-            </button>
-
-            <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-5">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-10 h-10 text-gray-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-
-            <h3 className="text-lg font-semibold text-black">
-              Berhasil Mengubah Kata Sandi!
-            </h3>
-          </div>
-        </Popup>
+        <Popup
+          variant="success"
+          title="Berhasil Mengubah Kata Sandi!"
+          message="Kata sandi akun Anda telah diperbarui."
+          onClose={() => setShowSuccess(false)}     // tutup saat klik backdrop / ikon tutup
+          onConfirm={() => setShowSuccess(false)}   // tutup saat klik tombol konfirmasi
+        />
       )}
 
-      {/* Popup Keluar */}
+      {/* Popup Keluar – menggunakan Popup generik variant "logout" */}
       {showLogout && (
-        <Popup onClose={() => setShowLogout(false)}>
-          <div className="text-center px-6 py-8 bg-white rounded-xl shadow-lg max-w-md mx-auto">
-            <h3 className="text-lg font-semibold mb-5 text-[#344E41]">
-              Anda Yakin Ingin Keluar?
-            </h3>
-            <div className="flex gap-4 justify-center">
-              <button
-                onClick={() => setShowLogout(false)}
-                className="bg-gray-300 text-[#344E41] px-6 py-2 rounded-[10px] hover:bg-gray-400 transition"
-              >
-                Kembali
-              </button>
-              <button
-                onClick={confirmLogout}
-                className="bg-[#344E41] text-white px-6 py-2 rounded-[10px] hover:bg-[#2a3e33] transition"
-              >
-                Yakin
-              </button>
-            </div>
-          </div>
-        </Popup>
+        <Popup
+          variant="logout"
+          title="Anda Yakin Ingin Keluar?"
+          message="Anda akan keluar dari akun ini. Apakah Anda yakin?"
+          onClose={() => setShowLogout(false)}      // tutup saat klik di luar popup
+          onCancel={() => setShowLogout(false)}     // batal keluar
+          onConfirm={confirmLogout}                 // konfirmasi keluar akun
+        />
       )}
     </div>
   );

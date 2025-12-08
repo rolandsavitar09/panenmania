@@ -271,64 +271,23 @@ const ProfileMain = () => {
         </div>
       </div>
 
-      {/* POPUP SIMPAN */}
+      {/* POPUP SIMPAN – pakai variant success popup baru */}
       {showSuccessPopup && (
-        <Popup onClose={() => setShowSuccessPopup(false)}>
-          <div className="text-center px-6 py-8 bg-white rounded-xl shadow-lg max-w-md mx-auto relative">
-            <button
-              onClick={() => setShowSuccessPopup(false)}
-              className="absolute top-3 right-3 text-gray-600 hover:text-black"
-            >
-              ✕
-            </button>
-
-            <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-5">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-10 h-10 text-gray-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-
-            <h3 className="text-lg font-semibold text-black">
-              Data Berhasil Diperbaharui!
-            </h3>
-          </div>
-        </Popup>
+        <Popup
+          variant="success"
+          onClose={() => setShowSuccessPopup(false)}
+          onConfirm={() => setShowSuccessPopup(false)}
+        />
       )}
 
-      {/* POPUP LOGOUT */}
+      {/* POPUP LOGOUT – pakai variant logout popup baru */}
       {showLogoutPopup && (
-        <Popup onClose={closeLogoutPopup}>
-          <div className="text-center px-6 py-8 bg-white rounded-xl shadow-lg max-w-md mx-auto">
-            <h3 className="text-lg font-semibold mb-5 text-[#344E41]">
-              Anda Yakin Ingin Keluar?
-            </h3>
-            <div className="flex gap-4 justify-center mt-4">
-              <button
-                onClick={closeLogoutPopup}
-                className="bg-gray-300 text-[#344E41] px-6 py-2 rounded-[10px] hover:bg-gray-400 transition"
-              >
-                Kembali
-              </button>
-              <button
-                onClick={confirmLogout}
-                className="bg-[#344E41] text-white px-6 py-2 rounded-[10px] hover:bg-[#2a3e33] transition"
-              >
-                Yakin
-              </button>
-            </div>
-          </div>
-        </Popup>
+        <Popup
+          variant="logout"
+          onClose={closeLogoutPopup}
+          onCancel={closeLogoutPopup}
+          onConfirm={confirmLogout}
+        />
       )}
     </div>
   );

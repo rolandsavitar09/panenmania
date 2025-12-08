@@ -55,31 +55,37 @@ const ProfileAddress = () => {
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
 
+  // upload foto profil
   const handleUploadPic = (e) => {
     const file = e.target.files[0];
     if (file) setProfilePic(URL.createObjectURL(file));
   };
 
+  // buka modal tambah alamat
   const openAdd = () => {
     setEditing(null);
     setShowModal(true);
   };
 
+  // buka modal edit alamat
   const openEdit = (addr) => {
     setEditing(addr);
     setShowModal(true);
   };
 
+  // hapus alamat dari list
   const removeAddress = (id) => {
     setAddresses((prev) => prev.filter((a) => a.id !== id));
   };
 
+  // set alamat utama
   const setPrimary = (id) => {
     setAddresses((prev) =>
       prev.map((a) => ({ ...a, isPrimary: a.id === id }))
     );
   };
 
+  // simpan alamat baru / edit
   const saveAddress = (payload) => {
     if (editing) {
       setAddresses((prev) =>
@@ -115,9 +121,12 @@ const ProfileAddress = () => {
     setShowSuccess(true);
   };
 
+  // buka popup logout
   const handleLogout = () => setShowLogout(true);
+  // tutup popup logout
   const closeLogoutPopup = () => setShowLogout(false);
 
+  // konfirmasi logout
   const confirmLogout = () => {
     localStorage.removeItem("token");
     setShowLogout(false);
@@ -325,58 +334,23 @@ const ProfileAddress = () => {
         </div>
       </div>
 
-      {/* POPUP SUKSES */}
+      {/* POPUP SUKSES – pakai popup baru (variant success) */}
       {showSuccess && (
-        <Popup onClose={() => setShowSuccess(false)}>
-          <div className="text-center px-6 py-8 bg-white rounded-xl shadow-lg max-w-md mx-auto relative">
-            <button
-              onClick={() => setShowSuccess(false)}
-              className="absolute top-3 right-3 text-gray-600 hover:text-black"
-            >
-              ✕
-            </button>
-            <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-5">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-10 h-10 text-gray-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-black">
-              Data Berhasil Diperbaharui!
-            </h3>
-          </div>
-        </Popup>
+        <Popup
+          variant="success"
+          onClose={() => setShowSuccess(false)}
+          onConfirm={() => setShowSuccess(false)}
+        />
       )}
 
-      {/* POPUP LOGOUT */}
+      {/* POPUP LOGOUT – pakai popup baru (variant logout) */}
       {showLogout && (
-        <Popup onClose={closeLogoutPopup}>
-          <div className="text-center px-6 py-8 bg-white rounded-xl shadow-lg max-w-md mx-auto">
-            <h3 className="text-lg font-semibold mb-5 text-[#344E41]">
-              Anda Yakin Ingin Keluar?
-            </h3>
-            <div className="flex gap-4 justify-center mt-4">
-              <button
-                onClick={closeLogoutPopup}
-                className="bg-gray-300 text-[#344E41] px-6 py-2 rounded-[10px] hover:bg-gray-400 transition"
-              >
-                Kembali
-              </button>
-              <button
-                onClick={confirmLogout}
-                className="bg-[#344E41] text-white px-6 py-2 rounded-[10px] hover:bg-[#2a3e33] transition"
-              >
-                Yakin
-              </button>
-            </div>
-          </div>
-        </Popup>
+        <Popup
+          variant="logout"
+          onClose={closeLogoutPopup}
+          onCancel={closeLogoutPopup}
+          onConfirm={confirmLogout}
+        />
       )}
 
       {/* MODAL TAMBAH / UBAH ALAMAT */}
@@ -385,7 +359,7 @@ const ProfileAddress = () => {
           onClose={() => setShowModal(false)}
           onSave={saveAddress}
           initialData={editing}
-          isEdit={!!editing} // ⬅️ pakai prop ini di AddressModal untuk ubah warna sesuai tema saat edit
+          isEdit={!!editing} // penanda mode edit
         />
       )}
     </div>

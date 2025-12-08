@@ -2,35 +2,34 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-// === IMPORT GAMBAR ===
-// Banners
+// Banner
 import HeroFarmer from "../../assets/images/banners/petani.svg";
 import PromoVeg from "../../assets/images/banners/sayuran promo.svg";
 import Petani2Banner from "../../assets/images/banners/petani 2.svg";
 
-// Products
+// Produk
 import BawangMerah from "../../assets/images/products/bawang merah.svg";
 
-// Icons statistik
+// Ikon statistik
 import IconFarmer from "../../assets/images/icons/farmer.svg";
 import IconDesa from "../../assets/images/icons/desa.svg";
 import IconPengguna from "../../assets/images/icons/pengguna.svg";
 
-// Icons Kenapa Kami
+// Ikon Kenapa Kami
 import IconSegar from "../../assets/images/icons/segar.svg";
 import IconJujur from "../../assets/images/icons/jujur.svg";
 import IconPengiriman from "../../assets/images/icons/pengiriman.svg";
 
-// Icon kategori
+// Ikon kategori
 import IconKategori from "../../assets/images/icons/kategori.svg";
 
-// Icons langkah belanja
+// Ikon langkah belanja
 import IconPilihProduk from "../../assets/images/icons/pilih produk.svg";
 import IconMasukkanKeranjang from "../../assets/images/icons/masukkan keranjang.svg";
 import IconMelakukanPembayaran from "../../assets/images/icons/melakukan pembayaran.svg";
 import IconMenungguPesanan from "../../assets/images/icons/menunggu pesanan.svg";
 
-// Icon search
+// Ikon search
 import IconSearch from "../../assets/images/icons/pencarian.svg";
 
 const HomeContent = ({ isLoggedIn }) => {
@@ -39,59 +38,97 @@ const HomeContent = ({ isLoggedIn }) => {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  // LOGIKA SEARCH BAR
+  // Data statistik
+  const statistikItems = [
+    { label: "Petani Terdaftar", icon: IconFarmer },
+    { label: "Desa Terdaftar", icon: IconDesa },
+    { label: "Pengguna Terdaftar", icon: IconPengguna },
+  ];
+
+  // Data kategori
+  const kategoriItems = [
+    {
+      key: "buah",
+      title: "Buah",
+      desc: "Manis alami, penuh vitamin, dan langsung dipetik dari kebun petani lokal kami.",
+    },
+    {
+      key: "sayur",
+      title: "Sayur",
+      desc: "Ditanam tanpa bahan kimia berbahaya, menjaga kesegaran hingga ke dapur Anda.",
+    },
+    {
+      key: "beras",
+      title: "Beras",
+      desc: "Dipanen dari padi unggulan, menghasilkan nasi pulen dan harum yang menggugah selera.",
+    },
+  ];
+
+  // Data langkah belanja
+  const langkahBelanja = [
+    { label: "Pilih Produk", icon: IconPilihProduk },
+    { label: "Masukkan Keranjang", icon: IconMasukkanKeranjang },
+    { label: "Melakukan Pembayaran", icon: IconMelakukanPembayaran },
+    { label: "Menunggu Pesanan", icon: IconMenungguPesanan },
+  ];
+
+  // Helper: mapping keyword → kategori
+  const getCategoryFromKeyword = (raw) => {
+    const q = raw.toLowerCase();
+
+    if (q.includes("buah")) return "buah";
+    if (q.includes("sayur") || q.includes("sayuran")) return "sayur";
+    if (q.includes("beras")) return "beras";
+
+    return null;
+  };
+
+  // Submit pencarian
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     const raw = searchQuery.trim();
 
-    // kalau kosong → buka semua
+    // Kosong → tampilkan semua di katalog
     if (!raw) {
       navigate(`${catalogBase}?category=all`);
       return;
     }
 
-    const q = raw.toLowerCase();
-
-    if (q.includes("buah")) {
-      navigate(`${catalogBase}?category=buah`);
+    // Jika keyword cocok kategori tertentu
+    const detectedCategory = getCategoryFromKeyword(raw);
+    if (detectedCategory) {
+      navigate(`${catalogBase}?category=${detectedCategory}`);
       return;
     }
 
-    if (q.includes("sayur") || q.includes("sayuran")) {
-      navigate(`${catalogBase}?category=sayur`);
-      return;
-    }
-
-    if (q.includes("beras")) {
-      navigate(`${catalogBase}?category=beras`);
-      return;
-    }
-
-    // selain itu → search bebas
+    // Selain itu pakai mode search bebas
     navigate(`${catalogBase}?search=${encodeURIComponent(raw)}`);
+  };
+
+  // Klik tombol kategori
+  const handleGoToCategory = (categoryKey) => {
+    navigate(`${catalogBase}?category=${categoryKey}`);
   };
 
   return (
     <div className="bg-[#FFFEF6]">
-      {/* Search Section – STYLE TETAP, cuma ditambah icon & form */}
-      <div className="flex justify-center items-center py-10">
+      {/* SECTION SEARCH */}
+      <div className="flex justify-center items-center pt-0 pb-8 sm:pt-1 sm:pb-10">
         <form
           onSubmit={handleSearchSubmit}
           className="w-full flex justify-center"
         >
-          <div className="relative w-1/2 min-w-[260px]">
+          <div className="relative w-full max-w-[520px] min-w-[260px]">
             <input
               type="text"
               placeholder="Cari produk segar..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full border-2 border-[#588157] rounded-full px-6 py-3 pr-12 focus:outline-none bg-transparent"
+              className="w-full border-2 border-[#588157] rounded-full px-6 py-2.5 sm:py-3 pr-11 focus:outline-none bg-transparent text-sm sm:text-base"
             />
-
-            {/* ikon di kanan dalam input */}
             <button
               type="submit"
-              className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center justify-center"
+              className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 flex items-center justify-center"
               aria-label="Cari produk"
             >
               <img
@@ -104,35 +141,35 @@ const HomeContent = ({ isLoggedIn }) => {
         </form>
       </div>
 
-      {/* ================= HERO SECTION (SUDAH DISESUAIKAN DENGAN DESAIN) ================= */}
+      {/* HERO SECTION */}
       <section className="w-full bg-[#B8D68F]/25">
         <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row">
-          {/* LEFT: BLOK TEKS */}
+          {/* Kiri: teks hero */}
           <div className="w-full md:w-[55%] flex items-center">
-            <div className="px-8 md:px-20 py-12 md:py-0 max-w-xl">
-              <h2 className="text-[28px] md:text-[25px] font-extrabold text-[#344E41] leading-snug mb-6">
+            <div className="px-4 sm:px-8 md:px-16 lg:px-20 py-10 md:py-12 max-w-xl">
+              <h2 className="text-[24px] sm:text-[26px] md:text-[25px] font-extrabold text-[#344E41] leading-snug mb-5 sm:mb-6">
                 Dari Ladang ke Tempat Anda,
                 <br />
                 Segarnya Tetap Terjaga.
               </h2>
 
-              <p className="text-[#3A5A40] text-[16px] leading-relaxed mb-10">
+              <p className="text-[#3A5A40] text-[14px] sm:text-[15px] leading-relaxed mb-8 sm:mb-10">
                 Belanja hasil panen kini lebih mudah dan menyenangkan! Temukan
                 sayur, buah, dan bahan segar langsung dari petani Indonesia.
                 Dijamin segar, sehat, dan sampai di rumah Anda dengan cepat.
               </p>
 
               <Link to={`${catalogBase}?category=all`}>
-                <button className="inline-flex items-center gap-3 border-2 border-[#344E41] text-[#344E41] font-semibold px-6 py-3 rounded-full hover:bg-[#344E41] hover:text-white transition-all">
+                <button className="inline-flex items-center gap-3 border-2 border-[#344E41] text-[#344E41] font-semibold px-5 sm:px-6 py-2.5 sm:py-3 rounded-full hover:bg-[#344E41] hover:text-white transition-all text-sm sm:text-base">
                   <span>Belanja Sekarang</span>
-                  <span className="text-xl">→</span>
+                  <span className="text-lg sm:text-xl">→</span>
                 </button>
               </Link>
             </div>
           </div>
 
-          {/* RIGHT: FOTO PETANI FULL HEIGHT */}
-          <div className="w-full md:w-[45%] h-[260px] md:h-[430px]">
+          {/* Kanan: gambar hero */}
+          <div className="w-full md:w-[45%] h-[220px] sm:h-[260px] md:h-[400px] lg:h-[430px]">
             <img
               src={HeroFarmer}
               alt="hero-farmer"
@@ -141,29 +178,24 @@ const HomeContent = ({ isLoggedIn }) => {
           </div>
         </div>
       </section>
-      {/* ================= END HERO SECTION ================= */}
 
-      {/* ✅ Statistik Section */}
-      <section className="w-full bg-[#FFFEF6] py-16">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 text-center">
-          {[
-            { label: "Petani Terdaftar", icon: IconFarmer },
-            { label: "Desa Terdaftar", icon: IconDesa },
-            { label: "Pengguna Terdaftar", icon: IconPengguna },
-          ].map((item, index) => (
+      {/* STATISTIK */}
+      <section className="w-full bg-[#FFFEF6] py-12 md:py-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 text-center">
+          {statistikItems.map((item, index) => (
             <div
               key={index}
-              className="rounded-[32px] px-6 py-10 bg-[#588157]/25 flex flex-col justify-center items-center shadow-[0px_6px_12px_rgba(0,0,0,0.2)]"
+              className="rounded-[28px] sm:rounded-[32px] px-6 py-8 sm:py-10 bg-[#588157]/25 flex flex-col justify-center items-center shadow-[0px_6px_12px_rgba(0,0,0,0.2)]"
             >
               <img
                 src={item.icon}
                 alt={item.label}
-                className="w-12 h-12 mb-4 object-contain"
+                className="w-10 h-10 sm:w-12 sm:h-12 mb-3 sm:mb-4 object-contain"
               />
-              <h3 className="text-[40px] font-extrabold text-[#3A5B40] leading-tight">
+              <h3 className="text-[32px] sm:text-[36px] md:text-[40px] font-extrabold text-[#3A5B40] leading-tight">
                 7000+
               </h3>
-              <p className="text-[#3A5B40] mt-2 font-semibold">
+              <p className="text-[#3A5B40] mt-1 sm:mt-2 font-semibold text-sm sm:text-base">
                 {item.label}
               </p>
             </div>
@@ -171,11 +203,11 @@ const HomeContent = ({ isLoggedIn }) => {
         </div>
       </section>
 
-      {/* ✅ PROMO Section (DISESUAIKAN DENGAN DESAIN) */}
-      <section className="w-full bg-[#EEF2E6] py-0">
+      {/* PROMO SECTION */}
+      <section className="w-full bg-[#EEF2E6]">
         <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-2">
-          {/* LEFT - FULL IMAGE PROMO */}
-          <div className="flex-1 min-h-[260px] md:min-h-[350px] lg:min-h-[420px] overflow-hidden">
+          {/* Gambar promo */}
+          <div className="flex-1 min-h-[220px] sm:min-h-[260px] md:min-h-[350px] lg:min-h-[420px] overflow-hidden">
             <img
               src={PromoVeg}
               alt="Sayuran Promo"
@@ -183,10 +215,10 @@ const HomeContent = ({ isLoggedIn }) => {
             />
           </div>
 
-          {/* RIGHT - BLOK TEKS */}
+          {/* Teks promo */}
           <div className="bg-[#6E8C6B] text-white flex items-center">
-            <div className="px-10 md:px-16 py-12 md:py-0 max-w-xl">
-              <h3 className="text-2xl md:text-3xl font-extrabold leading-snug mb-6">
+            <div className="px-6 sm:px-10 md:px-12 lg:px-16 py-10 md:py-0 max-w-xl">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-snug mb-4 sm:mb-6">
                 Kesegaran Alami, Harga Terbaik.
               </h3>
               <p className="text-sm md:text-base leading-relaxed font-medium opacity-95">
@@ -199,25 +231,25 @@ const HomeContent = ({ isLoggedIn }) => {
         </div>
       </section>
 
-      {/* ✅ PRODUK TERBARU SESUAI FIGMA */}
-      <section className="w-full bg-[#FFFEF6] py-16">
-        <div className="max-w-[1380px] mx-auto px-10">
+      {/* PRODUK TERBARU */}
+      <section className="w-full bg-[#FFFEF6] py-12 md:py-16">
+        <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-10">
           {/* Header */}
-          <div className="flex justify-between items-center mb-10">
-            <h2 className="text-[28px] font-bold text-[#344E41]">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-8 sm:mb-10">
+            <h2 className="text-[22px] sm:text-[26px] md:text-[28px] font-bold text-[#344E41]">
               Produk Terbaru
             </h2>
 
             <Link
               to={`${catalogBase}?category=all`}
-              className="text-[#3A5A40] font-semibold text-[15px] hover:underline flex items-center gap-1"
+              className="text-[#3A5A40] font-semibold text-[14px] sm:text-[15px] hover:underline flex items-center gap-1"
             >
               Lihat Semuanya &gt;
             </Link>
           </div>
 
-          {/* GRID PRODUK */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-12 gap-x-8">
+          {/* Grid produk */}
+          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-10 gap-x-6 md:gap-y-12 md:gap-x-8">
             {Array.from({ length: 8 }).map((_, i) => {
               const productId = i + 1;
               return (
@@ -230,8 +262,8 @@ const HomeContent = ({ isLoggedIn }) => {
                   }
                 >
                   <div className="bg-white rounded-3xl shadow-[0_4px_10px_rgba(0,0,0,0.08)] border border-[#E0E6D8] hover:shadow-xl transition-all duration-200 cursor-pointer w-full max-w-[310px] mx-auto">
-                    {/* IMAGE */}
-                    <div className="w-full bg-[#F4F8F1] rounded-t-3xl p-6 h-[200px] flex items-center justify-center">
+                    {/* Gambar produk */}
+                    <div className="w-full bg-[#F4F8F1] rounded-t-3xl p-6 h-[180px] sm:h-[200px] flex items-center justify-center">
                       <img
                         src={BawangMerah}
                         alt="product bawang merah"
@@ -239,17 +271,17 @@ const HomeContent = ({ isLoggedIn }) => {
                       />
                     </div>
 
-                    {/* TEXT */}
-                    <div className="p-6">
-                      <h3 className="text-[#344E41] font-bold text-[17px] mb-2">
+                    {/* Detail produk */}
+                    <div className="p-5 sm:p-6">
+                      <h3 className="text-[#344E41] font-bold text-[15px] sm:text-[17px] mb-2">
                         Beras Lele 5kg
                       </h3>
 
-                      <p className="text-[#3A5A40] text-[13px] mb-4 leading-relaxed">
+                      <p className="text-[#3A5A40] text-[12px] sm:text-[13px] mb-4 leading-relaxed">
                         LAHAP LELE BERAS PUNEL & PUTIH ALAMI PREMIUM 5kg
                       </p>
 
-                      <p className="text-[#344E41] font-bold text-[16px]">
+                      <p className="text-[#344E41] font-bold text-[15px] sm:text-[16px]">
                         Rp70.000.00
                       </p>
                     </div>
@@ -261,86 +293,86 @@ const HomeContent = ({ isLoggedIn }) => {
         </div>
       </section>
 
-      {/* ✅ KENAPA KAMI */}
-      <section className="w-full bg-[#DDEACD] py-20">
-        <div className="max-w-[1350px] mx-auto px-10 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-          {/* LEFT CONTENT */}
+      {/* KENAPA KAMI */}
+      <section className="w-full bg-[#DDEACD] py-14 md:py-20">
+        <div className="max-w-[1350px] mx-auto px-4 sm:px-8 lg:px-10 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
+          {/* Konten teks */}
           <div>
-            <h2 className="text-[#344E41] font-extrabold text-[32px] mb-4">
+            <h2 className="text-[#344E41] font-extrabold text-[26px] sm:text-[30px] md:text-[32px] mb-3 sm:mb-4">
               Kenapa Kami?
             </h2>
-            <p className="text-[#3A5A40] text-[15px] mb-10 leading-relaxed">
+            <p className="text-[#3A5A40] text-[14px] sm:text-[15px] mb-8 sm:mb-10 leading-relaxed">
               Karena kami percaya, hasil terbaik datang langsung dari tangan
               petani.
             </p>
 
-            <div className="space-y-10">
-              {/* 1 Langsung dari Petani */}
+            <div className="space-y-8 sm:space-y-10">
+              {/* Item 1 */}
               <div className="flex items-start gap-4">
                 <img
                   src={IconFarmer}
                   alt="Langsung dari Petani"
-                  className="w-[48px]"
+                  className="w-[42px] sm:w-[48px]"
                 />
                 <div>
-                  <h3 className="font-bold text-[#344E41] text-[18px] mb-1">
+                  <h3 className="font-bold text-[#344E41] text-[16px] sm:text-[18px] mb-1">
                     Langsung dari Petani
                   </h3>
-                  <p className="text-[#3A5A40] text-[15px] leading-relaxed">
+                  <p className="text-[#3A5A40] text-[14px] sm:text-[15px] leading-relaxed">
                     Kami bekerja sama langsung dengan petani lokal. Setiap
                     produk datang segar tanpa melalui rantai distribusi panjang.
                   </p>
                 </div>
               </div>
 
-              {/* 2 Segar dan Alami */}
+              {/* Item 2 */}
               <div className="flex items-start gap-4">
                 <img
                   src={IconSegar}
                   alt="Segar dan Alami"
-                  className="w-[48px]"
+                  className="w-[42px] sm:w-[48px]"
                 />
                 <div>
-                  <h3 className="font-bold text-[#344E41] text-[18px] mb-1">
+                  <h3 className="font-bold text-[#344E41] text-[16px] sm:text-[18px] mb-1">
                     Segar dan Alami
                   </h3>
-                  <p className="text-[#3A5A40] text-[15px] leading-relaxed">
+                  <p className="text-[#3A5A40] text-[14px] sm:text-[15px] leading-relaxed">
                     Hasil panen dikirim segera setelah dipetik. Tanpa bahan
                     pengawet atau proses pematangan buatan.
                   </p>
                 </div>
               </div>
 
-              {/* 3 Harga Jujur */}
+              {/* Item 3 */}
               <div className="flex items-start gap-4">
                 <img
                   src={IconJujur}
                   alt="Harga Jujur"
-                  className="w-[48px]"
+                  className="w-[42px] sm:w-[48px]"
                 />
                 <div>
-                  <h3 className="font-bold text-[#344E41] text-[18px] mb-1">
+                  <h3 className="font-bold text-[#344E41] text-[16px] sm:text-[18px] mb-1">
                     Harga Jujur
                   </h3>
-                  <p className="text-[#3A5A40] text-[15px] leading-relaxed">
+                  <p className="text-[#3A5A40] text-[14px] sm:text-[15px] leading-relaxed">
                     Petani mendapatkan harga yang layak. Pembeli pun menikmati
                     harga hemat tanpa biaya tambahan.
                   </p>
                 </div>
               </div>
 
-              {/* 4 Pengiriman Cepat */}
+              {/* Item 4 */}
               <div className="flex items-start gap-4">
                 <img
                   src={IconPengiriman}
                   alt="Pengiriman Cepat"
-                  className="w-[48px]"
+                  className="w-[42px] sm:w-[48px]"
                 />
                 <div>
-                  <h3 className="font-bold text-[#344E41] text-[18px] mb-1">
+                  <h3 className="font-bold text-[#344E41] text-[16px] sm:text-[18px] mb-1">
                     Pengiriman Cepat
                   </h3>
-                  <p className="text-[#3A5A40] text-[15px] leading-relaxed">
+                  <p className="text-[#3A5A40] text-[14px] sm:text-[15px] leading-relaxed">
                     Produk dikemas dengan aman dan rapi. Kami pastikan
                     kesegaran tetap terjaga hingga sampai ke tangan Anda.
                   </p>
@@ -349,61 +381,52 @@ const HomeContent = ({ isLoggedIn }) => {
             </div>
           </div>
 
-          {/* RIGHT IMAGE */}
+          {/* Gambar kanan */}
           <div className="flex justify-center">
             <img
               src={Petani2Banner}
               alt="petani"
-              className="rounded-2xl shadow-md w-full max-w-[550px] object-cover"
+              className="rounded-2xl shadow-md w-full max-w-[520px] md:max-w-[550px] object-cover"
             />
           </div>
         </div>
       </section>
 
-      {/* ✅ SECTION KATEGORI */}
-      <section className="bg-[#FFFEF6] w-full py-20">
-        <div className="max-w-[1350px] mx-auto px-10 text-center">
-          <h2 className="text-[#344E41] font-extrabold text-[32px] mb-16">
+      {/* KATEGORI */}
+      <section className="bg-[#FFFEF6] w-full py-14 md:py-20">
+        <div className="max-w-[1350px] mx-auto px-4 sm:px-8 lg:px-10 text-center">
+          <h2 className="text-[#344E41] font-extrabold text-[26px] sm:text-[30px] md:text-[32px] mb-10 sm:mb-16">
             Kategori
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-            {[
-              {
-                title: "Buah",
-                desc: "Manis alami, penuh vitamin, dan langsung dipetik dari kebun petani lokal kami.",
-              },
-              {
-                title: "Sayur",
-                desc: "Ditanam tanpa bahan kimia berbahaya, menjaga kesegaran hingga ke dapur Anda.",
-              },
-              {
-                title: "Beras",
-                desc: "Dipanen dari padi unggulan, menghasilkan nasi pulen dan harum yang menggugah selera.",
-              },
-            ].map((item, i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+            {kategoriItems.map((item) => (
               <div
-                key={i}
-                className="bg-white rounded-2xl border border-[#7BA66A]/40 shadow-sm px-6 py-8 flex justify-between items-center"
+                key={item.key}
+                className="bg-white rounded-2xl border border-[#7BA66A]/40 shadow-sm px-6 py-7 sm:px-6 sm:py-8 flex justify-between items-center"
               >
                 <div className="text-left max-w-[70%]">
-                  <h3 className="text-[#344E41] font-bold text-[18px] mb-2">
+                  <h3 className="text-[#344E41] font-bold text-[17px] sm:text-[18px] mb-2">
                     {item.title}
                   </h3>
-                  <p className="text-[#3A5A40] text-[14px] leading-snug mb-6">
+                  <p className="text-[#3A5A40] text-[13px] sm:text-[14px] leading-snug mb-5 sm:mb-6">
                     {item.desc}
                   </p>
 
-                  <button className="border-2 border-[#3A5A40] text-[#3A5A40] px-4 py-1 rounded-lg text-[14px] font-semibold flex items-center gap-2 hover:bg-[#3A5A40] hover:text-white transition">
+                  <button
+                    type="button"
+                    onClick={() => handleGoToCategory(item.key)}
+                    className="border-2 border-[#3A5A40] text-[#3A5A40] px-4 py-1.5 rounded-lg text-[13px] sm:text-[14px] font-semibold flex items-center gap-2 hover:bg-[#3A5A40] hover:text-white transition"
+                  >
                     Belanja
-                    <span className="text-xl -mb-[2px]">→</span>
+                    <span className="text-lg sm:text-xl -mb-[2px]">→</span>
                   </button>
                 </div>
 
                 <img
                   src={IconKategori}
                   alt={item.title}
-                  className="w-[90px] object-contain mt-28"
+                  className="w-[70px] sm:w-[90px] object-contain mt-8 sm:mt-16 lg:mt-24"
                 />
               </div>
             ))}
@@ -411,44 +434,42 @@ const HomeContent = ({ isLoggedIn }) => {
         </div>
       </section>
 
-      {/* ✅ SECTION LANGKAH BELANJA */}
-      <section className="bg-[#FFFEF6] w-full pb-24 pt-10">
-        <div className="max-w-[1350px] mx-auto px-10 text-center">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-16 mt-10">
-            {[
-              { label: "Pilih Produk", icon: IconPilihProduk },
-              { label: "Masukkan Keranjang", icon: IconMasukkanKeranjang },
-              { label: "Melakukan Pembayaran", icon: IconMelakukanPembayaran },
-              { label: "Menunggu Pesanan", icon: IconMenungguPesanan },
-            ].map((step, i) => (
-              <div key={i} className="flex flex-col items-center">
-                <div className="w-[90px] h-[90px] rounded-xl flex items-center justify-center bg-[#588157]/45">
-                  <img
-                    src={step.icon}
-                    alt={step.label}
-                    className="object-contain w-[70px]"
-                  />
+      {/* LANGKAH BELANJA */}
+      <section className="bg-[#FFFEF6] w-full pt-8 pb-16 md:pb-24">
+        <div className="max-w-[1350px] mx-auto px-4 sm:px-8 lg:px-10 text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-14 lg:gap-16 mt-8 sm:mt-10">
+            {langkahBelanja.map((step, i) => {
+              const parts = step.label.split(" ");
+              return (
+                <div key={i} className="flex flex-col items-center">
+                  <div className="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] rounded-xl flex items-center justify-center bg-[#588157]/45">
+                    <img
+                      src={step.icon}
+                      alt={step.label}
+                      className="object-contain w-[58px] sm:w-[70px]"
+                    />
+                  </div>
+                  <p className="text-[#344E41] font-semibold text-[14px] sm:text-[15px] leading-tight mt-3 sm:mt-4">
+                    {parts[0]} <br />
+                    {parts.slice(1).join(" ")}
+                  </p>
                 </div>
-                <p className="text-[#344E41] font-semibold text-[15px] leading-tight mt-4">
-                  {step.label.split(" ")[0]} <br />
-                  {step.label.split(" ").slice(1).join(" ")}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* ✅ TENTANG KAMI */}
-      <section className="bg-[#FFFEF6] py-24">
-        <div className="max-w-[1350px] mx-auto text-center px-10">
-          <h2 className="text-[#344E41] text-[28px] md:text-[32px] font-extrabold mb-12">
+      {/* TENTANG KAMI */}
+      <section className="bg-[#FFFEF6] py-16 md:py-24">
+        <div className="max-w-[1350px] mx-auto text-center px-4 sm:px-8 lg:px-10">
+          <h2 className="text-[#344E41] text-[24px] sm:text-[28px] md:text-[32px] font-extrabold mb-10 sm:mb-12">
             Tentang Kami
           </h2>
 
-          <div className="bg-gradient-to-r from-[#D2E4BE] to-[#9DBD84] rounded-3xl p-6 md:p-10 max-w-4xl mx-auto">
-            <div className="bg-white/60 backdrop-blur-md rounded-3xl shadow-inner p-10 text-center">
-              <p className="text-[#344E41] text-[15px] md:text-[17px] leading-relaxed">
+          <div className="bg-gradient-to-r from-[#D2E4BE] to-[#9DBD84] rounded-3xl p-5 sm:p-6 md:p-8 lg:p-10 max-w-4xl mx-auto">
+            <div className="bg-white/60 backdrop-blur-md rounded-3xl shadow-inner p-7 sm:p-8 md:p-10 text-center">
+              <p className="text-[#344E41] text-[14px] sm:text-[15px] md:text-[17px] leading-relaxed">
                 <span className="font-bold">PanenMania</span> hadir sebagai
                 <span className="font-bold">
                   {" "}

@@ -22,23 +22,32 @@ const OrderHistoryDetail = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // State kontrol popup logout
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+
+  // State untuk menyimpan foto profil sementara (preview)
   const [profilePic, setProfilePic] = useState(null);
 
+  // Handler pembukaan popup logout
   const handleLogout = () => setShowLogoutPopup(true);
+
+  // Handler penutupan popup logout
   const closeLogoutPopup = () => setShowLogoutPopup(false);
 
+  // Handler konfirmasi logout dan penghapusan token
   const confirmLogout = () => {
     localStorage.removeItem("token");
     setShowLogoutPopup(false);
     navigate("/", { replace: true });
   };
 
+  // Handler unggah foto profil (hanya untuk preview lokal)
   const handleUploadPic = (e) => {
     const file = e.target.files[0];
     if (file) setProfilePic(URL.createObjectURL(file));
   };
 
+  // Fungsi untuk menandai menu sidebar yang aktif
   const isActive = (path) => location.pathname === path;
 
   // ========= DATA PESANAN (samakan objek AdminOrders pertama) =========
@@ -56,6 +65,7 @@ const OrderHistoryDetail = () => {
     packing: 1000,
   };
 
+  // Fungsi format nilai rupiah
   const formatRupiah = (num) =>
     new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -68,6 +78,7 @@ const OrderHistoryDetail = () => {
   const subtotalPengemasan = order.packing;
   const total = subtotalProduk + subtotalPengemasan + subtotalPengiriman;
 
+  // Data tahapan proses pesanan
   const steps = [
     { icon: dollarIcon, label: "Pembayaran Dikonfirmasi" },
     { icon: orderIcon, label: "Pesanan Dibuat" },
@@ -76,7 +87,7 @@ const OrderHistoryDetail = () => {
     { icon: likeIcon, label: "Selesai" },
   ];
 
-  // Komponen panah di antara step
+  // Komponen ikon panah di antara langkah pesanan
   const StepArrow = () => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -108,12 +119,12 @@ const OrderHistoryDetail = () => {
     <div className="min-h-screen bg-[#FFFEF6] text-[#344E41] font-poppins flex flex-col">
       <NavbarAfterLogin />
 
-      {/* MAIN CONTENT – mulai tepat di bawah navbar */}
-      <div className="flex w-full mt-14 gap-8">
+      {/* MAIN CONTENT – responsif, tetapi layout desktop tetap sidebar kiri + konten kanan */}
+      <div className="flex w-full mt-14 gap-8 flex-col lg:flex-row px-4 sm:px-6 lg:px-0">
         {/* SIDEBAR – sama dengan halaman profile lain */}
-        <div className="w-72 bg-white px-6 py-8 rounded-[10px] shadow flex flex-col overflow-y-auto min-h-[calc(100vh-56px)]">
+        <div className="w-full lg:w-72 bg-white px-6 py-8 rounded-[10px] shadow flex flex-col overflow-y-auto min-h-[calc(100vh-56px)]">
           <div className="flex flex-col items-center text-center">
-            {/* Profile Pic + Edit */}
+            {/* Foto profil + tombol edit (input file) */}
             <label className="relative cursor-pointer inline-block">
               <input type="file" className="hidden" onChange={handleUploadPic} />
               <div className="w-40 h-40 bg-[#F2F2F2] rounded-full flex items-center justify-center overflow-hidden">
@@ -131,7 +142,7 @@ const OrderHistoryDetail = () => {
             <p className="mt-3 font-semibold text-lg">Dearni Lambardo</p>
           </div>
 
-          {/* MENU */}
+          {/* MENU SIDEBAR */}
           <div className="mt-8 space-y-6 text-left w-full">
             {/* PROFILE SECTION */}
             <div>
@@ -220,8 +231,8 @@ const OrderHistoryDetail = () => {
           </button>
         </div>
 
-        {/* MAIN CONTENT – DETAIL PESANAN (mengikuti AdminOrders detail) */}
-        <div className="flex-1 mr-6 lg:mr-20 flex flex-col mt-10 mb-10">
+        {/* MAIN CONTENT – detail pesanan (mengikuti AdminOrders detail) */}
+        <div className="flex-1 mr-0 md:mr-6 lg:mr-20 flex flex-col mt-10 mb-10">
           {/* BAR KEMBALI + ID PESANAN */}
           <div
             className="w-full bg-white rounded-[15px] px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4"
@@ -249,11 +260,11 @@ const OrderHistoryDetail = () => {
 
             <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 text-xs md:text-sm text-[#3A5B40]">
               <span>ID Pesanan : {order.id}</span>
-              <span className="font-semibold">Selesai</span>
+              <span className="font-semibold">{order.status}</span>
             </div>
           </div>
 
-          {/* CARD DETAIL */}
+          {/* CARD DETAIL PESANAN */}
           <div
             className="w-full rounded-[15px] border border-[#3A5B40] px-4 md:px-8 py-5 md:py-7 space-y-5 md:space-y-7"
             style={{
@@ -270,7 +281,7 @@ const OrderHistoryDetail = () => {
                       key={idx}
                       className="flex items-center gap-3 md:gap-4 flex-1 min-w-[90px]"
                     >
-                      {/* Lingkaran + label */}
+                      {/* Lingkaran ikon + label di bawahnya */}
                       <div className="flex flex-col items-center text-center">
                         <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-[3px] border-[#3A5B40] flex items-center justify-center mb-2 bg-white">
                           <img
@@ -284,7 +295,7 @@ const OrderHistoryDetail = () => {
                         </p>
                       </div>
 
-                      {/* Panah antar step (kecuali terakhir) */}
+                      {/* Panah antar step (kecuali step terakhir) */}
                       {idx < steps.length - 1 && (
                         <div className="flex-1 flex justify-center md:justify-start">
                           <StepArrow />
@@ -295,23 +306,23 @@ const OrderHistoryDetail = () => {
                 </div>
               </div>
 
-              {/* Garis pemisah full width */}
+              {/* Garis pemisah horizontal penuh */}
               <div className="border-t border-[#3A5B40] mt-5 -mx-4 md:-mx-8" />
             </div>
 
             {/* INFO CUSTOMER + PRODUK */}
             <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-              {/* KIRI: CUSTOMER */}
+              {/* KIRI: INFORMASI CUSTOMER */}
               <div className="flex-1 space-y-2 text-xs md:text-sm text-[#3A5B40]">
                 <div className="font-semibold">{order.customerName}</div>
                 <div className="text-xs">{order.phone}</div>
                 <p className="mt-2 leading-relaxed">{order.addressDescription}</p>
               </div>
 
-              {/* GARIS VERTICAL (desktop) */}
+              {/* GARIS VERTICAL (hanya tampil di desktop) */}
               <div className="hidden md:block w-px bg-[#3A5B40]" />
 
-              {/* KANAN: PRODUK */}
+              {/* KANAN: RINGKASAN PRODUK */}
               <div className="flex-[1.2]">
                 <div
                   className="flex items-center gap-4 rounded-[10px] px-4 py-3"
@@ -321,7 +332,7 @@ const OrderHistoryDetail = () => {
                   }}
                 >
                   <div className="w-14 h-14 rounded-md bg-white flex items-center justify-center border border-[#E5E7EB]">
-                    {/* ganti IMG dengan gambar produk asli kalau sudah ada */}
+                    {/* Ganti teks ini dengan gambar produk apabila telah tersedia */}
                     <span className="text-[10px] text-[#3A5B40]">IMG</span>
                   </div>
                   <div className="flex-1 text-xs md:text-sm text-[#3A5B40] space-y-1">
@@ -335,10 +346,10 @@ const OrderHistoryDetail = () => {
               </div>
             </div>
 
-            {/* GARIS PEMISAH */}
+            {/* GARIS PEMISAH RINCIAN HARGA */}
             <div className="border-t border-[#3A5B40]" />
 
-            {/* RINCIAN HARGA */}
+            {/* RINCIAN HARGA PESANAN */}
             <div className="space-y-2 text-xs md:text-sm text-[#3A5B40]">
               <div className="flex justify-between">
                 <span>Subtotal Produk</span>
@@ -362,29 +373,16 @@ const OrderHistoryDetail = () => {
         </div>
       </div>
 
-      {/* POPUP LOGOUT */}
+      {/* POPUP LOGOUT – menggunakan Popup generik terbaru */}
       {showLogoutPopup && (
-        <Popup onClose={closeLogoutPopup}>
-          <div className="text-center px-6 py-8 bg-white rounded-xl shadow-lg max-w-md mx-auto">
-            <h3 className="text-lg font-semibold mb-5 text-[#344E41]">
-              Anda Yakin Ingin Keluar?
-            </h3>
-            <div className="flex gap-4 justify-center mt-4">
-              <button
-                onClick={closeLogoutPopup}
-                className="bg-gray-300 text-[#344E41] px-6 py-2 rounded-[10px] hover:bg-gray-400 transition"
-              >
-                Kembali
-              </button>
-              <button
-                onClick={confirmLogout}
-                className="bg-[#344E41] text-white px-6 py-2 rounded-[10px] hover:bg-[#2a3e33] transition"
-              >
-                Yakin
-              </button>
-            </div>
-          </div>
-        </Popup>
+        <Popup
+          variant="logout"
+          title="Anda Yakin Ingin Keluar?"
+          message="Anda akan keluar dari akun ini. Apakah Anda yakin?"
+          onClose={closeLogoutPopup}    // tutup saat klik backdrop
+          onCancel={closeLogoutPopup}   // batal keluar
+          onConfirm={confirmLogout}     // konfirmasi keluar aplikasi
+        />
       )}
     </div>
   );

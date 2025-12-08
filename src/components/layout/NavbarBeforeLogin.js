@@ -1,5 +1,4 @@
-// src/components/layout/NavbarBeforeLogin.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 import LogoPanen from "../../assets/images/icons/logo panenmania.svg";
@@ -9,58 +8,62 @@ const NavbarBeforeLogin = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Menentukan kelas aktif pada menu
   const isActive = (path) =>
     location.pathname === path
       ? "font-semibold text-white"
       : "text-white/80 hover:text-white";
 
+  // Menutup menu mobile saat berpindah halaman
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
   return (
     <>
-      {/* Inline CSS kecil biar langsung kebaca tanpa edit global */}
+      {/* Styling khusus ikon register */}
       <style>{`
-        /* transisi halus untuk ikon dan teks */
         .register-btn img.register-icon {
           transition: filter .12s ease, transform .12s ease, opacity .12s ease;
           -webkit-transition: filter .12s ease, transform .12s ease, opacity .12s ease;
-          filter: none; /* default: tampil normal */
+          filter: none;
+          opacity: 1;
         }
 
-        /* Saat hover / focus tombol: bg putih, teks hijau, icon diubah jadi gelap */
         .register-btn:hover,
         .register-btn:focus {
-          background: white !important;
+          background: #ffffff !important;
           color: #344E41 !important;
         }
 
         .register-btn:hover img.register-icon,
         .register-btn:focus img.register-icon {
-          /* ubah ikon jadi gelap ketika tombol putih */
           filter: invert(1) brightness(0);
           -webkit-filter: invert(1) brightness(0);
-        }
-
-        /* Pastikan ikon tidak tersembunyi karena opacity default */
-        .register-btn img.register-icon {
-          opacity: 1;
         }
       `}</style>
 
       <nav className="w-full bg-[#344E41] fixed top-0 left-0 z-50 font-poppins shadow-md">
-        <div className="max-w-[1400px] mx-auto px-4 md:px-10 h-14 grid grid-cols-3 items-center">
-          {/* LEFT logo */}
-          <Link to="/" className="flex items-center gap-2">
+        {/* Bagian utama navbar */}
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-3 relative">
+          {/* Kiri: Logo */}
+          <Link
+            to="/"
+            className="flex items-center gap-2 min-w-0"
+            aria-label="PanenMania Beranda"
+          >
             <img
               src={LogoPanen}
               alt="PanenMania"
-              className="w-8 h-8 object-contain"
+              className="w-8 h-8 sm:w-9 sm:h-9 object-contain flex-shrink-0"
             />
-            <span className="text-white font-semibold text-lg leading-none">
+            <span className="text-white font-semibold text-base sm:text-lg leading-none truncate">
               PanenMania
             </span>
           </Link>
 
-          {/* CENTER menu desktop */}
-          <div className="hidden md:flex gap-8 text-sm items-center justify-center">
+          {/* Tengah: Menu desktop/tablet, diposisikan tepat di tengah */}
+          <div className="hidden md:flex items-center gap-6 lg:gap-8 text-sm absolute left-1/2 -translate-x-1/2">
             <Link to="/" className={isActive("/")}>
               Beranda
             </Link>
@@ -75,11 +78,12 @@ const NavbarBeforeLogin = () => {
             </Link>
           </div>
 
-          {/* RIGHT register button + mobile toggle */}
-          <div className="flex items-center justify-end gap-3">
+          {/* Kanan: Tombol register dan toggle mobile */}
+          <div className="flex items-center justify-end gap-2 sm:gap-3">
+            {/* Tombol register versi desktop/tablet */}
             <Link
               to="/signup"
-              className="register-btn hidden md:inline-flex items-center gap-2 border border-white text-white px-4 h-9 rounded-[10px] font-medium hover:bg-white hover:text-[#344E41] transition"
+              className="register-btn hidden md:inline-flex items-center gap-2 border border-white text-white px-4 h-9 rounded-[10px] text-sm font-medium transition"
               aria-label="Daftar Akun"
             >
               <img
@@ -90,9 +94,26 @@ const NavbarBeforeLogin = () => {
               <span className="leading-none">Daftar Akun</span>
             </Link>
 
+            {/* Tombol register versi mobile (ikon saja) */}
+            <Link
+              to="/signup"
+              className="md:hidden inline-flex items-center justify-center border border-white/90 rounded-md p-1.5"
+              aria-label="Daftar Akun"
+            >
+              <img
+                src={RegisterIcon}
+                alt="register"
+                className="w-5 h-5 object-contain"
+              />
+            </Link>
+
+            {/* Tombol toggle menu mobile */}
             <button
+              type="button"
               onClick={() => setMobileOpen((s) => !s)}
-              className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-white/90 hover:text-white"
+              className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-white/90 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/60"
+              aria-label="Buka atau tutup menu navigasi"
+              aria-expanded={mobileOpen}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor">
                 {mobileOpen ? (
@@ -115,25 +136,36 @@ const NavbarBeforeLogin = () => {
           </div>
         </div>
 
-        {/* mobile menu */}
+        {/* Menu navigasi versi mobile */}
         <div
-          className={`md:hidden bg-[#344E41] transition-maxh duration-200 overflow-hidden ${
-            mobileOpen ? "max-h-[240px]" : "max-h-0"
+          className={`md:hidden bg-[#344E41] overflow-hidden transition-all duration-300 ease-in-out ${
+            mobileOpen ? "max-h-64" : "max-h-0"
           }`}
         >
-          <div className="px-4 pb-4 pt-2 flex flex-col gap-2">
-            <Link to="/" className={`${isActive("/")} block py-2`} onClick={() => setMobileOpen(false)}>Beranda</Link>
-            <Link to="/catalog" className={`${isActive("/catalog")} block py-2`} onClick={() => setMobileOpen(false)}>Katalog</Link>
-            <Link to="/about" className={`${isActive("/about")} block py-2`} onClick={() => setMobileOpen(false)}>Tentang Kami</Link>
-            <Link to="/contact" className={`${isActive("/contact")} block py-2`} onClick={() => setMobileOpen(false)}>Kontak</Link>
+          <div className="px-4 pb-4 pt-2 flex flex-col gap-1 text-sm">
+            <Link to="/" className={`${isActive("/")} block py-2`}>
+              Beranda
+            </Link>
+            <Link to="/catalog" className={`${isActive("/catalog")} block py-2`}>
+              Katalog
+            </Link>
+            <Link to="/about" className={`${isActive("/about")} block py-2`}>
+              Tentang Kami
+            </Link>
+            <Link to="/contact" className={`${isActive("/contact")} block py-2`}>
+              Kontak
+            </Link>
 
-            {/* tombol daftar di mobile */}
+            {/* Tombol register di dalam menu mobile */}
             <Link
               to="/signup"
-              className="inline-flex items-center gap-2 border border-white text-white px-4 py-2 rounded-[10px] font-medium mt-2"
-              onClick={() => setMobileOpen(false)}
+              className="mt-3 inline-flex items-center gap-2 border border-white text-white px-4 py-2 rounded-[10px] font-medium"
             >
-              <img src={RegisterIcon} alt="register" className="w-5 h-5 object-contain" />
+              <img
+                src={RegisterIcon}
+                alt="register"
+                className="w-5 h-5 object-contain"
+              />
               <span>Daftar Akun</span>
             </Link>
           </div>
