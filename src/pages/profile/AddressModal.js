@@ -251,7 +251,7 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
           <div className="flex justify-end gap-4 pt-4">
             <button
               onClick={onClose}
-              className="bg-gray-300 text-[#344E41] px-5 py-2 rounded-[10px] hover:bg-gray-400 transition text-sm font-semibold"
+              className="bg-[#96352C]/80 text-white px-5 py-2 rounded-[10px] hover:bg-gray-400 transition text-sm font-semibold"
             >
               Kembali
             </button>
