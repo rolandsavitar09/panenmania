@@ -220,7 +220,8 @@ function CatalogBeforeLogin() {
               className="w-full appearance-none bg-[#588157]/75 text-white text-sm font-medium rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-[#588157]"
             >
               {CATEGORY_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
+                <option key={opt.value} value={opt.value}
+                className="bg-white text-[#3A5A40]">
                   {opt.label}
                 </option>
               ))}

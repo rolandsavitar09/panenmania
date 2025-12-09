@@ -81,7 +81,7 @@ const OrderHistoryDetail = () => {
   // Data tahapan proses pesanan
   const steps = [
     { icon: dollarIcon, label: "Pembayaran Dikonfirmasi" },
-    { icon: orderIcon, label: "Pesanan Dibuat" },
+    { icon: orderIcon, label: "Pesanan Dikemas" },
     { icon: deliveryIcon, label: "Pesanan Dikirim" },
     { icon: packageIcon, label: "Pesanan Diterima" },
     { icon: likeIcon, label: "Selesai" },
