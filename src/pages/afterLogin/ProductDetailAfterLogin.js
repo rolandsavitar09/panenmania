@@ -219,11 +219,12 @@ const ProductDetailAfterLogin = () => {
                   sehingga aman digunakan untuk kebutuhan pokok keluarga Anda.
                 </p>
 
-                {/* Info pengiriman, stok, dan qty */}
+                {/* Info pengiriman, stok, dan qty – mobile dibuat 1 baris rapi */}
                 <div className="flex flex-wrap items-center gap-4 text-[#3A5B40] text-[14px] sm:text-[15px] font-medium mb-8">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span>Pengiriman</span>
-                    <div className="flex items-center gap-2">
+                  {/* Baris pengiriman dan sisa stok (nowrap di mobile) */}
+                  <div className="flex items-center gap-2 flex-nowrap text-[12px] sm:text-[15px]">
+                    <span className="whitespace-nowrap">Pengiriman</span>
+                    <div className="flex items-center gap-1 whitespace-nowrap">
                       <img
                         src={IconTruk}
                         alt="pengiriman"
@@ -231,8 +232,10 @@ const ProductDetailAfterLogin = () => {
                       />
                       <span>5–7 Hari</span>
                     </div>
-                    <span>|</span>
-                    <span>Tersisa: 20 barang</span>
+                    <span className="whitespace-nowrap">|</span>
+                    <span className="whitespace-nowrap">
+                      Tersisa: 20 barang
+                    </span>
                   </div>
 
                   <div className="lg:-ml-0">
@@ -250,18 +253,18 @@ const ProductDetailAfterLogin = () => {
                   </div>
                 )}
 
-                {/* Tombol aksi utama */}
-                <div className="flex flex-wrap gap-4 mt-2">
+                {/* Tombol aksi utama – mobile tetap 1 baris horizontal */}
+                <div className="flex flex-nowrap gap-3 mt-2 overflow-x-auto sm:overflow-visible">
                   <button
                     onClick={handleAddToCart}
-                    className="flex items-center justify-center gap-2 bg-[#3A5B40] text-white text-[15px] font-semibold px-8 py-3 rounded-[10px] min-w-[230px] hover:bg-[#2c3d33] transition"
+                    className="flex items-center justify-center gap-2 bg-[#3A5B40] text-white text-[11px] sm:text-[13px] font-semibold px-3 sm:px-6 py-2 rounded-[10px] min-w-[120px] sm:min-w-[230px] hover:bg-[#2c3d33] transition"
                   >
                     <img src={IconCart} alt="keranjang" className="w-5 h-5" />
                     <span>Masukkan Keranjang</span>
                   </button>
                   <button
                     onClick={handleBuyNow}
-                    className="flex items-center justify-center bg-[#3A5B40] text-white text-[15px] font-semibold px-8 py-3 rounded-[10px] min-w-[230px] hover:bg-[#486947] transition"
+                    className="flex items-center justify-center gap-2 bg-[#3A5B40] text-white text-[11px] sm:text-[13px] font-semibold px-3 sm:px-6 py-2 rounded-[10px] min-w-[120px] sm:min-w-[230px] hover:bg-[#2c3d33] transition"
                   >
                     Pesan Sekarang
                   </button>
@@ -353,10 +356,7 @@ const ProductDetailAfterLogin = () => {
             {langkahBelanja.map((step, i) => {
               const parts = step.label.split(" ");
               return (
-                <div
-                  key={i}
-                  className="flex flex-col items-center"
-                >
+                <div key={i} className="flex flex-col items-center">
                   <div className="w-[55px] h-[55px] sm:w-[80px] sm:h-[80px] rounded-xl flex items-center justify-center bg-[#588157]/45">
                     <img
                       src={step.icon}

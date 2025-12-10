@@ -12,9 +12,9 @@ function Footer() {
     <footer className="bg-[#344E41] text-white mt-12 sm:mt-16">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-14">
         {/* Grid utama footer */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12 items-start">
-          {/* Kiri: logo dan deskripsi singkat */}
-          <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10 lg:gap-12 items-start">
+          {/* Kiri: logo + deskripsi (full width di mobile, 1 kolom di desktop) */}
+          <div className="flex flex-col gap-4 col-span-2 md:col-span-1">
             <div className="flex items-center gap-4">
               <div className="w-[80px] sm:w-[90px] aspect-square rounded-full bg-white flex items-center justify-center">
                 <img
@@ -46,7 +46,7 @@ function Footer() {
             <h3 className="font-bold text-base sm:text-lg mb-2 sm:mb-3">
               Alamat
             </h3>
-            <p className="text-xs sm:text-sm leading-relaxed">
+            <p className="text-[10px] sm:text-sm leading-relaxed">
               Jl. Raya Tani Sejahtera No. 45,
               <br />
               Tangerang, Indonesia
@@ -59,13 +59,13 @@ function Footer() {
               Hubungi Kami
             </h3>
 
-            <div className="space-y-2.5 sm:space-y-3 text-xs sm:text-sm">
+            <div className="space-y-2.5 sm:space-y-3 text-[10px] sm:text-sm">
               {/* Telepon */}
               <div className="flex items-center gap-3">
                 <img
                   src={IconCall}
                   alt="Telepon"
-                  className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                  className="w-3 h-3 sm:w-5 sm:h-5 object-contain"
                 />
                 <span>081234567890</span>
               </div>
@@ -75,7 +75,7 @@ function Footer() {
                 <img
                   src={IconGmail}
                   alt="Email"
-                  className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                  className="w-3 h-3 sm:w-5 sm:h-5 object-contain"
                 />
                 <span>support@panenmania.id</span>
               </div>
@@ -85,7 +85,7 @@ function Footer() {
                 <img
                   src={IconFacebook}
                   alt="Facebook"
-                  className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                  className="w-3 h-3 sm:w-5 sm:h-5 object-contain"
                 />
                 <span>panenmaniaofc</span>
               </div>
