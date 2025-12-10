@@ -15,7 +15,6 @@ const SignUp = () => {
     phone: "",
     email: "",
     password: "",
-    address: "",
     gender: "",
   });
 
@@ -67,30 +66,25 @@ const SignUp = () => {
 
   return (
     <div className="bg-[#F8F8ED] min-h-screen flex justify-center items-center font-poppins px-4">
-      {/* Kartu utama: tinggi fix di desktop, konten kanan bisa discroll jika penuh */}
+      {/* Kartu utama */}
       <div className="max-w-4xl w-full bg-white rounded-[32px] border-2 border-[#588157] overflow-hidden h-auto lg:h-[580px]">
         <div className="grid grid-cols-1 lg:grid-cols-2 h-full">
           {/* ============ BAGIAN KIRI ============ */}
           <div className="p-8 lg:p-10 flex flex-col items-center">
             <div className="flex flex-col items-center mt-2 lg:mt-4">
-              {/* Gambar ilustrasi petani */}
               <img
                 src={FarmerSignup}
                 alt="Petani membawa hasil panen"
                 className="rounded-[28px] mb-8 w-full max-w-[360px] h-[220px] lg:h-[240px] object-cover"
               />
-              {/* Judul sambutan */}
               <h2 className="text-[20px] lg:text-[22px] font-bold text-[#3A5A40] text-center">
                 Selamat Datang di PaMan!
               </h2>
-              {/* Deskripsi singkat */}
               <p className="text-xs sm:text-sm text-[#3A5A40] text-center mt-3 max-w-xs leading-relaxed">
                 Temukan produk pertanian segar pilihan langsung dari petani
                 terbaik.
               </p>
-              {/* Garis pemisah */}
               <div className="w-[70%] border-t border-[#3A5B40] mt-6" />
-              {/* Ikon Google */}
               <button className="mt-6">
                 <img
                   src={GoogleIcon}
@@ -118,13 +112,13 @@ const SignUp = () => {
               Daftar Akun
             </h2>
 
-            {/* Pembungkus form dibuat scrollable agar tidak terpotong */}
+            {/* Form scrollable */}
             <div className="flex-1 overflow-y-auto pr-1">
               <form
                 onSubmit={handleSubmit}
                 className="space-y-2.5 text-[11px] sm:text-xs md:text-sm"
               >
-                {/* Nama lengkap */}
+                {/* ============ Nama lengkap ============ */}
                 <div>
                   <label className="block mb-1">Nama Lengkap</label>
                   <input
@@ -137,46 +131,7 @@ const SignUp = () => {
                   />
                 </div>
 
-                {/* No. Telepon */}
-                <div>
-                  <label className="block mb-1">No. Telepon</label>
-                  <input
-                    name="phone"
-                    type="text"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    required
-                    className={inputClass}
-                  />
-                </div>
-
-                {/* E-mail */}
-                <div>
-                  <label className="block mb-1">E-mail</label>
-                  <input
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className={inputClass}
-                  />
-                </div>
-
-                {/* Kata sandi */}
-                <div>
-                  <label className="block mb-1">Kata Sandi</label>
-                  <input
-                    name="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                    className={inputClass}
-                  />
-                </div>
-
-                {/* Jenis kelamin */}
+                {/* ============ Jenis kelamin ============ */}
                 <div>
                   <label className="block mb-2">Jenis Kelamin</label>
                   <div className="flex flex-wrap items-center gap-4 sm:gap-5">
@@ -209,20 +164,46 @@ const SignUp = () => {
                   )}
                 </div>
 
-                {/* Alamat */}
+                {/* ============ No. Telepon ============ */}
                 <div>
-                  <label className="block mb-1">Alamat</label>
+                  <label className="block mb-1">No. Telepon</label>
                   <input
-                    name="address"
+                    name="phone"
                     type="text"
-                    value={formData.address}
+                    value={formData.phone}
                     onChange={handleChange}
                     required
                     className={inputClass}
                   />
                 </div>
 
-                {/* Persetujuan ketentuan */}
+                {/* ============ E-mail ============ */}
+                <div>
+                  <label className="block mb-1">E-mail</label>
+                  <input
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className={inputClass}
+                  />
+                </div>
+
+                {/* ============ Kata sandi ============ */}
+                <div>
+                  <label className="block mb-1">Kata Sandi</label>
+                  <input
+                    name="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                    className={inputClass}
+                  />
+                </div>
+
+                {/* ============ Persetujuan ============ */}
                 <label className="flex items-center gap-2 text-[10px] leading-tight mt-0.5">
                   <input type="checkbox" required className="w-3 h-3" />
                   <span>Saya menyetujui ketentuan yang berlaku.</span>

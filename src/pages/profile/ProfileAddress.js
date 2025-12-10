@@ -5,7 +5,7 @@ import NavbarAfterLogin from "../../components/layout/NavbarAfterLogin";
 import Popup from "../../components/common/Popup";
 import AddressModal from "./AddressModal";
 
-// ICONS & IMAGES (samakan dengan ProfileMain)
+// ICONS & IMAGES
 import EditIcon from "../../assets/images/icons/edit.svg";
 import ProfileIcon from "../../assets/images/icons/profile.svg";
 import CheckIcon from "../../assets/images/icons/ceklis.svg";
@@ -55,37 +55,37 @@ const ProfileAddress = () => {
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
 
-  // upload foto profil
+  // Upload foto profil
   const handleUploadPic = (e) => {
     const file = e.target.files[0];
     if (file) setProfilePic(URL.createObjectURL(file));
   };
 
-  // buka modal tambah alamat
+  // Buka modal tambah alamat
   const openAdd = () => {
     setEditing(null);
     setShowModal(true);
   };
 
-  // buka modal edit alamat
+  // Buka modal edit alamat
   const openEdit = (addr) => {
     setEditing(addr);
     setShowModal(true);
   };
 
-  // hapus alamat dari list
+  // Hapus alamat dari daftar
   const removeAddress = (id) => {
     setAddresses((prev) => prev.filter((a) => a.id !== id));
   };
 
-  // set alamat utama
+  // Set alamat utama
   const setPrimary = (id) => {
     setAddresses((prev) =>
       prev.map((a) => ({ ...a, isPrimary: a.id === id }))
     );
   };
 
-  // simpan alamat baru / edit
+  // Simpan alamat baru atau hasil edit
   const saveAddress = (payload) => {
     if (editing) {
       setAddresses((prev) =>
@@ -121,49 +121,53 @@ const ProfileAddress = () => {
     setShowSuccess(true);
   };
 
-  // buka popup logout
+  // Buka popup logout
   const handleLogout = () => setShowLogout(true);
-  // tutup popup logout
+
+  // Tutup popup logout
   const closeLogoutPopup = () => setShowLogout(false);
 
-  // konfirmasi logout
+  // Konfirmasi logout
   const confirmLogout = () => {
     localStorage.removeItem("token");
     setShowLogout(false);
     navigate("/", { replace: true });
   };
 
+  // Cek menu aktif
   const isActive = (path) => location.pathname === path;
 
   return (
     <div className="min-h-screen bg-[#FFFEF6] text-[#344E41] font-poppins flex flex-col">
       <NavbarAfterLogin />
 
-      {/* MAIN CONTENT – sama layout dengan ProfileMain */}
-      <div className="flex w-full mt-14 gap-8">
-        {/* SIDEBAR – copy dari ProfileMain */}
-        <div className="w-72 bg-white px-6 py-8 rounded-[10px] shadow flex flex-col overflow-y-auto min-h-[calc(100vh-56px)]">
+      {/* Konten utama: stack di mobile, dua kolom di desktop */}
+      <div className="flex flex-col lg:flex-row w-full mt-14 gap-4 lg:gap-8 px-4 lg:px-0">
+        {/* Sidebar profil: full width di mobile, lebar tetap di desktop */}
+        <div className="w-full lg:w-72 bg-white px-4 py-6 lg:px-6 lg:py-8 rounded-[10px] shadow flex flex-col overflow-y-auto lg:min-h-[calc(100vh-56px)]">
           <div className="flex flex-col items-center text-center">
             <label className="relative cursor-pointer inline-block">
               <input type="file" className="hidden" onChange={handleUploadPic} />
-              <div className="w-40 h-40 bg-[#F2F2F2] rounded-full flex items-center justify-center overflow-hidden">
+              <div className="w-28 h-28 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-[#F2F2F2] rounded-full flex items-center justify-center overflow-hidden">
                 <img
                   src={profilePic || ProfilePhoto}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white shadow-[0_4px_12px_rgba(0,0,0,0.12)] flex items-center justify-center">
+              <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-8 h-8 rounded-full bg-white shadow-[0_4px_12px_rgba(0,0,0,0.12)] flex items-center justify-center">
                 <img src={EditIcon} alt="Edit" className="w-4 h-4" />
               </div>
             </label>
 
-            <p className="mt-3 font-semibold text-lg">Dearni Lambardo</p>
+            <p className="mt-3 font-semibold text-base sm:text-lg">
+              Dearni Lambardo
+            </p>
           </div>
 
-          {/* MENU – sama persis ProfileMain */}
-          <div className="mt-8 space-y-6 text-left w-full">
-            {/* PROFILE SECTION */}
+          {/* Menu samping */}
+          <div className="mt-6 lg:mt-8 space-y-6 text-left w-full">
+            {/* Bagian profil */}
             <div>
               <div className="flex items-center gap-2">
                 <img src={ProfileIcon} alt="Profile icon" className="w-5 h-5" />
@@ -207,7 +211,7 @@ const ProfileAddress = () => {
               </div>
             </div>
 
-            {/* ORDERS SECTION */}
+            {/* Bagian pesanan */}
             <div>
               <div className="flex items-center gap-2">
                 <img src={CheckIcon} alt="Orders icon" className="w-5 h-5" />
@@ -240,25 +244,25 @@ const ProfileAddress = () => {
             </div>
           </div>
 
-          {/* BUTTON KELUAR – sama dengan ProfileMain */}
+          {/* Tombol keluar */}
           <button
             onClick={handleLogout}
-            className="mt-20 self-center flex items-center justify-center gap-2 bg-[#3A5B40] px-8 py-2 rounded-[10px] text-sm font-semibold text-white hover:bg-[#314c35] transition"
+            className="mt-8 lg:mt-20 self-center flex items-center justify-center gap-2 bg-[#3A5B40] px-6 sm:px-8 py-2 rounded-[10px] text-sm font-semibold text-white hover:bg-[#314c35] transition"
           >
             <img src={OutIcon} alt="Keluar" className="w-4 h-4" />
             Keluar
           </button>
         </div>
 
-        {/* CARD ALAMAT */}
-        <div className="flex-1 mr-6 lg:mr-20 flex">
-          <div className="w-full bg-[#B8D68F40] p-10 rounded-[10px] shadow-[0_10px_30px_rgba(0,0,0,0.06)] mt-10 mb-10">
-            {/* Header card: judul + button kanan */}
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xl font-bold">Alamat Saya</h2>
+        {/* Kartu daftar alamat: full width di mobile, kanan di desktop */}
+        <div className="flex-1 mr-0 lg:mr-20 flex mt-4 lg:mt-10 mb-6 lg:mb-10">
+          <div className="w-full bg-[#B8D68F40] p-4 sm:p-6 lg:p-10 rounded-[10px] shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
+            {/* Header kartu: judul dan tombol tambah alamat */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3">
+              <h2 className="text-lg sm:text-xl font-bold">Alamat Saya</h2>
               <button
                 onClick={openAdd}
-                className="flex items-center gap-2 bg-[#3A5B40] text-white px-5 py-2 rounded-[10px] text-sm font-semibold hover:bg-[#2a3e33] transition"
+                className="flex items-center gap-2 bg-[#3A5B40] text-white px-4 sm:px-5 py-2 rounded-[10px] text-xs sm:text-sm font-semibold hover:bg-[#2a3e33] transition"
               >
                 <span className="w-5 h-5 rounded-full border border-white flex items-center justify-center text-xs">
                   +
@@ -267,42 +271,44 @@ const ProfileAddress = () => {
               </button>
             </div>
 
-            {/* Garis hijau tebal 2px */}
-            <hr className="border-t-2 border-[#3A5B40] mb-4" />
+            {/* Garis pembatas hijau */}
+            <hr className="border-t-2 border-[#3A5B40] mb-3 sm:mb-4" />
 
-            {/* Label 'Alamat' bold di bawah garis */}
-            <p className="text-sm font-semibold mb-4">Alamat</p>
+            {/* Label judul list alamat */}
+            <p className="text-xs sm:text-sm font-semibold mb-3 sm:mb-4">
+              Alamat
+            </p>
 
-            {/* List alamat */}
-            <div className="space-y-4">
+            {/* Daftar alamat */}
+            <div className="space-y-3 sm:space-y-4">
               {addresses.map((addr) => (
                 <div
                   key={addr.id}
-                  className="bg-white rounded-[10px] px-5 py-4 flex justify-between items-start shadow-[0_4px_16px_rgba(0,0,0,0.04)]"
+                  className="bg-white rounded-[10px] px-3 py-3 sm:px-5 sm:py-4 flex justify-between items-start shadow-[0_4px_16px_rgba(0,0,0,0.04)]"
                 >
-                  {/* Left: nama + detail */}
-                  <div className="flex-1 pr-6">
+                  {/* Informasi alamat */}
+                  <div className="flex-1 pr-3 sm:pr-6">
                     <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <span className="font-semibold text-sm">
+                      <span className="font-semibold text-xs sm:text-sm">
                         {addr.name}
                       </span>
                       {addr.isPrimary && (
-                        <span className="text-xs text-[#344E41]">
+                        <span className="text-[11px] sm:text-xs text-[#344E41]">
                           Alamat Utama
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-[#222] leading-relaxed">
+                    <p className="text-xs sm:text-sm text-[#222] leading-relaxed">
                       {addr.detail}
                     </p>
                   </div>
 
-                  {/* Right: icons (edit & hapus) */}
+                  {/* Aksi alamat */}
                   <div className="flex flex-col items-end gap-2">
-                    <div className="flex gap-2">
+                    <div className="flex gap-1.5 sm:gap-2">
                       <button
                         onClick={() => openEdit(addr)}
-                        className="p-2 rounded-full hover:bg-[#F2F2F2] transition"
+                        className="p-1.5 sm:p-2 rounded-full hover:bg-[#F2F2F2] transition"
                         aria-label="Ubah alamat"
                       >
                         <img
@@ -313,7 +319,7 @@ const ProfileAddress = () => {
                       </button>
                       <button
                         onClick={() => removeAddress(addr.id)}
-                        className="p-2 rounded-full hover:bg-[#F2F2F2] transition"
+                        className="p-1.5 sm:p-2 rounded-full hover:bg-[#F2F2F2] transition"
                         aria-label="Hapus alamat"
                       >
                         <img
@@ -324,8 +330,7 @@ const ProfileAddress = () => {
                       </button>
                     </div>
 
-                    {/* ❌ Atur sebagai utama dihapus sesuai request */}
-                    {/* Jika tetap mau bisa panggil setPrimary(addr.id) di sini */}
+                    {/* Untuk opsi atur alamat utama dapat menggunakan setPrimary(addr.id) */}
                   </div>
                 </div>
               ))}
@@ -334,7 +339,7 @@ const ProfileAddress = () => {
         </div>
       </div>
 
-      {/* POPUP SUKSES – pakai popup baru (variant success) */}
+      {/* Popup sukses simpan alamat */}
       {showSuccess && (
         <Popup
           variant="success"
@@ -343,7 +348,7 @@ const ProfileAddress = () => {
         />
       )}
 
-      {/* POPUP LOGOUT – pakai popup baru (variant logout) */}
+      {/* Popup konfirmasi logout */}
       {showLogout && (
         <Popup
           variant="logout"
@@ -353,13 +358,13 @@ const ProfileAddress = () => {
         />
       )}
 
-      {/* MODAL TAMBAH / UBAH ALAMAT */}
+      {/* Modal tambah atau edit alamat */}
       {showModal && (
         <AddressModal
           onClose={() => setShowModal(false)}
           onSave={saveAddress}
           initialData={editing}
-          isEdit={!!editing} // penanda mode edit
+          isEdit={!!editing}
         />
       )}
     </div>

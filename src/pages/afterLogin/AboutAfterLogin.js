@@ -165,7 +165,7 @@ const AboutAfterLogin = () => {
         {/* ========== TIM KAMI ========== */}
         <section className="w-full py-14 sm:py-16 md:py-20 bg-[#FFFEF6]">
           <div className="max-w-[1350px] mx-auto px-6 lg:px-16 text-center">
-            {/* Title button */}
+            {/* Tombol judul */}
             <button className="bg-[#3A5B40] text-white font-semibold text-[14px] sm:text-[16px] px-7 sm:px-8 py-2 rounded-[10px] mb-3">
               Tim Kami
             </button>
@@ -174,25 +174,25 @@ const AboutAfterLogin = () => {
               segar terbaik bagi negeri.
             </p>
 
-            {/* Grid cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+            {/* Grid cards – 2 kolom di mobile, 3 kolom di layar lebih besar */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
               {TEAM_MEMBERS.map((person, idx) => (
                 <div key={idx} className="flex flex-col items-center">
-                  <div className="bg-white rounded-[26px] sm:rounded-[30px] shadow-md overflow-hidden w-full max-w-[320px]">
-                    {/* Gambar kelinci */}
-                    <div className="w-full h-[180px] sm:h-[200px] overflow-hidden">
+                  <div className="bg-white rounded-[20px] sm:rounded-[24px] shadow-md overflow-hidden w-full h-full flex flex-col">
+                    {/* Gambar kelinci – tinggi diperkecil */}
+                    <div className="w-full h-[120px] sm:h-[140px] md:h-[160px] overflow-hidden">
                       <img
                         src={KelinciBanner}
                         alt={person.name}
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    {/* Text */}
-                    <div className="px-5 py-4 text-left">
-                      <p className="font-semibold text-[14px] sm:text-[15px] mb-1 text-[#344E41]">
+                    {/* Teks */}
+                    <div className="px-3 sm:px-4 md:px-5 py-3 sm:py-4 text-left flex-1">
+                      <p className="font-semibold text-[11px] sm:text-[13px] md:text-[14px] mb-1 text-[#344E41]">
                         {person.name}
                       </p>
-                      <p className="text-[12px] sm:text-[13px] text-[#6B6B6B]">
+                      <p className="text-[11px] sm:text-[12px] md:text-[13px] text-[#6B6B6B]">
                         {person.role}
                       </p>
                     </div>

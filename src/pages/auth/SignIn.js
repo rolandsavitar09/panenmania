@@ -99,7 +99,7 @@ const SignIn = () => {
           {/* ============ BAGIAN KANAN (FORM) ============ */}
           <div className="bg-[#3A5A40] text-white p-8 lg:p-10 relative flex flex-col">
             {/* Tab Masuk / Daftar di kanan atas */}
-            <div className="absolute top-6 right-8 flex gap-4 text-sm font-semibold">
+            <div className="absolute top-6 right-8 flex gap-4 text-xs sm:text-sm font-semibold">
               <span className="bg-white text-[#3A5A40] px-4 py-1 rounded-lg shadow-md">
                 Masuk
               </span>

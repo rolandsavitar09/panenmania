@@ -1,6 +1,6 @@
 // src/App.js
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 /** Auth */
 import SignIn from "./pages/auth/SignIn";
@@ -41,23 +41,30 @@ import AdminOrders from "./admin/component/pages/AdminOrders";
 import AdminUsers from "./admin/component/pages/AdminUsers";
 import AdminADDProduct from "./admin/component/pages/AdminADDProduct";
 
+// Fungsi utilitas untuk membaca status login dari localStorage
 const isLoggedIn = () => !!localStorage.getItem("token");
 
-const Private = ({ children }) => {
-  return isLoggedIn() ? children : <SignIn />;
-};
-
 function App() {
+  // useLocation digunakan agar App rerender setiap ada perpindahan halaman
+  const location = useLocation();
+
+  // Status login selalu diperiksa ulang pada setiap render
+  const loggedIn = isLoggedIn();
+
+  // Komponen pembungkus untuk route yang membutuhkan autentikasi
+  const Private = ({ children }) => {
+    // Jika tidak login, arahkan ke halaman SignIn
+    return loggedIn ? children : <SignIn />;
+  };
+
   return (
     <div className="bg-[#FFFEF6] min-h-screen">
-      {/* TIDAK ADA padding-top di sini */}
-      <Routes>
+      {/* Routes diberi key berdasarkan pathname agar selalu merefleksikan status terbaru */}
+      <Routes key={location.pathname}>
         {/* Landing */}
         <Route
           path="/"
-          element={
-            isLoggedIn() ? <HomePageAfterLogin /> : <HomePageBeforeLogin />
-          }
+          element={loggedIn ? <HomePageAfterLogin /> : <HomePageBeforeLogin />}
         />
 
         {/* Guest */}

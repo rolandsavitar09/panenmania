@@ -3,8 +3,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const AddressModal = ({ onClose, onSave, initialData }) => {
-  // === STATE INPUT FORM ===
-  const [label, setLabel] = useState(""); // nama alamat
+  // State input form
+  const [label, setLabel] = useState("");
   const [prov, setProv] = useState("");
   const [city, setCity] = useState("");
   const [subdist, setSubdist] = useState("");
@@ -12,19 +12,19 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
   const [street, setStreet] = useState("");
   const [extra, setExtra] = useState("");
 
-  // === LIST DROPDOWN ===
+  // State list dropdown
   const [provinsiList, setProvinsiList] = useState([]);
   const [cityList, setCityList] = useState([]);
   const [subdistList, setSubdistList] = useState([]);
 
-  // === ERROR VALIDATION ===
+  // State error validasi
   const [errors, setErrors] = useState({});
 
-  // === FADE ANIMATION ===
+  // State animasi fade
   const [fadeIn, setFadeIn] = useState(false);
   useEffect(() => setFadeIn(true), []);
 
-  // === LOAD PROVINSI ===
+  // Load provinsi
   useEffect(() => {
     axios
       .get("https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json")
@@ -32,7 +32,7 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
       .catch(() => console.error("Gagal memuat provinsi"));
   }, []);
 
-  // === LOAD KOTA ===
+  // Load kota
   useEffect(() => {
     if (prov) {
       axios
@@ -44,7 +44,7 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
     }
   }, [prov]);
 
-  // === LOAD KECAMATAN ===
+  // Load kecamatan
   useEffect(() => {
     if (city) {
       const selectedCity = cityList.find((c) => c.name === city);
@@ -60,7 +60,7 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
     }
   }, [city, cityList]);
 
-  // === LOAD DATA EDIT ===
+  // Load data awal untuk mode edit
   useEffect(() => {
     if (initialData) {
       setLabel(initialData.name || "");
@@ -68,7 +68,7 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
     }
   }, [initialData]);
 
-  // === VALIDASI INPUT ===
+  // Validasi input
   const validate = () => {
     let temp = {};
     if (!label) temp.label = "Nama alamat wajib diisi!";
@@ -81,7 +81,7 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
     return Object.keys(temp).length === 0;
   };
 
-  // === SIMPAN DATA ===
+  // Simpan data alamat
   const handleSave = () => {
     if (!validate()) return;
 
@@ -97,26 +97,26 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
     });
   };
 
-  // === STYLE INPUT ===
+  // Style dasar input
   const inputBaseClass =
-    "w-full bg-white py-3 px-4 rounded-[10px] mt-1 outline-none text-sm shadow-[0_8px_24px_rgba(0,0,0,0.06)] border border-transparent focus:border-[#344E41]/40";
+    "w-full bg-white py-2.5 px-3 sm:py-3 sm:px-4 rounded-[10px] mt-1 outline-none text-sm shadow-[0_8px_24px_rgba(0,0,0,0.06)] border border-transparent focus:border-[#344E41]/40";
 
   return (
-    <div className="fixed inset-0 bg-black/40 z-[999] flex justify-center items-center px-4">
-      {/* === WRAPPER MODAL === */}
+    <div className="fixed inset-0 bg-black/40 z-[999] flex justify-center items-center px-2 sm:px-4">
+      {/* Wrapper modal */}
       <div
-        className={`w-full max-w-2xl rounded-[16px] bg-[#FFFEF6] shadow-[0_16px_40px_rgba(0,0,0,0.18)] p-6 md:p-10 overflow-y-auto max-h-[95vh] transition-all duration-300 ${
+        className={`w-full max-w-lg sm:max-w-xl lg:max-w-2xl rounded-[16px] bg-[#FFFEF6] shadow-[0_16px_40px_rgba(0,0,0,0.18)] p-4 sm:p-6 md:p-8 lg:p-10 overflow-y-auto max-h-[85vh] sm:max-h-[90vh] transition-all duration-300 ${
           fadeIn ? "opacity-100 scale-100" : "opacity-0 scale-95"
         }`}
       >
-        {/* === TITLE === */}
-        <h2 className="text-xl font-bold mb-2 text-[#344E41]">
+        {/* Judul modal */}
+        <h2 className="text-lg sm:text-xl font-bold mb-2 text-[#344E41]">
           {initialData ? "Ubah Alamat" : "Alamat Baru"}
         </h2>
-        <hr className="border-t border-[#344E41]/30 mb-6" />
+        <hr className="border-t border-[#344E41]/30 mb-4 sm:mb-6" />
 
-        {/* === FORM === */}
-        <div className="space-y-4">
+        {/* Form alamat */}
+        <div className="space-y-3 sm:space-y-4">
           {/* Nama Alamat */}
           <div>
             <label className="text-sm text-[#344E41]">Nama Alamat</label>
@@ -220,7 +220,7 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
             )}
           </div>
 
-          {/* Jalan */}
+          {/* Nama Jalan */}
           <div>
             <label className="text-sm text-[#344E41]">
               Nama Jalan / Gedung / No. Rumah
@@ -237,7 +237,7 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
             )}
           </div>
 
-          {/* Detail tambahan */}
+          {/* Detail Tambahan */}
           <div>
             <label className="text-sm text-[#344E41]">Detail Tambahan</label>
             <input
@@ -247,18 +247,18 @@ const AddressModal = ({ onClose, onSave, initialData }) => {
             />
           </div>
 
-          {/* ==== BUTTON AKSI ==== */}
-          <div className="flex justify-end gap-4 pt-4">
+          {/* Tombol aksi */}
+          <div className="flex justify-end gap-3 sm:gap-4 pt-3 sm:pt-4">
             <button
               onClick={onClose}
-              className="bg-[#96352C]/80 text-white px-5 py-2 rounded-[10px] hover:bg-gray-400 transition text-sm font-semibold"
+              className="bg-[#96352C]/80 text-white px-4 sm:px-5 py-2 rounded-[10px] hover:bg-gray-400 transition text-xs sm:text-sm font-semibold"
             >
               Kembali
             </button>
 
             <button
               onClick={handleSave}
-              className="bg-[#344E41] text-white px-6 py-2 rounded-[10px] hover:bg-[#2a3e33] transition text-sm font-semibold"
+              className="bg-[#344E41] text-white px-5 sm:px-6 py-2 rounded-[10px] hover:bg-[#2a3e33] transition text-xs sm:text-sm font-semibold"
             >
               Simpan
             </button>

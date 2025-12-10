@@ -1,3 +1,4 @@
+// src/pages/beforeLogin/CatalogBeforeLogin.js
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import NavbarBeforeLogin from "../../components/layout/NavbarBeforeLogin";
@@ -5,10 +6,10 @@ import Footer from "../../components/layout/Footer";
 
 // Banner gambar katalog
 import CatalogBanner from "../../assets/images/banners/petani katalog.svg";
-// Icon search – sama dengan yang dipakai di Home
+// Ikon search
 import IconSearch from "../../assets/images/icons/pencarian.svg";
 
-// Nilai `value` disamakan dengan query string: all | buah | sayur | beras
+// Opsi kategori (sinkron dengan query string)
 const CATEGORY_OPTIONS = [
   { label: "Semua Kategori", value: "all" },
   { label: "Buah", value: "buah" },
@@ -16,7 +17,7 @@ const CATEGORY_OPTIONS = [
   { label: "Beras", value: "beras" },
 ];
 
-// Dummy data produk (kategori disimpan dengan huruf awal besar, nanti dinormalisasi)
+// Data dummy produk
 const PRODUCTS = [
   {
     name: "Semangka Merah Manis",
@@ -107,19 +108,19 @@ const PRODUCTS = [
 function CatalogBeforeLogin() {
   const location = useLocation();
 
-  // Disimpan dalam format: all | buah | sayur | beras
+  // State kategori & kata kunci pencarian
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Mencegah reload saat submit form search
+  // Submit pencarian (tanpa reload)
   const handleSearchSubmit = (e) => {
     e.preventDefault();
   };
 
-  // Membaca query string setiap kali URL berubah
+  // Baca query string (kategori & search) saat URL berubah
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const categoryParam = params.get("category"); // contoh: "buah"
+    const categoryParam = params.get("category");
     const searchParam = params.get("search");
 
     const allowed = ["all", "buah", "sayur", "beras"];
@@ -140,10 +141,10 @@ function CatalogBeforeLogin() {
     }
   }, [location.search]);
 
-  // Filter produk: kategori + teks pencarian
+  // Filter produk berdasarkan kategori + teks
   const filteredProducts = useMemo(() => {
     return PRODUCTS.filter((item) => {
-      const productCategory = item.category.toLowerCase(); // "buah", "sayur", "beras"
+      const productCategory = item.category.toLowerCase();
       const matchCategory =
         selectedCategory === "all" || productCategory === selectedCategory;
 
@@ -160,9 +161,10 @@ function CatalogBeforeLogin() {
 
   return (
     <div className="font-poppins bg-[#F8FAF7] min-h-screen flex flex-col pt-14 sm:pt-16">
+      {/* Navbar sebelum login */}
       <NavbarBeforeLogin />
 
-      {/* BANNER */}
+      {/* Banner katalog */}
       <section className="w-full relative">
         <img
           src={CatalogBanner}
@@ -172,7 +174,7 @@ function CatalogBeforeLogin() {
         <div className="absolute bottom-0 left-0 w-full h-20 sm:h-24 bg-gradient-to-b from-transparent to-[#F8FAF7]" />
       </section>
 
-      {/* SEARCH BAR */}
+      {/* Search bar */}
       <section className="flex justify-center items-center py-6 md:py-8">
         <form
           onSubmit={handleSearchSubmit}
@@ -202,17 +204,17 @@ function CatalogBeforeLogin() {
         </form>
       </section>
 
-      {/* TITLE + DROPDOWN */}
-      <section className="w-full px-6 lg:px-16 mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-[#344E41] text-[18px] sm:text-[20px] font-semibold">
+      {/* Judul + dropdown (sejajar horizontal, termasuk mobile) */}
+      <section className="w-full px-6 lg:px-16 mb-4 flex items-center justify-between gap-3">
+        <h2 className="text-[#344E41] text-[18px] sm:text-[20px] font-semibold flex-1">
           Semua Produk
         </h2>
 
-        <div className="w-full sm:w-auto">
+        <div className="w-auto min-w-[160px] sm:min-w-[190px]">
           <label htmlFor="kategori" className="sr-only">
             Kategori
           </label>
-          <div className="relative inline-block w-full sm:w-52">
+          <div className="relative inline-block w-full max-w-[210px]">
             <select
               id="kategori"
               value={selectedCategory}
@@ -220,13 +222,17 @@ function CatalogBeforeLogin() {
               className="w-full appearance-none bg-[#588157]/75 text-white text-sm font-medium rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-[#588157]"
             >
               {CATEGORY_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}
-                className="bg-white text-[#3A5A40]">
+                <option
+                  key={opt.value}
+                  value={opt.value}
+                  className="bg-white text-[#3A5A40]"
+                >
                   {opt.label}
                 </option>
               ))}
             </select>
 
+            {/* Ikon panah dropdown */}
             <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-white/90">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -245,14 +251,16 @@ function CatalogBeforeLogin() {
         </div>
       </section>
 
-      {/* PRODUCT GRID */}
+      {/* Grid produk (layout & ukuran card sama dengan HomeContent / CatalogAfterLogin) */}
       <section className="w-full bg-[#F8FAF7] pb-14 md:pb-16">
-        <div className="max-w-[1380px] mx-auto px-6 lg:px-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-10 md:gap-y-12 gap-x-6 md:gap-x-8">
+        <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-10">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-8 gap-x-4 md:gap-y-12 md:gap-x-8 items-stretch">
             {filteredProducts.map((product, index) => (
               <Link key={index} to={`/product-before/${index}`}>
-                <div className="bg-white rounded-3xl shadow-[0_4px_10px_rgba(0,0,0,0.08)] border border-[#E0E6D8] hover:shadow-xl transition-all duration-200 cursor-pointer w-full max-w-[310px] mx-auto">
-                  <div className="w-full bg-[#F4F8F1] rounded-t-3xl p-6 h-[190px] sm:h-[200px] flex items-center justify-center">
+                {/* Card produk: flex + h-full + clamp seperti HomeContent */}
+                <div className="bg-white rounded-3xl shadow-[0_4px_10px_rgba(0,0,0,0.08)] border border-[#E0E6D8] hover:shadow-xl transition-all duration-200 cursor-pointer w-full max-w-[310px] mx-auto h-full flex flex-col">
+                  {/* Gambar produk */}
+                  <div className="w-full bg-[#F4F8F1] rounded-t-3xl p-4 sm:p-6 h-[150px] sm:h-[190px] flex items-center justify-center">
                     <img
                       src={product.image}
                       alt={product.name}
@@ -260,16 +268,17 @@ function CatalogBeforeLogin() {
                     />
                   </div>
 
-                  <div className="p-5 sm:p-6">
-                    <h3 className="text-[#344E41] font-bold text-[15px] sm:text-[17px] mb-2">
+                  {/* Detail produk */}
+                  <div className="p-4 sm:p-6 flex flex-col flex-1">
+                    <h3 className="text-[#344E41] font-bold text-[14px] sm:text-[16px] mb-1 line-clamp-2">
                       {product.name}
                     </h3>
 
-                    <p className="text-[#3A5A40] text-[12px] sm:text-[13px] mb-4 leading-relaxed">
+                    <p className="text-[#3A5A40] text-[11px] sm:text-[13px] mb-3 sm:mb-4 leading-relaxed line-clamp-2">
                       {product.description}
                     </p>
 
-                    <p className="text-[#344E41] font-bold text-[15px] sm:text-[16px]">
+                    <p className="mt-auto text-[#344E41] font-bold text-[14px] sm:text-[16px]">
                       {product.price}
                     </p>
                   </div>
@@ -277,6 +286,7 @@ function CatalogBeforeLogin() {
               </Link>
             ))}
 
+            {/* Pesan jika produk kosong */}
             {filteredProducts.length === 0 && (
               <div className="col-span-full text-center text-sm text-[#3A5A40]/70 mt-6">
                 Belum ada produk yang cocok dengan pencarian atau kategori ini.
@@ -286,6 +296,7 @@ function CatalogBeforeLogin() {
         </div>
       </section>
 
+      {/* Footer */}
       <Footer />
     </div>
   );

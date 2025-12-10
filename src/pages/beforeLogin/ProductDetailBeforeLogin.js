@@ -45,7 +45,7 @@ const QtyControl = ({ quantity, setQuantity }) => (
   </div>
 );
 
-// Kartu langkah belanja
+// Kartu langkah belanja (masih ada, kalau mau dipakai lagi nanti)
 const StepCard = ({ icon, label }) => {
   const parts = label.split(" ");
   return (
@@ -298,18 +298,37 @@ const ProductDetailBeforeLogin = () => {
         </div>
       </section>
 
-      {/* ========== LANGKAH BELANJA ========== */}
-      <section className="bg-[#FFFEF6] w-full pb-24 pt-10">
-        <div className="max-w-[1350px] mx-auto px-6 sm:px-10 text-center">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-16 mt-10">
+      {/* ========== LANGKAH BELANJA (disamakan dengan HomeContent/ProductDetailAfterLogin) ========== */}
+      <section className="bg-[#FFFEF6] w-full pt-8 pb-16 md:pb-24">
+        <div className="max-w-[1350px] mx-auto px-4 sm:px-8 lg:px-10 text-center">
+          {/* Grid langkah: 4 kolom, ikon kecil di mobile */}
+          <div className="grid grid-cols-4 gap-3 sm:gap-8 lg:gap-16 mt-6 sm:mt-10">
             {[
               { label: "Pilih Produk", icon: IconPilihProduk },
               { label: "Masukkan Keranjang", icon: IconMasukkanKeranjang },
               { label: "Melakukan Pembayaran", icon: IconMelakukanPembayaran },
               { label: "Menunggu Pesanan", icon: IconMenungguPesanan },
-            ].map((step, i) => (
-              <StepCard key={i} icon={step.icon} label={step.label} />
-            ))}
+            ].map((step, i) => {
+              const parts = step.label.split(" ");
+              return (
+                <div
+                  key={i}
+                  className="flex flex-col items-center"
+                >
+                  <div className="w-[55px] h-[55px] sm:w-[80px] sm:h-[80px] rounded-xl flex items-center justify-center bg-[#588157]/45">
+                    <img
+                      src={step.icon}
+                      alt={step.label}
+                      className="object-contain w-[38px] sm:w-[60px]"
+                    />
+                  </div>
+                  <p className="text-[#344E41] font-semibold text-[10px] sm:text-[15px] leading-tight mt-2 sm:mt-4">
+                    {parts[0]} <br />
+                    {parts.slice(1).join(" ")}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

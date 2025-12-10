@@ -72,7 +72,7 @@ const HomeContent = ({ isLoggedIn }) => {
     { label: "Menunggu Pesanan", icon: IconMenungguPesanan },
   ];
 
-  // Helper: mapping keyword → kategori
+  // Mapping keyword ke kategori
   const getCategoryFromKeyword = (raw) => {
     const q = raw.toLowerCase();
 
@@ -88,20 +88,17 @@ const HomeContent = ({ isLoggedIn }) => {
     e.preventDefault();
     const raw = searchQuery.trim();
 
-    // Kosong → tampilkan semua di katalog
     if (!raw) {
       navigate(`${catalogBase}?category=all`);
       return;
     }
 
-    // Jika keyword cocok kategori tertentu
     const detectedCategory = getCategoryFromKeyword(raw);
     if (detectedCategory) {
       navigate(`${catalogBase}?category=${detectedCategory}`);
       return;
     }
 
-    // Selain itu pakai mode search bebas
     navigate(`${catalogBase}?search=${encodeURIComponent(raw)}`);
   };
 
@@ -180,22 +177,22 @@ const HomeContent = ({ isLoggedIn }) => {
       </section>
 
       {/* STATISTIK */}
-      <section className="w-full bg-[#FFFEF6] py-12 md:py-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 text-center">
+      <section className="w-full bg-[#FFFEF6] py-10 md:py-16">
+        <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-0 grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-6 md:gap-8 text-center">
           {statistikItems.map((item, index) => (
             <div
               key={index}
-              className="rounded-[28px] sm:rounded-[32px] px-6 py-8 sm:py-10 bg-[#588157]/25 flex flex-col justify-center items-center shadow-[0px_6px_12px_rgba(0,0,0,0.2)]"
+              className="rounded-[18px] sm:rounded-[28px] px-3 py-5 sm:px-6 sm:py-8 bg-[#588157]/25 flex flex-col justify-center items-center shadow-[0px_6px_12px_rgba(0,0,0,0.2)]"
             >
               <img
                 src={item.icon}
                 alt={item.label}
-                className="w-10 h-10 sm:w-12 sm:h-12 mb-3 sm:mb-4 object-contain"
+                className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 mb-2 sm:mb-3 md:mb-4 object-contain"
               />
-              <h3 className="text-[32px] sm:text-[36px] md:text-[40px] font-extrabold text-[#3A5B40] leading-tight">
+              <h3 className="text-[20px] sm:text-[28px] md:text-[32px] lg:text-[40px] font-extrabold text-[#3A5B40] leading-tight">
                 7000+
               </h3>
-              <p className="text-[#3A5B40] mt-1 sm:mt-2 font-semibold text-sm sm:text-base">
+              <p className="text-[#3A5B40] mt-1 sm:mt-2 font-semibold text-[11px] sm:text-sm md:text-base">
                 {item.label}
               </p>
             </div>
@@ -205,9 +202,9 @@ const HomeContent = ({ isLoggedIn }) => {
 
       {/* PROMO SECTION */}
       <section className="w-full bg-[#EEF2E6]">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-2">
+        <div className="max-w-[1400px] mx-auto grid grid-cols-2 md:grid-cols-2">
           {/* Gambar promo */}
-          <div className="flex-1 min-h-[220px] sm:min-h-[260px] md:min-h-[350px] lg:min-h-[420px] overflow-hidden">
+          <div className="flex-1 min-h-[160px] sm:min-h-[220px] md:min-h-[350px] lg:min-h-[420px] overflow-hidden">
             <img
               src={PromoVeg}
               alt="Sayuran Promo"
@@ -217,11 +214,11 @@ const HomeContent = ({ isLoggedIn }) => {
 
           {/* Teks promo */}
           <div className="bg-[#6E8C6B] text-white flex items-center">
-            <div className="px-6 sm:px-10 md:px-12 lg:px-16 py-10 md:py-0 max-w-xl">
-              <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold leading-snug mb-4 sm:mb-6">
+            <div className="px-4 sm:px-8 md:px-12 lg:px-16 py-6 sm:py-8 md:py-0 max-w-xl">
+              <h3 className="text-base sm:text-xl md:text-3xl font-extrabold leading-snug mb-3 sm:mb-4 md:mb-6">
                 Kesegaran Alami, Harga Terbaik.
               </h3>
-              <p className="text-sm md:text-base leading-relaxed font-medium opacity-95">
+              <p className="text-[12px] sm:text-sm md:text-base leading-relaxed font-medium opacity-95">
                 Manfaatkan promo eksklusif hingga 90% untuk produk hasil panen
                 pilihan. Kami hadirkan kualitas terbaik langsung dari petani ke
                 meja Anda.
@@ -234,7 +231,7 @@ const HomeContent = ({ isLoggedIn }) => {
       {/* PRODUK TERBARU */}
       <section className="w-full bg-[#FFFEF6] py-12 md:py-16">
         <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-10">
-          {/* Header */}
+          {/* Header produk */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-8 sm:mb-10">
             <h2 className="text-[22px] sm:text-[26px] md:text-[28px] font-bold text-[#344E41]">
               Produk Terbaru
@@ -248,8 +245,8 @@ const HomeContent = ({ isLoggedIn }) => {
             </Link>
           </div>
 
-          {/* Grid produk */}
-          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-10 gap-x-6 md:gap-y-12 md:gap-x-8">
+          {/* Grid produk: mobile 2 produk per baris */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-8 gap-x-4 md:gap-y-12 md:gap-x-8">
             {Array.from({ length: 8 }).map((_, i) => {
               const productId = i + 1;
               return (
@@ -261,9 +258,10 @@ const HomeContent = ({ isLoggedIn }) => {
                       : `/product-before/${productId}`
                   }
                 >
-                  <div className="bg-white rounded-3xl shadow-[0_4px_10px_rgba(0,0,0,0.08)] border border-[#E0E6D8] hover:shadow-xl transition-all duration-200 cursor-pointer w-full max-w-[310px] mx-auto">
+                  {/* Card produk: dibuat flex + tinggi terkendali */}
+                  <div className="bg-white rounded-3xl shadow-[0_4px_10px_rgba(0,0,0,0.08)] border border-[#E0E6D8] hover:shadow-xl transition-all duration-200 cursor-pointer w-full max-w-[310px] mx-auto h-full flex flex-col">
                     {/* Gambar produk */}
-                    <div className="w-full bg-[#F4F8F1] rounded-t-3xl p-6 h-[180px] sm:h-[200px] flex items-center justify-center">
+                    <div className="w-full bg-[#F4F8F1] rounded-t-3xl p-4 sm:p-6 h-[150px] sm:h-[190px] flex items-center justify-center">
                       <img
                         src={BawangMerah}
                         alt="product bawang merah"
@@ -271,17 +269,17 @@ const HomeContent = ({ isLoggedIn }) => {
                       />
                     </div>
 
-                    {/* Detail produk */}
-                    <div className="p-5 sm:p-6">
-                      <h3 className="text-[#344E41] font-bold text-[15px] sm:text-[17px] mb-2">
+                    {/* Detail produk: flex agar harga di bawah, teks tidak bikin card tinggi berlebihan */}
+                    <div className="p-4 sm:p-6 flex flex-col flex-1">
+                      <h3 className="text-[#344E41] font-bold text-[14px] sm:text-[16px] mb-1 line-clamp-2">
                         Beras Lele 5kg
                       </h3>
 
-                      <p className="text-[#3A5A40] text-[12px] sm:text-[13px] mb-4 leading-relaxed">
+                      <p className="text-[#3A5A40] text-[11px] sm:text-[13px] mb-3 sm:mb-4 leading-relaxed line-clamp-2">
                         LAHAP LELE BERAS PUNEL & PUTIH ALAMI PREMIUM 5kg
                       </p>
 
-                      <p className="text-[#344E41] font-bold text-[15px] sm:text-[16px]">
+                      <p className="mt-auto text-[#344E41] font-bold text-[14px] sm:text-[16px]">
                         Rp70.000.00
                       </p>
                     </div>
@@ -437,19 +435,19 @@ const HomeContent = ({ isLoggedIn }) => {
       {/* LANGKAH BELANJA */}
       <section className="bg-[#FFFEF6] w-full pt-8 pb-16 md:pb-24">
         <div className="max-w-[1350px] mx-auto px-4 sm:px-8 lg:px-10 text-center">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-14 lg:gap-16 mt-8 sm:mt-10">
+          <div className="grid grid-cols-4 gap-3 sm:gap-8 lg:gap-16 mt-6 sm:mt-10">
             {langkahBelanja.map((step, i) => {
               const parts = step.label.split(" ");
               return (
                 <div key={i} className="flex flex-col items-center">
-                  <div className="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] rounded-xl flex items-center justify-center bg-[#588157]/45">
+                  <div className="w-[55px] h-[55px] sm:w-[80px] sm:h-[80px] rounded-xl flex items-center justify-center bg-[#588157]/45">
                     <img
                       src={step.icon}
                       alt={step.label}
-                      className="object-contain w-[58px] sm:w-[70px]"
+                      className="object-contain w-[38px] sm:w-[60px]"
                     />
                   </div>
-                  <p className="text-[#344E41] font-semibold text-[14px] sm:text-[15px] leading-tight mt-3 sm:mt-4">
+                  <p className="text-[#344E41] font-semibold text-[10px] sm:text-[15px] leading-tight mt-2 sm:mt-4">
                     {parts[0]} <br />
                     {parts.slice(1).join(" ")}
                   </p>

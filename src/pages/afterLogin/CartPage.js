@@ -7,26 +7,30 @@ import Popup from "../../components/common/Popup";
 import BerasImage from "../../assets/images/products/beras.svg";
 import IconTrash from "../../assets/images/icons/trash.svg";
 
-/* ----- QtyControl: sama persis seperti di detail produk ----- */
-// Komponen kontrol jumlah produk
-const QtyControl = ({ quantity, setQuantity }) => (
+/* ----- QtyControl: kontrol jumlah produk, pakai handler onIncrease/onDecrease ----- */
+const QtyControl = ({ quantity, onIncrease, onDecrease }) => (
   <div className="flex h-[32px]">
+    {/* Tombol kurang */}
     <button
-      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+      onClick={onDecrease}
       className="px-3 flex items-center justify-center bg-white text-black font-semibold text-lg border-2 border-[#3A5B40] rounded-l-[8px]"
       aria-label="kurangi"
+      type="button"
     >
       −
     </button>
 
+    {/* Angka qty */}
     <span className="px-4 flex items-center justify-center text-black font-semibold border-y-2 border-[#3A5B40] min-w-[40px] h-full bg-white">
       {quantity}
     </span>
 
+    {/* Tombol tambah */}
     <button
-      onClick={() => setQuantity((q) => q + 1)}
+      onClick={onIncrease}
       className="px-3 flex items-center justify-center bg-white text-black font-semibold text-lg border-2 border-[#3A5B40] rounded-r-[8px] -ml-[2px]"
       aria-label="tambah"
+      type="button"
     >
       +
     </button>
@@ -61,10 +65,11 @@ const CartPage = () => {
     },
   ]);
 
+  // Status pilih semua
   const [checkAll, setCheckAll] = useState(false);
+  // Total harga produk terpilih
   const [totalPrice, setTotalPrice] = useState(0);
-
-  // State popup hapus (item yang akan dihapus)
+  // Popup hapus item
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   // Hitung total dan sinkron status "Pilih Semua"
@@ -95,7 +100,7 @@ const CartPage = () => {
     );
   };
 
-  // Tambah qty
+  // Tambah qty item
   const increaseQty = (id) => {
     setCartItems((prev) =>
       prev.map((item) =>
@@ -104,7 +109,7 @@ const CartPage = () => {
     );
   };
 
-  // Kurangi qty
+  // Kurangi qty item (min 1)
   const decreaseQty = (id) => {
     setCartItems((prev) =>
       prev.map((item) =>
@@ -115,24 +120,27 @@ const CartPage = () => {
     );
   };
 
-  // Hapus item (dipanggil setelah konfirmasi popup)
+  // Hapus item dari keranjang
   const removeItem = (id) => {
     setCartItems((prev) => prev.filter((item) => item.id !== id));
   };
 
+  // Jumlah item yang dicentang
   const totalCheckedItems = cartItems.filter((item) => item.checked).length;
 
   return (
     <div className="bg-[#FFFEF6] min-h-screen font-poppins text-[#344E41]">
+      {/* Navbar setelah login */}
       <NavbarAfterLogin />
 
+      {/* Wrapper utama konten keranjang */}
       <div className="pt-24 pb-16 max-w-[1350px] mx-auto px-4 sm:px-6 lg:px-16">
         {/* Judul halaman */}
         <h1 className="text-[20px] sm:text-[22px] font-bold mb-6 sm:mb-8">
           Keranjang Anda
         </h1>
 
-        {/* Pilih Semua */}
+        {/* Bar "Pilih Semua" di kanan atas list */}
         <div className="flex justify-end items-center gap-2 mb-4">
           <input
             type="checkbox"
@@ -152,7 +160,7 @@ const CartPage = () => {
               key={item.id}
               className="bg-[#B8D68F]/25 border-2 border-[#3A5B40] rounded-[10px] px-4 sm:px-6 py-4 flex flex-wrap md:flex-nowrap items-start md:items-center gap-4 sm:gap-5"
             >
-              {/* Checkbox */}
+              {/* Checkbox item */}
               <input
                 type="checkbox"
                 checked={item.checked}
@@ -169,7 +177,7 @@ const CartPage = () => {
                 />
               </div>
 
-              {/* Info produk */}
+              {/* Info produk: nama + harga */}
               <div className="flex-1 min-w-[160px]">
                 <p className="font-semibold text-[14px] sm:text-[15px] leading-snug">
                   {item.name}
@@ -179,37 +187,34 @@ const CartPage = () => {
                 </p>
               </div>
 
-              {/* Kolom kanan: trash di atas, stok + qty di bawah */}
+              {/* Kolom kanan: tombol hapus + stok + qty */}
               <div className="flex flex-col justify-between items-end h-[96px] ml-auto mt-2 md:mt-0">
-                {/* Tombol hapus (tetap di pojok kanan atas card) */}
+                {/* Tombol hapus (pojok kanan atas di card) */}
                 <button
-                  onClick={() => setDeleteTarget(item)} // buka popup hapus
+                  onClick={() => setDeleteTarget(item)}
                   className="mb-2"
                   aria-label={`Hapus ${item.name}`}
+                  type="button"
                 >
                   <img src={IconTrash} alt="hapus" className="w-6 h-6" />
                 </button>
 
-                {/* Baris: Tersisa + QtyControl */}
+                {/* Stok + QtyControl */}
                 <div className="flex items-center gap-3 sm:gap-4">
                   <p className="text-[11px] sm:text-xs text-[#3A5B40] whitespace-nowrap">
                     Tersisa: 25 Barang
                   </p>
                   <QtyControl
                     quantity={item.qty}
-                    setQuantity={(q) =>
-                      setCartItems((prev) =>
-                        prev.map((x) =>
-                          x.id === item.id ? { ...x, qty: q } : x
-                        )
-                      )
-                    }
+                    onIncrease={() => increaseQty(item.id)}
+                    onDecrease={() => decreaseQty(item.id)}
                   />
                 </div>
               </div>
             </div>
           ))}
 
+          {/* Pesan jika keranjang kosong */}
           {cartItems.length === 0 && (
             <p className="text-center text-sm text-[#6B6B6B] mt-6">
               Keranjang Anda masih kosong.
@@ -217,7 +222,7 @@ const CartPage = () => {
           )}
         </div>
 
-        {/* Bar total bawah */}
+        {/* Bar total di bawah */}
         <div className="mt-8 sm:mt-10 bg-[#3A5B40] rounded-[10px] px-5 sm:px-8 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between text-white gap-3 sm:gap-0">
           <p className="font-semibold text-[14px] sm:text-[15px]">
             Total Produk ({totalCheckedItems})
@@ -230,6 +235,7 @@ const CartPage = () => {
             <button
               onClick={() => navigate("/checkout")}
               className="bg-white text-[#3A5B40] font-semibold text-[14px] sm:text-[15px] px-6 py-2 rounded-[8px] hover:bg-[#F4F4F4] transition text-center"
+              type="button"
             >
               Pesan Sekarang
             </button>
@@ -237,7 +243,7 @@ const CartPage = () => {
         </div>
       </div>
 
-      {/* POPUP HAPUS KERANJANG (desain baru) */}
+      {/* POPUP HAPUS KERANJANG */}
       {deleteTarget && (
         <Popup
           variant="delete"

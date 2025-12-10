@@ -15,32 +15,32 @@ const OrderHistory = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // State kontrol popup logout
+  // Kontrol popup logout
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
 
-  // State foto profil sementara (preview)
+  // Foto profil sementara (preview)
   const [profilePic, setProfilePic] = useState(null);
 
-  // Handler membuka popup logout
+  // Buka popup logout
   const handleLogout = () => setShowLogoutPopup(true);
 
-  // Handler menutup popup logout
+  // Tutup popup logout
   const closeLogoutPopup = () => setShowLogoutPopup(false);
 
-  // Handler konfirmasi logout dan kembali ke halaman utama
+  // Konfirmasi logout dan kembali ke beranda
   const confirmLogout = () => {
     localStorage.removeItem("token");
     setShowLogoutPopup(false);
     navigate("/", { replace: true });
   };
 
-  // Handler unggah foto profil (preview lokal)
+  // Unggah foto profil (preview lokal)
   const handleUploadPic = (e) => {
     const file = e.target.files[0];
     if (file) setProfilePic(URL.createObjectURL(file));
   };
 
-  // Fungsi penanda menu sidebar yang aktif
+  // Penanda menu sidebar aktif
   const isActive = (path) => location.pathname === path;
 
   // Data dummy riwayat pesanan
@@ -69,32 +69,34 @@ const OrderHistory = () => {
     <div className="min-h-screen bg-[#FFFEF6] text-[#344E41] font-poppins flex flex-col">
       <NavbarAfterLogin />
 
-      {/* MAIN CONTENT – responsif, layout desktop tetap sidebar kiri + konten kanan */}
-      <div className="flex w-full mt-14 gap-8 flex-col lg:flex-row px-4 sm:px-6 lg:px-0">
-        {/* SIDEBAR – sama dengan ProfileMain */}
-        <div className="w-full lg:w-72 bg-white px-6 py-8 rounded-[10px] shadow flex flex-col overflow-y-auto min-h-[calc(100vh-56px)]">
+      {/* Konten utama: kolom di mobile, dua kolom di desktop */}
+      <div className="flex w-full mt-14 gap-4 lg:gap-8 flex-col lg:flex-row px-4 sm:px-6 lg:px-0">
+        {/* Sidebar profil (layout desktop dipertahankan) */}
+        <div className="w-full lg:w-72 bg-white px-4 sm:px-6 py-6 lg:py-8 rounded-[10px] shadow flex flex-col overflow-y-auto lg:min-h-[calc(100vh-56px)]">
           <div className="flex flex-col items-center text-center">
-            {/* Foto profil + tombol edit (input file) */}
+            {/* Foto profil + tombol edit */}
             <label className="relative cursor-pointer inline-block">
               <input type="file" className="hidden" onChange={handleUploadPic} />
-              <div className="w-40 h-40 bg-[#F2F2F2] rounded-full flex items-center justify-center overflow-hidden">
+              <div className="w-28 h-28 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-[#F2F2F2] rounded-full flex items-center justify-center overflow-hidden">
                 <img
                   src={profilePic || ProfilePhoto}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white shadow-[0_4px_12px_rgba(0,0,0,0.12)] flex items-center justify-center">
+              <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-8 h-8 rounded-full bg-white shadow-[0_4px_12px_rgba(0,0,0,0.12)] flex items-center justify-center">
                 <img src={EditIcon} alt="Edit" className="w-4 h-4" />
               </div>
             </label>
 
-            <p className="mt-3 font-semibold text-lg">Dearni Lambardo</p>
+            <p className="mt-3 font-semibold text-base sm:text-lg">
+              Dearni Lambardo
+            </p>
           </div>
 
-          {/* MENU SIDEBAR */}
-          <div className="mt-8 space-y-6 text-left w-full">
-            {/* PROFILE SECTION */}
+          {/* Menu sidebar */}
+          <div className="mt-6 lg:mt-8 space-y-6 text-left w-full">
+            {/* Menu profil */}
             <div>
               <div className="flex items-center gap-2">
                 <img src={ProfileIcon} alt="Profile icon" className="w-5 h-5" />
@@ -138,7 +140,7 @@ const OrderHistory = () => {
               </div>
             </div>
 
-            {/* ORDERS SECTION */}
+            {/* Menu pesanan */}
             <div>
               <div className="flex items-center gap-2">
                 <img src={CheckIcon} alt="Orders icon" className="w-5 h-5" />
@@ -171,57 +173,58 @@ const OrderHistory = () => {
             </div>
           </div>
 
-          {/* BUTTON KELUAR – kecil, hijau */}
+          {/* Tombol keluar */}
           <button
             onClick={handleLogout}
-            className="mt-20 self-center flex items-center justify-center gap-2 bg-[#3A5B40] px-8 py-2 rounded-[10px] text-sm font-semibold text-white hover:bg-[#314c35] transition"
+            className="mt-8 lg:mt-20 self-center flex items-center justify-center gap-2 bg-[#3A5B40] px-6 sm:px-8 py-2 rounded-[10px] text-sm font-semibold text-white hover:bg-[#314c35] transition"
           >
             <img src={OutIcon} alt="Keluar" className="w-4 h-4" />
             Keluar
           </button>
         </div>
 
-        {/* ORDER HISTORY CONTENT – card hijau muda */}
+        {/* Konten riwayat pesanan (card hijau muda) */}
         <div className="flex-1 mr-0 md:mr-6 lg:mr-20 flex">
-          <div className="w-full bg-[#B8D68F40] p-6 md:p-10 rounded-[10px] shadow-[0_10px_30px_rgba(0,0,0,0.06)] mt-10 mb-10">
-            <h2 className="text-xl font-bold mb-2">Riwayat Pesanan</h2>
-            {/* Garis horizontal ukuran 2 warna hijau */}
-            <hr className="border-t-2 border-[#3A5B40] mb-6" />
+          <div className="w-full bg-[#B8D68F40] p-4 sm:p-6 md:p-8 lg:p-10 rounded-[10px] shadow-[0_10px_30px_rgba(0,0,0,0.06)] mt-6 lg:mt-10 mb-6 lg:mb-10">
+            <h2 className="text-lg sm:text-xl font-bold mb-2">
+              Riwayat Pesanan
+            </h2>
+            {/* Garis pembatas hijau */}
+            <hr className="border-t-2 border-[#3A5B40] mb-4 sm:mb-6" />
 
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-5">
               {orders.map((order) => (
                 <div
                   key={order.id}
-                  className="bg-white rounded-[10px] shadow-[0_4px_15px_rgba(0,0,0,0.05)] px-4 sm:px-6 py-4"
+                  className="bg-white rounded-[10px] shadow-[0_4px_15px_rgba(0,0,0,0.05)] px-3 sm:px-4 md:px-6 py-3 sm:py-4"
                 >
                   {/* Header pesanan */}
-                  <p className="text-sm font-semibold">
+                  <p className="text-xs sm:text-sm font-semibold">
                     ID Pesanan: {order.id}
                   </p>
-                  <p className="text-xs text-gray-700 mb-2">
+                  <p className="text-[11px] sm:text-xs text-gray-700 mb-2">
                     Tanggal: {order.date}
                   </p>
-                  <hr className="border-[#3A5B40] mb-4" />
+                  <hr className="border-[#3A5B40] mb-3 sm:mb-4" />
 
                   {/* Detail produk */}
-                  <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                     {/* Thumbnail produk */}
-                    <div className="w-20 h-20 rounded-[10px] bg-[#F2F2F2] flex items-center justify-center overflow-hidden">
-                      {/* Ganti dengan gambar produk apabila telah tersedia */}
-                      {/* <img src={BerasPulenImg} alt="Beras Pulen" className="w-full h-full object-cover" /> */}
+                    <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-[10px] bg-[#F2F2F2] flex items-center justify-center overflow-hidden">
+                      {/* Ganti dengan gambar produk jika sudah tersedia */}
                     </div>
 
-                    <div className="flex-1 text-sm">
+                    <div className="flex-1 text-xs sm:text-sm">
                       <p className="font-semibold mb-1">
                         Beras Pulen 500g (x1)
                       </p>
                       <p className="font-medium">{order.total}</p>
 
-                      <div className="flex items-center gap-2 mt-3 text-xs">
+                      <div className="flex items-center gap-2 mt-3 text-[11px] sm:text-xs">
                         <span className="text-[#344E41] font-medium">
                           Status Pesanan:
                         </span>
-                        <span className="px-3 py-1 rounded-full bg-[#3A5B40] text-white text-[11px]">
+                        <span className="px-3 py-1 rounded-full bg-[#3A5B40] text-white text-[10px] sm:text-[11px]">
                           {order.status}
                         </span>
                       </div>
@@ -229,10 +232,10 @@ const OrderHistory = () => {
                   </div>
 
                   {/* Footer card */}
-                  <hr className="border-[#3A5B40] mt-4 mb-3" />
+                  <hr className="border-[#3A5B40] mt-3 sm:mt-4 mb-2 sm:mb-3" />
                   <button
                     onClick={() => navigate(`/orders-history/${order.id}`)}
-                    className="w-full bg-[#3A5B40] text-white text-sm font-semibold py-2 rounded-[10px] hover:bg-[#2a3e33] transition"
+                    className="w-full bg-[#3A5B40] text-white text-xs sm:text-sm font-semibold py-2 rounded-[10px] hover:bg-[#2a3e33] transition"
                   >
                     Detail Pesanan
                   </button>
@@ -243,15 +246,15 @@ const OrderHistory = () => {
         </div>
       </div>
 
-      {/* POPUP LOGOUT – menggunakan Popup generik terbaru */}
+      {/* Popup logout */}
       {showLogoutPopup && (
         <Popup
           variant="logout"
           title="Anda Yakin Ingin Keluar?"
           message="Anda akan keluar dari akun ini. Apakah Anda yakin?"
-          onClose={closeLogoutPopup}    // tutup saat klik backdrop
-          onCancel={closeLogoutPopup}   // batal logout
-          onConfirm={confirmLogout}     // konfirmasi logout
+          onClose={closeLogoutPopup}
+          onCancel={closeLogoutPopup}
+          onConfirm={confirmLogout}
         />
       )}
     </div>

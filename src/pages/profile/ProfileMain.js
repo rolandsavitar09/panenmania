@@ -20,57 +20,64 @@ const ProfileMain = () => {
   const [profilePic, setProfilePic] = useState(null);
   const [gender, setGender] = useState("");
 
+  // Menyimpan perubahan profil
   const handleSave = (e) => {
     e.preventDefault();
     setShowSuccessPopup(true);
   };
 
+  // Menampilkan popup logout
   const handleLogout = () => setShowLogoutPopup(true);
   const closeLogoutPopup = () => setShowLogoutPopup(false);
 
+  // Konfirmasi logout
   const confirmLogout = () => {
     localStorage.removeItem("token");
     setShowLogoutPopup(false);
     navigate("/", { replace: true });
   };
 
+  // Upload foto profil
   const handleUploadPic = (e) => {
     const file = e.target.files[0];
     if (file) setProfilePic(URL.createObjectURL(file));
   };
 
+  // Cek menu aktif
   const isActive = (path) => location.pathname === path;
 
   return (
     <div className="min-h-screen bg-[#FFFEF6] text-[#344E41] font-poppins flex flex-col">
       <NavbarAfterLogin />
 
-      {/* MAIN CONTENT – mulai tepat di bawah navbar (h-14 = 56px) */}
-      <div className="flex w-full mt-14 gap-8">
-        {/* SIDEBAR – tinggi FIX dari bawah navbar sampai bawah layar */}
-        <div className="w-72 bg-white px-6 py-8 rounded-[10px] shadow flex flex-col overflow-y-auto min-h-[calc(100vh-56px)]">
+      {/* Konten utama: stack di mobile, dua kolom di desktop */}
+      <div className="flex flex-col lg:flex-row w-full mt-14 gap-4 lg:gap-8 px-4 lg:px-0">
+        {/* SIDEBAR – full width di mobile, lebar tetap di desktop */}
+        <div className="w-full lg:w-72 bg-white px-4 py-6 lg:px-6 lg:py-8 rounded-[10px] shadow flex flex-col overflow-y-auto lg:min-h-[calc(100vh-56px)]">
           <div className="flex flex-col items-center text-center">
-            {/* Profile Pic + Edit */}
+            {/* Foto profil + tombol edit */}
             <label className="relative cursor-pointer inline-block">
               <input type="file" className="hidden" onChange={handleUploadPic} />
-              <div className="w-40 h-40 bg-[#F2F2F2] rounded-full flex items-center justify-center overflow-hidden">
+              <div className="w-28 h-28 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-[#F2F2F2] rounded-full flex items-center justify-center overflow-hidden">
                 <img
                   src={profilePic || ProfilePhoto}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white shadow-[0_4px_12px_rgba(0,0,0,0.12)] flex items-center justify-center">
+              <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-8 h-8 rounded-full bg-white shadow-[0_4px_12px_rgba(0,0,0,0.12)] flex items-center justify-center">
                 <img src={EditIcon} alt="Edit" className="w-4 h-4" />
               </div>
             </label>
 
-            <p className="mt-3 font-semibold text-lg">Dearni Lambardo</p>
+            <p className="mt-3 font-semibold text-base sm:text-lg">
+              Dearni Lambardo
+            </p>
           </div>
 
-          {/* MENU */}
-          <div className="mt-8 space-y-6 text-left w-full">
-            {/* PROFILE SECTION */}
+          {/* Menu samping */}
+          <div className="mt-6 lg:mt-8 space-y-6 text-left w-full">
+            {/* Bagian profil */}
             <div>
               <div className="flex items-center gap-2">
                 <img src={ProfileIcon} alt="Profile icon" className="w-5 h-5" />
@@ -114,7 +121,7 @@ const ProfileMain = () => {
               </div>
             </div>
 
-            {/* ORDERS SECTION */}
+            {/* Bagian pesanan */}
             <div>
               <div className="flex items-center gap-2">
                 <img src={CheckIcon} alt="Orders icon" className="w-5 h-5" />
@@ -147,34 +154,37 @@ const ProfileMain = () => {
             </div>
           </div>
 
-          {/* BUTTON KELUAR */}
+          {/* Tombol keluar – jarak lebih pendek di mobile */}
           <button
             onClick={handleLogout}
-            className="mt-20 self-center flex items-center justify-center gap-2 bg-[#3A5B40] px-8 py-2 rounded-[10px] text-sm font-semibold text-white hover:bg-[#314c35] transition"
+            className="mt-8 lg:mt-20 self-center flex items-center justify-center gap-2 bg-[#3A5B40] px-6 sm:px-8 py-2 rounded-[10px] text-sm font-semibold text-white hover:bg-[#314c35] transition"
           >
             <img src={OutIcon} alt="Keluar" className="w-4 h-4" />
             Keluar
           </button>
         </div>
 
-        {/* PROFILE FORM CARD */}
-        <div className="flex-1 mr-6 lg:mr-20 flex">
-          <div className="w-full bg-[#B8D68F40] p-10 rounded-[10px] shadow-[0_10px_30px_rgba(0,0,0,0.06)] mt-10 mb-10">
-            <h2 className="text-xl font-bold mb-2">Profile</h2>
-            <p className="text-sm mb-4">
+        {/* Kartu form profil – full width di mobile, tetap di kanan pada desktop */}
+        <div className="flex-1 mr-0 lg:mr-20 mt-4 lg:mt-10 mb-6 lg:mb-10 flex">
+          <div className="w-full bg-[#B8D68F40] p-4 sm:p-6 lg:p-10 rounded-[10px] shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
+            <h2 className="text-lg sm:text-xl font-bold mb-2">Profile</h2>
+            <p className="text-xs sm:text-sm mb-4">
               Perbarui informasi akun Anda untuk pengalaman belanja yang lebih
               nyaman dan personal.
             </p>
-            {/* GARIS HORIZONTAL TEBAL 2, WARNA #3A5B40 */}
-            <hr className="border-t-2 border-[#3A5B40] mb-6" />
+            {/* Garis pembatas */}
+            <hr className="border-t-2 border-[#3A5B40] mb-4 sm:mb-6" />
 
-            <form onSubmit={handleSave} className="space-y-6">
+            <form
+              onSubmit={handleSave}
+              className="space-y-4 sm:space-y-5 lg:space-y-6"
+            >
               {/* Nama Lengkap */}
               <div>
                 <label className="text-sm font-medium">Nama Lengkap</label>
                 <input
                   type="text"
-                  className="w-full bg-white py-3 px-4 rounded-[10px] mt-1 outline-none text-sm"
+                  className="w-full bg-white py-2.5 px-3 sm:py-3 sm:px-4 rounded-[10px] mt-1 outline-none text-sm"
                 />
               </div>
 
@@ -183,7 +193,7 @@ const ProfileMain = () => {
                 <label className="text-sm font-medium">Email</label>
                 <input
                   type="email"
-                  className="w-full bg-white py-3 px-4 rounded-[10px] mt-1 outline-none text-sm"
+                  className="w-full bg-white py-2.5 px-3 sm:py-3 sm:px-4 rounded-[10px] mt-1 outline-none text-sm"
                 />
               </div>
 
@@ -192,17 +202,17 @@ const ProfileMain = () => {
                 <label className="text-sm font-medium">No. Telepon</label>
                 <input
                   type="text"
-                  className="w-full bg-white py-3 px-4 rounded-[10px] mt-1 outline-none text-sm"
+                  className="w-full bg-white py-2.5 px-3 sm:py-3 sm:px-4 rounded-[10px] mt-1 outline-none text-sm"
                 />
               </div>
 
-              {/* JENIS KELAMIN – custom radio + button putih */}
+              {/* Jenis Kelamin */}
               <div>
                 <label className="text-sm font-medium block mb-2">
                   Jenis Kelamin
                 </label>
 
-                <div className="flex flex-wrap gap-8">
+                <div className="flex flex-wrap gap-4 sm:gap-6">
                   {/* Perempuan */}
                   <div
                     onClick={() => setGender("Perempuan")}
@@ -220,7 +230,7 @@ const ProfileMain = () => {
                       )}
                     </span>
 
-                    <div className="bg-white rounded-[10px] px-10 py-2 min-w-[150px] text-center">
+                    <div className="bg-white rounded-[10px] px-6 sm:px-8 lg:px-10 py-2 min-w-[130px] sm:min-w-[150px] text-center text-sm">
                       Perempuan
                     </div>
                   </div>
@@ -242,7 +252,7 @@ const ProfileMain = () => {
                       )}
                     </span>
 
-                    <div className="bg-white rounded-[10px] px-10 py-2 min-w-[150px] text-center">
+                    <div className="bg-white rounded-[10px] px-6 sm:px-8 lg:px-10 py-2 min-w-[130px] sm:min-w-[150px] text-center text-sm">
                       Laki-Laki
                     </div>
                   </div>
@@ -254,14 +264,15 @@ const ProfileMain = () => {
                 <label className="text-sm font-medium">Tanggal Lahir</label>
                 <input
                   type="date"
-                  className="w-full bg-white py-3 px-4 rounded-[10px] mt-1 outline-none text-sm"
+                  className="w-full bg-white py-2.5 px-3 sm:py-3 sm:px-4 rounded-[10px] mt-1 outline-none text-sm"
                 />
               </div>
 
+              {/* Tombol simpan */}
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="bg-[#344E41] text-white font-semibold px-8 py-2 rounded-[10px] hover:bg-[#2a3e33] transition"
+                  className="bg-[#344E41] text-white font-semibold px-6 sm:px-8 py-2 rounded-[10px] hover:bg-[#2a3e33] transition text-sm"
                 >
                   Simpan
                 </button>
@@ -271,7 +282,7 @@ const ProfileMain = () => {
         </div>
       </div>
 
-      {/* POPUP SIMPAN – pakai variant success popup baru */}
+      {/* Popup simpan */}
       {showSuccessPopup && (
         <Popup
           variant="success"
@@ -280,7 +291,7 @@ const ProfileMain = () => {
         />
       )}
 
-      {/* POPUP LOGOUT – pakai variant logout popup baru */}
+      {/* Popup logout */}
       {showLogoutPopup && (
         <Popup
           variant="logout"
