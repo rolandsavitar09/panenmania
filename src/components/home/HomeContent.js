@@ -144,13 +144,13 @@ const HomeContent = ({ isLoggedIn }) => {
           {/* Kiri: teks hero */}
           <div className="w-full md:w-[55%] flex items-center">
             <div className="px-4 sm:px-8 md:px-16 lg:px-20 py-10 md:py-12 max-w-xl">
-              <h2 className="text-[24px] sm:text-[26px] md:text-[25px] font-extrabold text-[#344E41] leading-snug mb-5 sm:mb-6">
+              <h2 className="text-[21px] sm:text-[26px] md:text-[25px] font-extrabold text-[#344E41] leading-snug mb-5 sm:mb-6">
                 Dari Ladang ke Tempat Anda,
                 <br />
                 Segarnya Tetap Terjaga.
               </h2>
 
-              <p className="text-[#3A5A40] text-[14px] sm:text-[15px] leading-relaxed mb-8 sm:mb-10">
+              <p className="text-[#3A5A40] text-[13px] sm:text-[15px] leading-relaxed mb-8 sm:mb-10">
                 Belanja hasil panen kini lebih mudah dan menyenangkan! Temukan
                 sayur, buah, dan bahan segar langsung dari petani Indonesia.
                 Dijamin segar, sehat, dan sampai di rumah Anda dengan cepat.
