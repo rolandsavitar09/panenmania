@@ -1,47 +1,28 @@
 // src/admin/component/pages/AdminProducts.js
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
-const initialProducts = [
-  {
-    id: 1,
-    name: "Beras Rojo Lele 5 Kg",
-    category: "Beras",
-    price: "Rp 75.0000",
-    stock: 25,
-    status: "available",
-  },
-  {
-    id: 2,
-    name: "Buah Naga Premium 1 Kg",
-    category: "Buah",
-    price: "Rp 75.0000",
-    stock: 25,
-    status: "unavailable",
-  },
-  {
-    id: 3,
-    name: "Beras Rojo Lele 5 Kg",
-    category: "Beras",
-    price: "Rp 75.0000",
-    stock: 25,
-    status: "available",
-  },
-  {
-    id: 4,
-    name: "Buah Naga Premium 1 Kg",
-    category: "Buah",
-    price: "Rp 75.0000",
-    stock: 25,
-    status: "unavailable",
-  },
-];
+// URL API
+const API_PRODUCTS_URL = "http://localhost:5000/api/products";
+const getAdminToken = () => localStorage.getItem("adminToken");
+
+const formatRupiah = (number) => {
+  if (number == null || isNaN(Number(number))) return "Rp 0";
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(Number(number));
+};
 
 const AdminProducts = () => {
   const bgPage = "#FFFEF6";
   const navigate = useNavigate();
 
-  const [products, setProducts] = useState(initialProducts);
+  // Ganti initialProducts dengan state kosong
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // dropdown filter
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -54,6 +35,49 @@ const AdminProducts = () => {
   // modal delete
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+
+  // --- FUNGSI FETCH PRODUK ---
+  const fetchProducts = useCallback(async () => {
+    const token = getAdminToken();
+    if (!token) {
+      setLoading(false);
+      return navigate("/admin/login");
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(API_PRODUCTS_URL, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        const mappedProducts = (data.products || data.data || []).map((p) => ({
+          id: p.product_id,
+          name: p.name,
+          category: p.category_name || "Lainnya", // Asumsi category_name tersedia
+          price: formatRupiah(p.price),
+          stock: p.stock,
+          status: p.stock > 0 ? "available" : "unavailable",
+          imageUrl: p.image_url, // Path relatif dari backend
+        }));
+        setProducts(mappedProducts);
+      } else {
+        setError(data.message || "Gagal memuat data produk dari server.");
+      }
+    } catch (e) {
+      console.error("Fetch Products Error:", e);
+      setError("Gagal terhubung ke server.");
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handleSortSelect = (value) => {
     if (value === "Semua Kategori") {
@@ -79,12 +103,10 @@ const AdminProducts = () => {
 
   const toggleSelectAll = () => {
     if (isAllSelected) {
-      // uncheck semua yang terlihat di filter
       setSelectedProducts((prev) =>
         prev.filter((id) => !filteredIds.includes(id))
       );
     } else {
-      // tambahkan semua id yang terlihat
       setSelectedProducts((prev) => {
         const set = new Set(prev);
         filteredIds.forEach((id) => set.add(id));
@@ -112,6 +134,7 @@ const AdminProducts = () => {
 
   const confirmDelete = () => {
     if (!deleteTarget) return;
+    // Di sini harusnya ada logic API DELETE
     setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id));
     setSelectedProducts((prev) => prev.filter((id) => id !== deleteTarget.id));
     closeDeleteModal();
@@ -338,7 +361,17 @@ const AdminProducts = () => {
 
                 {/* List produk */}
                 <div className="space-y-3 text-xs text-[#3A5B40]">
-                  {filteredProducts.length === 0 && (
+                  {loading && (
+                    <div className="text-center py-4">Memuat produk...</div>
+                  )}
+
+                  {!loading && error && (
+                    <div className="text-center text-[11px] text-[#96352C] py-4">
+                      Error: {error}
+                    </div>
+                  )}
+
+                  {filteredProducts.length === 0 && !loading && !error && (
                     <div className="text-center text-[11px] text-[#3A5B40]/70 py-4">
                       Tidak ada produk pada kategori ini.
                     </div>
@@ -362,10 +395,16 @@ const AdminProducts = () => {
 
                         {/* Nama + gambar kecil */}
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-md bg-[#F5F5F5] flex items-center justify-center">
-                            <span className="text-[9px] text-[#3A5B40]">
-                              IMG
-                            </span>
+                          <div className="w-8 h-8 rounded-md bg-[#F5F5F5] flex items-center justify-center overflow-hidden">
+                            {item.imageUrl ? (
+                              <img
+                                src={`http://localhost:5000${item.imageUrl}`}
+                                alt={item.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-[9px] text-[#3A5B40]">IMG</span>
+                            )}
                           </div>
                           <span>{item.name}</span>
                         </div>
@@ -420,7 +459,7 @@ const AdminProducts = () => {
                               color: "#3A5B40",
                               backgroundColor: "#FFFFFF",
                             }}
-                            onClick={() => navigate("/admin/products/add")}
+                            onClick={() => navigate(`/admin/products/add?editId=${item.id}`)}
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -472,7 +511,7 @@ const AdminProducts = () => {
         </main>
       </div>
 
-      {/* MODAL DELETE */}
+      {/* MODAL DELETE (TIDAK DIUBAH) */}
       {isDeleteOpen && deleteTarget && (
         <div className="fixed inset-0 z-40 flex items-center justify-center px-4">
           {/* overlay – klik di luar tidak menutup modal */}

@@ -6,6 +6,9 @@ import { Link, useNavigate } from "react-router-dom";
 import FarmerSignup from "../../assets/images/banners/petani signup.svg";
 import GoogleIcon from "../../assets/images/icons/google.svg";
 
+// URL API Backend
+const API_BASE_URL = "http://localhost:5000/api/auth";
+
 const SignUp = () => {
   const navigate = useNavigate();
 
@@ -18,8 +21,10 @@ const SignUp = () => {
     gender: "",
   });
 
-  // State pesan kesalahan jenis kelamin
+  // State pesan kesalahan
   const [genderError, setGenderError] = useState("");
+  const [apiError, setApiError] = useState(""); // Untuk menampilkan error dari BE
+  const [isLoading, setIsLoading] = useState(false); // Untuk tombol loading
 
   // Perubahan nilai input teks
   const handleChange = (e) => {
@@ -27,23 +32,56 @@ const SignUp = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    setApiError(""); // Reset error saat ada input baru
   };
 
   // Pilih jenis kelamin
   const handleGenderSelect = (value) => {
     setFormData((prev) => ({ ...prev, gender: value }));
-    if (genderError) setGenderError("");
+    setGenderError("");
+    setApiError("");
   };
 
-  // Submit formulir
-  const handleSubmit = (e) => {
+  // Submit formulir (LOGIKA BARU - Panggilan API)
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setApiError("");
+    
+    // Validasi Sisi Klien
     if (!formData.gender) {
       setGenderError("Silakan pilih salah satu jenis kelamin.");
       return;
     }
-    localStorage.setItem("userData", JSON.stringify(formData));
-    navigate("/signin");
+    
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData), // Kirim data formulir
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Pendaftaran berhasil (Status 201 Created)
+        alert("Pendaftaran berhasil! Silakan masuk.");
+        navigate("/signin");
+      } else {
+        // Pendaftaran gagal (Status 4xx atau 5xx)
+        setApiError(data.message || "Gagal mendaftar. Silakan coba lagi.");
+      }
+    } catch (error) {
+      console.error("Network or API call error:", error);
+      setApiError(
+        "Tidak dapat terhubung ke server. Pastikan server backend berjalan di port 5000."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Kelas dasar input (dikecilkan padding dan teks)
@@ -203,6 +241,13 @@ const SignUp = () => {
                   />
                 </div>
 
+                {/* ============ Error Message dari Backend ============ */}
+                {apiError && (
+                  <p className="text-[10px] text-red-300 mt-1 font-semibold">
+                    🚨 {apiError}
+                  </p>
+                )}
+
                 {/* ============ Persetujuan ============ */}
                 <label className="flex items-center gap-2 text-[10px] leading-tight mt-0.5">
                   <input type="checkbox" required className="w-3 h-3" />
@@ -212,9 +257,10 @@ const SignUp = () => {
                 {/* Tombol daftar */}
                 <button
                   type="submit"
-                  className="w-full bg-white text-[#3A5A40] py-2 rounded-lg font-semibold mt-1 text-[11px] sm:text-xs md:text-sm hover:bg-[#F1F1F1] transition"
+                  disabled={isLoading}
+                  className="w-full bg-white text-[#3A5A40] py-2 rounded-lg font-semibold mt-1 text-[11px] sm:text-xs md:text-sm hover:bg-[#F1F1F1] transition disabled:bg-gray-400 disabled:text-gray-700"
                 >
-                  Daftar
+                  {isLoading ? "Memproses..." : "Daftar"}
                 </button>
               </form>
             </div>

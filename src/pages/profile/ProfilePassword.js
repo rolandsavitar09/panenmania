@@ -9,7 +9,21 @@ import EditIcon from "../../assets/images/icons/edit.svg";
 import ProfileIcon from "../../assets/images/icons/profile.svg";
 import CheckIcon from "../../assets/images/icons/ceklis.svg";
 import OutIcon from "../../assets/images/icons/out.svg";
-import ProfilePhoto from "../../assets/images/icons/pp.svg";
+// HILANGKAN penggunaan pp.svg sebagai fallback supaya logika sidebar sama seperti ProfileMain
+// import ProfilePhoto from "../../assets/images/icons/pp.svg";
+
+// Ambil data profil user dari localStorage (sama seperti ProfileMain)
+const getUserProfileData = () => {
+  try {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    return {
+      fullName: user.name || user.full_name || "Customer",
+      email: user.email || "email@example.com",
+    };
+  } catch (e) {
+    return { fullName: "Customer", email: "email@example.com" };
+  }
+};
 
 const ProfilePassword = () => {
   const location = useLocation();
@@ -28,9 +42,12 @@ const ProfilePassword = () => {
   // State foto profil sementara
   const [profilePic, setProfilePic] = useState(null);
 
+  // profile data (nama + email) untuk sidebar — diambil sama seperti ProfileMain
+  const [profileData] = useState(getUserProfileData());
+
   // Unggah foto profil (preview saja)
   const handleUploadPic = (e) => {
-    const f = e.target.files[0];
+    const f = e?.target?.files?.[0];
     if (f) setProfilePic(URL.createObjectURL(f));
   };
 
@@ -39,8 +56,7 @@ const ProfilePassword = () => {
     let temp = {};
     if (!oldPass) temp.old = "Kata sandi lama tidak boleh kosong!";
     if (!newPass) temp.new = "Kata sandi baru tidak boleh kosong!";
-    if (newPass !== confirm)
-      temp.conf = "Konfirmasi kata sandi tidak cocok!";
+    if (newPass !== confirm) temp.conf = "Konfirmasi kata sandi tidak cocok!";
     setErrors(temp);
     return Object.keys(temp).length === 0;
   };
@@ -52,9 +68,10 @@ const ProfilePassword = () => {
     setShowSuccess(true);
   };
 
-  // Konfirmasi logout dan hapus token
+  // Konfirmasi logout dan hapus token + user (sama seperti ProfileMain)
   const confirmLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/", { replace: true });
   };
 
@@ -73,11 +90,14 @@ const ProfilePassword = () => {
             <label className="relative cursor-pointer inline-block">
               <input type="file" className="hidden" onChange={handleUploadPic} />
               <div className="w-28 h-28 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-[#F2F2F2] rounded-full flex items-center justify-center overflow-hidden">
-                <img
-                  src={profilePic || ProfilePhoto}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
+                {/* Tampilkan gambar hanya jika ada upload, sesuai logika ProfileMain */}
+                {profilePic && (
+                  <img
+                    src={profilePic}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
               <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-8 h-8 rounded-full bg-white shadow-[0_4px_12px_rgba(0,0,0,0.12)] flex items-center justify-center">
                 <img src={EditIcon} alt="Edit" className="w-4 h-4" />
@@ -85,8 +105,9 @@ const ProfilePassword = () => {
             </label>
 
             <p className="mt-3 font-semibold text-base sm:text-lg">
-              Dearni Lambardo
+              {profileData.fullName}
             </p>
+            <p className="text-xs text-gray-500 mb-4">{profileData.email}</p>
           </div>
 
           {/* Menu sidebar */}

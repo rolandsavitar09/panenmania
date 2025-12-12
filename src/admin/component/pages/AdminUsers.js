@@ -1,75 +1,124 @@
 // src/admin/component/pages/AdminUsers.js
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+
+// URL API (bisa dioverride via env)
+const API_USERS_ADMIN_URL =
+  process.env.REACT_APP_API_USERS_ADMIN_URL ||
+  "http://localhost:5000/api/users/admin/all";
+const getAdminToken = () => localStorage.getItem("adminToken");
+
+const formatDate = (dateString) => {
+  if (!dateString) return "-";
+  try {
+    return new Date(dateString).toLocaleDateString("id-ID", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch (e) {
+    return dateString;
+  }
+};
 
 const AdminUsers = () => {
   const bgPage = "#FFFEF6";
   const navigate = useNavigate();
 
-  const usersData = [
-    {
-      id: 1,
-      name: "Dearnil Lambardo Saragih",
-      email: "dearnils@gmail.com",
-      role: "Admin",
-      joinedAt: "03/12/2025 08:45:45 AM",
-    },
-    {
-      id: 2,
-      name: "Dearnil Lambardo Saragih",
-      email: "dearnils@gmail.com",
-      role: "Pengguna",
-      joinedAt: "03/12/2025 08:45:45 AM",
-    },
-    {
-      id: 3,
-      name: "Dearnil Lambardo Saragih",
-      email: "dearnils@gmail.com",
-      role: "Admin",
-      joinedAt: "03/12/2025 08:45:45 AM",
-    },
-    {
-      id: 4,
-      name: "Dearnil Lambardo Saragih",
-      email: "dearnils@gmail.com",
-      role: "Pengguna",
-      joinedAt: "03/12/2025 08:45:45 AM",
-    },
-  ];
+  // State
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [users] = useState(usersData);
   const [selectedIds, setSelectedIds] = useState([]);
   const [isSortOpen, setIsSortOpen] = useState(false);
 
-  // === FILTER ROLE (pakai gaya tombol seperti AdminProducts) ===
+  // Filter role
   const [roleFilter, setRoleFilter] = useState("Semua Role");
+  const sortLabel = roleFilter === "Semua Role" ? "Urutkan Berdasarkan" : roleFilter;
 
-  const sortLabel =
-    roleFilter === "Semua Role" ? "Urutkan Berdasarkan" : roleFilter;
+  // Robust fetch users
+  const fetchUsers = useCallback(async () => {
+    const token = getAdminToken();
+    if (!token) {
+      setLoading(false);
+      return navigate("/admin/login");
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(API_USERS_ADMIN_URL, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Debug
+      console.log("Fetch users status:", response.status, response.statusText, "url:", API_USERS_ADMIN_URL);
+
+      const contentType = response.headers.get("content-type") || "";
+      let data = null;
+      if (contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        console.warn("Response is not JSON:", text);
+        data = { message: text };
+      }
+
+      if (response.ok) {
+        setUsers(data.users || []);
+      } else {
+        const msg = data && data.message ? data.message : `Server returned ${response.status}`;
+        setError(msg);
+        console.error("Fetch users failed:", response.status, msg);
+      }
+    } catch (e) {
+      console.error("Fetch Users Error:", e);
+      setError("Gagal terhubung ke server.");
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleSortSelect = (value) => {
     setRoleFilter(value);
     setIsSortOpen(false);
   };
 
+  // normalize id & joinedAt so component tolerant ke schema backend
+  const normalizeId = (u) => u.id ?? u._id ?? null;
+  const normalizeJoinedAt = (u) => u.joinedAt ?? u.createdAt ?? null;
+
   const filteredUsers =
     roleFilter === "Semua Role"
       ? users
-      : users.filter((u) => u.role === roleFilter);
+      : users.filter((u) => {
+          const role = (u.role || "").toString().toLowerCase();
+          return roleFilter.toLowerCase() === "admin"
+            ? role === "admin"
+            : role === "pengguna" || role === "user" || role === "member"
+            ? roleFilter.toLowerCase() === "pengguna"
+            : false;
+        });
 
   const allChecked =
     filteredUsers.length > 0 &&
-    filteredUsers.every((u) => selectedIds.includes(u.id));
+    filteredUsers.every((u) => selectedIds.includes(normalizeId(u)));
 
   const toggleSelectAll = () => {
     if (allChecked) {
-      // uncheck semua yg tampil
       setSelectedIds((prev) =>
-        prev.filter((id) => !filteredUsers.some((u) => u.id === id))
+        prev.filter((id) => !filteredUsers.some((u) => normalizeId(u) === id))
       );
     } else {
-      // check semua yg tampil
-      const idsToAdd = filteredUsers.map((u) => u.id);
+      const idsToAdd = filteredUsers.map((u) => normalizeId(u)).filter(Boolean);
       setSelectedIds((prev) => Array.from(new Set([...prev, ...idsToAdd])));
     }
   };
@@ -149,10 +198,7 @@ const AdminUsers = () => {
           />
         </div>
 
-        <button
-          type="button"
-          className="h-10 w-10 flex items-center justify-center"
-        >
+        <button type="button" className="h-10 w-10 flex items-center justify-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"
@@ -190,11 +236,9 @@ const AdminUsers = () => {
           >
             {/* HEADER CARD */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-3">
-              <h2 className="text-sm font-semibold text-[#3A5B40]">
-                Semua Pengguna
-              </h2>
+              <h2 className="text-sm font-semibold text-[#3A5B40]">Semua Pengguna</h2>
 
-              {/* === TOMBOL URUTKAN BERDASARKAN (SAMA SEPERTI AdminProducts) === */}
+              {/* SORT */}
               <div className="relative self-start md:self-auto">
                 <button
                   type="button"
@@ -207,10 +251,10 @@ const AdminUsers = () => {
                     flex items-center justify-between gap-2
                   "
                   style={{
-                    backgroundColor: "rgba(88,129,87,0.75)", // #588157BF
+                    backgroundColor: "rgba(88,129,87,0.75)",
                     border: "1px solid #3A5B40",
                     color: "#FFFFFF",
-                    width: "180px", // FIXED WIDTH biar nggak geser
+                    width: "180px",
                   }}
                 >
                   <span className="truncate">{sortLabel}</span>
@@ -247,7 +291,7 @@ const AdminUsers = () => {
               </div>
             </div>
 
-            {/* HEADER TABEL */}
+            {/* TABLE HEADER */}
             <div className="text-[11px] font-semibold text-[#3A5B40] border-b border-[#E5E7EB] pb-3 mb-2">
               <div className="grid grid-cols-[40px,3fr,3fr,2fr,3fr] items-center gap-2">
                 <div>
@@ -267,59 +311,71 @@ const AdminUsers = () => {
 
             {/* LIST PENGGUNA */}
             <div className="space-y-3 text-xs text-[#3A5B40]">
-              {filteredUsers.map((user) => (
-                <div
-                  key={user.id}
-                  className="border-b border-[#E5E7EB] pb-3 last:border-b-0"
-                >
-                  <div className="grid grid-cols-[40px,3fr,3fr,2fr,3fr] items-center gap-2">
-                    <div>
-                      <input
-                        type="checkbox"
-                        className="accent-[#3A5B40]"
-                        checked={selectedIds.includes(user.id)}
-                        onChange={() => toggleSelectOne(user.id)}
-                      />
-                    </div>
+              {loading && <div className="text-center py-4">Memuat data pengguna...</div>}
+              {error && <div className="text-center py-4 text-[#96352C]">{error}</div>}
 
-                    {/* Nama + avatar fake */}
-                    <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 rounded-full bg-[#3A5B40]/10 flex items-center justify-center">
-                        <span className="text-[9px] text-[#3A5B40]">A</span>
+              {!loading && filteredUsers.length === 0 && !error && (
+                <div className="text-center py-4 text-[#3A5B40]/70">Tidak ada pengguna yang ditemukan.</div>
+              )}
+
+              {filteredUsers.map((user) => {
+                const uid = normalizeId(user);
+                const joinedAt = normalizeJoinedAt(user);
+                const name = user.name || user.fullname || user.username || "—";
+                const initial = name ? name.trim().charAt(0).toUpperCase() : "A";
+                const role = (user.role || "").toString();
+
+                return (
+                  <div key={uid ?? Math.random()} className="border-b border-[#E5E7EB] pb-3 last:border-b-0">
+                    <div className="grid grid-cols-[40px,3fr,3fr,2fr,3fr] items-center gap-2">
+                      <div>
+                        <input
+                          type="checkbox"
+                          className="accent-[#3A5B40]"
+                          checked={selectedIds.includes(uid)}
+                          onChange={() => toggleSelectOne(uid)}
+                        />
                       </div>
-                      <span>{user.name}</span>
+
+                      {/* Nama + avatar fake */}
+                      <div className="flex items-center gap-3">
+                        <div className="w-6 h-6 rounded-full bg-[#3A5B40]/10 flex items-center justify-center">
+                          <span className="text-[9px] text-[#3A5B40]">{initial}</span>
+                        </div>
+                        <span>{name}</span>
+                      </div>
+
+                      <div>{user.email || "—"}</div>
+
+                      <div>
+                        {role.toLowerCase() === "admin" ? (
+                          <span
+                            className="px-3 py-1 rounded-[10px] text-[10px]"
+                            style={{
+                              backgroundColor: "rgba(49,114,32,0.8)",
+                              color: "#FFFFFF",
+                            }}
+                          >
+                            Admin
+                          </span>
+                        ) : (
+                          <span
+                            className="px-3 py-1 rounded-[10px] text-[10px]"
+                            style={{
+                              backgroundColor: "rgba(150,53,44,0.8)",
+                              color: "#FFFFFF",
+                            }}
+                          >
+                            Pengguna
+                          </span>
+                        )}
+                      </div>
+
+                      <div>{formatDate(joinedAt)}</div>
                     </div>
-
-                    <div>{user.email}</div>
-
-                    <div>
-                      {user.role === "Admin" ? (
-                        <span
-                          className="px-3 py-1 rounded-[10px] text-[10px]"
-                          style={{
-                            backgroundColor: "rgba(49,114,32,0.8)", // #317220CC
-                            color: "#FFFFFF",
-                          }}
-                        >
-                          Admin
-                        </span>
-                      ) : (
-                        <span
-                          className="px-3 py-1 rounded-[10px] text-[10px]"
-                          style={{
-                            backgroundColor: "rgba(150,53,44,0.8)", // #96352CCC
-                            color: "#FFFFFF",
-                          }}
-                        >
-                          Pengguna
-                        </span>
-                      )}
-                    </div>
-
-                    <div>{user.joinedAt}</div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </main>

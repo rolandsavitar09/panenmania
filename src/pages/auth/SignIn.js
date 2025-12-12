@@ -6,6 +6,9 @@ import { Link, useNavigate } from "react-router-dom";
 import FarmerSignup from "../../assets/images/banners/petani signup.svg";
 import GoogleIcon from "../../assets/images/icons/google.svg";
 
+// URL API Backend
+const API_BASE_URL = "http://localhost:5000/api/auth";
+
 const SignIn = () => {
   const navigate = useNavigate();
 
@@ -13,51 +16,47 @@ const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // State untuk loading button
 
-  // Handler kirim formulir
-  const handleSubmit = (e) => {
+  // Handler kirim formulir (LOGIKA BARU - Panggilan API)
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const savedUserRaw = localStorage.getItem("userData");
-
-    // Validasi jika data pengguna belum tersimpan
-    if (!savedUserRaw) {
-      setErrorMessage(
-        'Maaf, saat ini anda belum terdaftar sebagai pengguna. Silakan "Daftar" terlebih dahulu.'
-      );
-      return;
-    }
-
-    let user;
-    try {
-      user = JSON.parse(savedUserRaw);
-    } catch (err) {
-      setErrorMessage(
-        'Maaf, saat ini anda belum terdaftar sebagai pengguna. Silakan "Daftar" terlebih dahulu.'
-      );
-      return;
-    }
-
-    // Validasi struktur data pengguna
-    if (!user || !user.email || !user.password) {
-      setErrorMessage(
-        'Maaf, saat ini anda belum terdaftar sebagai pengguna. Silakan "Daftar" terlebih dahulu.'
-      );
-      return;
-    }
-
-    // Validasi kecocokan email dan kata sandi
-    if (email !== user.email || password !== user.password) {
-      setErrorMessage(
-        'Maaf, saat ini anda belum terdaftar sebagai pengguna. Silakan "Daftar" terlebih dahulu.'
-      );
-      return;
-    }
-
-    // Login berhasil
-    localStorage.setItem("token", "login-success");
     setErrorMessage("");
-    navigate("/home");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // Kirim email dan password ke backend
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Login berhasil
+        // Simpan token JWT dan data user ke Local Storage
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user)); 
+        
+        setErrorMessage("");
+        alert("Login berhasil!");
+        navigate("/home"); // Arahkan ke halaman utama setelah login
+      } else {
+        // Login gagal (error 401 Unauthorized atau 400 Bad Request)
+        setErrorMessage(data.message || 'Gagal login. Silakan periksa kredensial Anda.');
+      }
+    } catch (error) {
+      console.error("Network or API call error:", error);
+      setErrorMessage(
+        "Tidak dapat terhubung ke server. Pastikan server backend berjalan."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Kelas dasar input – disamakan ukurannya dengan SignUp
@@ -131,7 +130,7 @@ const SignIn = () => {
                       if (errorMessage) setErrorMessage("");
                     }}
                     className={inputClass}
-                    placeholder=""
+                    placeholder="Masukkan email"
                   />
                 </div>
 
@@ -147,28 +146,29 @@ const SignIn = () => {
                       if (errorMessage) setErrorMessage("");
                     }}
                     className={inputClass}
-                    placeholder=""
+                    placeholder="Masukkan kata sandi"
                   />
                 </div>
 
                 {/* Pesan kesalahan */}
                 {errorMessage && (
-                  <p className="text-[10px] text-white leading-snug">
-                    {errorMessage}
+                  <p className="text-[10px] text-red-300 leading-snug font-semibold mt-2">
+                    🚨 {errorMessage}
                   </p>
                 )}
 
                 {/* Tombol masuk – ukuran teks & padding disamakan dengan tombol Daftar */}
                 <button
                   type="submit"
-                  className="w-full bg-white text-[#3A5A40] py-2 rounded-lg font-semibold mt-1 text-[11px] sm:text-xs md:text-sm hover:bg-[#F1F1F1] transition"
+                  disabled={isLoading}
+                  className="w-full bg-white text-[#3A5A40] py-2 rounded-lg font-semibold mt-1 text-[11px] sm:text-xs md:text-sm hover:bg-[#F1F1F1] transition disabled:bg-gray-400 disabled:text-gray-700"
                 >
-                  Masuk Akun
+                  {isLoading ? "Memverifikasi..." : "Masuk Akun"}
                 </button>
 
                 {/* Login Google (dummy) – dibiarkan sama seperti sebelumnya */}
                 <div className="mt-4 flex flex-col items-center gap-2">
-                  <span className="text-sm opacity-80">or continue with</span>
+                  <span className="text-sm opacity-80">atau masuk dengan</span>
                   <button type="button">
                     <img
                       src={GoogleIcon}

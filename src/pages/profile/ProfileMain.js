@@ -1,5 +1,5 @@
 // src/pages/afterLogin/ProfileMain.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import NavbarAfterLogin from "../../components/layout/NavbarAfterLogin";
 import Popup from "../../components/common/Popup";
@@ -9,15 +9,42 @@ import EditIcon from "../../assets/images/icons/edit.svg";
 import ProfileIcon from "../../assets/images/icons/profile.svg";
 import CheckIcon from "../../assets/images/icons/ceklis.svg";
 import OutIcon from "../../assets/images/icons/out.svg";
-import ProfilePhoto from "../../assets/images/icons/pp.svg";
+// HILANGKAN import ProfilePhoto dari pp.svg
+// import ProfilePhoto from "../../assets/images/icons/pp.svg"; 
+
+
+// ===============================================
+// LOGIC HELPER UNTUK MENGAMBIL DATA PROFIL
+// ===============================================
+const getUserProfileData = () => {
+    try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        return {
+            fullName: user.name || user.full_name || 'Customer', 
+            email: user.email || 'email@example.com',
+        };
+    } catch (e) {
+        return { fullName: 'Customer', email: 'email@example.com' };
+    }
+};
+// ===============================================
+
 
 const ProfileMain = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Memuat data user saat komponen di-render
+  const [profileData, setProfileData] = useState(getUserProfileData());
+
+  // Memuat data form (default values)
+  useEffect(() => {
+    // Di sini Anda bisa memuat data user ke state form jika diperlukan
+  }, []);
 
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
-  const [profilePic, setProfilePic] = useState(null);
+  const [profilePic, setProfilePic] = useState(null); // State ini akan berisi URL foto yang diupload
   const [gender, setGender] = useState("");
 
   // Menyimpan perubahan profil
@@ -33,14 +60,15 @@ const ProfileMain = () => {
   // Konfirmasi logout
   const confirmLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setShowLogoutPopup(false);
     navigate("/", { replace: true });
   };
 
   // Upload foto profil
   const handleUploadPic = (e) => {
-    const file = e.target.files[0];
-    if (file) setProfilePic(URL.createObjectURL(file));
+    const file = e?.target?.files?.[0];
+    if (file) setProfilePic(URL.createObjectURL(file)); // Menyimpan URL lokal
   };
 
   // Cek menu aktif
@@ -59,23 +87,30 @@ const ProfileMain = () => {
             <label className="relative cursor-pointer inline-block">
               <input type="file" className="hidden" onChange={handleUploadPic} />
               <div className="w-28 h-28 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-[#F2F2F2] rounded-full flex items-center justify-center overflow-hidden">
-                <img
-                  src={profilePic || ProfilePhoto}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
+                {profilePic && ( // HANYA TAMPILKAN JIKA ADA FOTO YANG DIUPLOAD
+                    <img
+                        src={profilePic}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                    />
+                )}
               </div>
               <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-8 h-8 rounded-full bg-white shadow-[0_4px_12px_rgba(0,0,0,0.12)] flex items-center justify-center">
                 <img src={EditIcon} alt="Edit" className="w-4 h-4" />
               </div>
             </label>
 
+            {/* NAMA LENGKAP */}
             <p className="mt-3 font-semibold text-base sm:text-lg">
-              Dearni Lambardo
+              {profileData.fullName}
+            </p>
+            {/* EMAIL */}
+            <p className="text-xs text-gray-500 mb-4">
+              {profileData.email}
             </p>
           </div>
 
-          {/* Menu samping */}
+          {/* Menu samping (TIDAK DIUBAH) */}
           <div className="mt-6 lg:mt-8 space-y-6 text-left w-full">
             {/* Bagian profil */}
             <div>
@@ -185,6 +220,7 @@ const ProfileMain = () => {
                 <input
                   type="text"
                   className="w-full bg-white py-2.5 px-3 sm:py-3 sm:px-4 rounded-[10px] mt-1 outline-none text-sm"
+                  defaultValue={profileData.fullName} // Tambahkan default value
                 />
               </div>
 
@@ -194,6 +230,7 @@ const ProfileMain = () => {
                 <input
                   type="email"
                   className="w-full bg-white py-2.5 px-3 sm:py-3 sm:px-4 rounded-[10px] mt-1 outline-none text-sm"
+                  defaultValue={profileData.email} // Tambahkan default value
                 />
               </div>
 
@@ -203,6 +240,7 @@ const ProfileMain = () => {
                 <input
                   type="text"
                   className="w-full bg-white py-2.5 px-3 sm:py-3 sm:px-4 rounded-[10px] mt-1 outline-none text-sm"
+                  // ASUMSI: Data telepon belum ada di profileData
                 />
               </div>
 

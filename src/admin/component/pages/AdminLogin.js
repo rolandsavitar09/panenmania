@@ -1,6 +1,9 @@
 // src/pages/admin/AdminLogin.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // DITAMBAHKAN useEffect
 import { useNavigate } from "react-router-dom";
+
+// URL API Backend
+const API_ADMIN_LOGIN_URL = "http://localhost:5000/api/auth/admin-login";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -8,39 +11,58 @@ const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  // DITAMBAHKAN: Cek Status Login Saat Komponen Dimuat
+  useEffect(() => {
+    const token = localStorage.getItem("adminToken");
+    if (token) {
+      // Jika token ada, langsung arahkan ke dashboard dan ganti histori
+      navigate("/admin/dashboard", { replace: true });
+    }
+  }, [navigate]); // navigate ditambahkan dependency untuk memenuhi aturan ESLint
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate("/admin/2fa");
+    setErrorMessage("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(API_ADMIN_LOGIN_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("adminToken", data.token);
+        localStorage.setItem("adminUser", JSON.stringify(data.user));
+        // MODIFIKASI: Gunakan {replace: true} untuk mencegah kembali ke halaman login
+        navigate("/admin/dashboard", { replace: true });
+      } else {
+        setErrorMessage(data.message || "Gagal login. Cek email/password.");
+      }
+    } catch (err) {
+      setErrorMessage(
+        "Tidak dapat terhubung ke server. Pastikan backend berjalan."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div
-      className="
-        min-h-screen
-        flex
-        items-center
-        justify-center
-        px-4 sm:px-6
-      "
+      className="min-h-screen flex items-center justify-center px-4"
       style={{ backgroundColor: "#FFFEF6", fontFamily: '"Inter", sans-serif' }}
     >
-      {/* CARD */}
+      {/* CARD FIXED HEIGHT */}
       <div
-        className="
-          w-full max-w-[500px]
-          h-[600px]
-          bg-white
-          border-[3px] border-[#3A5B40]
-          rounded-[15px]
-          shadow-[0_4px_6px_rgba(0,0,0,0.1)]
-          flex flex-col items-center
-
-          px-6 py-12
-          sm:px-10 sm:py-14
-          lg:px-12 lg:py-16
-          2xl:px-16 2xl:py-20
-        "
+        className="w-full max-w-[500px] h-[600px] bg-white border-[3px] border-[#3A5B40] rounded-[15px]
+                   shadow-[0_4px_6px_rgba(0,0,0,0.1)] flex flex-col items-center px-10 py-12"
       >
         {/* LOGO */}
         <div className="w-24 h-24 mb-8 rounded-full bg-[#3A5B40]/10 border border-[#3A5B40] flex items-center justify-center">
@@ -48,94 +70,56 @@ const AdminLogin = () => {
         </div>
 
         {/* TITLE */}
-        <h1 className="text-[22px] font-bold text-[#3A5B40] mb-10 text-center">
-          Login Admin
-        </h1>
+        <h1 className="text-[22px] font-bold text-[#3A5B40] mb-6 text-center">Login Admin</h1>
 
         {/* FORM */}
-        <form className="w-full space-y-6" onSubmit={handleSubmit}>
+        <form className="w-full space-y-5" onSubmit={handleSubmit}>
           {/* Email */}
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-[#3A5B40]">
-              Email Admin
-            </label>
+            <label className="text-sm font-medium text-[#3A5B40]">Email Admin</label>
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="
-                w-full h-[52px]
-                border border-[#3A5B40]
-                rounded-md
-                px-4
-                text-sm text-[#3A5B40]
-                outline-none
-                focus:ring-1 focus:ring-[#3A5B40]
-              "
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setErrorMessage("");
+              }}
+              className="w-full h-[50px] border border-[#3A5B40] rounded-md px-4 text-sm text-[#3A5B40]
+                         outline-none focus:ring-1 focus:ring-[#3A5B40]"
               placeholder="Masukkan email"
             />
           </div>
 
           {/* Password */}
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-[#3A5B40]">
-              Kata Sandi
-            </label>
-            <div
-              className="
-                w-full h-[52px]
-                border border-[#3A5B40]
-                rounded-md
-                flex items-center
-                px-4
-              "
-            >
+            <label className="text-sm font-medium text-[#3A5B40]">Kata Sandi</label>
+            <div className="w-full h-[50px] border border-[#3A5B40] rounded-md flex items-center px-4">
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setErrorMessage("");
+                }}
                 className="flex-1 text-sm text-[#3A5B40] outline-none bg-transparent"
                 placeholder="Masukkan Kata Sandi"
               />
+
+              {/* Toggle Password */}
               <button
                 type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
+                onClick={() => setShowPassword(!showPassword)}
                 className="ml-2 text-[#3A5B40]"
+                aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
               >
                 {showPassword ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.5a10.523 10.523 0 01-4.293 5.774"
-                    />
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.5a10.523 10.523 0 01-4.293 5.774" />
                   </svg>
                 ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 )}
               </button>
@@ -145,21 +129,20 @@ const AdminLogin = () => {
           {/* Button */}
           <button
             type="submit"
-            className="
-              mt-6
-              w-full h-[52px]
-              rounded-md
-              bg-[#3A5B40]
-              text-white
-              text-sm font-medium
-              flex items-center justify-center
-              hover:bg-[#324c36]
-              transition
-            "
+            disabled={isLoading}
+            className="w-full h-[50px] rounded-md bg-[#3A5B40] text-white text-sm font-medium
+                       flex items-center justify-center hover:bg-[#324c36] transition disabled:opacity-60"
           >
-            Masuk
+            {isLoading ? "Memproses..." : "Masuk"}
           </button>
         </form>
+
+        {/* ERROR (reserved space biar card tidak goyang) */}
+        <div className="h-6 mt-4 flex items-center justify-center text-center px-2">
+          {errorMessage && (
+            <p className="text-sm text-red-600 font-semibold">{errorMessage}</p>
+          )}
+        </div>
       </div>
     </div>
   );
