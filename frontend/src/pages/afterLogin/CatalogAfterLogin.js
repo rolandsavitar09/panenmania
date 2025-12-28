@@ -3,14 +3,12 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import NavbarAfterLogin from "../../components/layout/NavbarAfterLogin";
 import Footer from "../../components/layout/Footer";
+import API from "../../api/api";
 
 // Banner katalog
 import CatalogBanner from "../../assets/images/banners/petani katalog.svg";
 // Ikon pencarian
 import IconSearch from "../../assets/images/icons/pencarian.svg";
-
-// URL API Produk (Sama dengan before login)
-const API_PRODUCT_URL = "http://localhost:5000/api/products";
 
 // Opsi kategori (sinkron dengan query string)
 const CATEGORY_OPTIONS = [
@@ -64,62 +62,36 @@ function CatalogAfterLogin() {
     let mounted = true;
 
     const fetchProducts = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(API_PRODUCT_URL);
-        const data = await response.json();
+  setLoading(true);
+  setError(null);
+  try {
+    const res = await API.get("/products"); // ✅ axios
+    const data = res.data;
 
-        if (!response.ok) {
-          const msg = data?.message || `Gagal memuat produk (status ${response.status})`;
-          throw new Error(msg);
-        }
+    const rawItems = Array.isArray(data?.products)
+      ? data.products
+      : Array.isArray(data)
+      ? data
+      : data?.data || [];
 
-        // Normalisasi struktur response menjadi array produk
-        const rawItems = Array.isArray(data?.products)
-          ? data.products
-          : Array.isArray(data)
-          ? data
-          : data?.data || [];
+    const items = rawItems.map((p) => ({
+      product_id: p.product_id,
+      name: p.name,
+      description: p.description,
+      price: Number(p.price),
+      image: p.image_url,
+      category: p.category,
+      unit: p.unit,
+    }));
 
-        const items = rawItems.map((p, idx) => {
-          const image =
-            p.image ||
-            p.imageUrl ||
-            p.photo_url ||
-            p.photoUrl ||
-            p.img ||
-            p.image_url ||
-            p.thumbnail ||
-            p.picture ||
-            "";
-          const id = p.product_id || p.id || p.productId || idx;
-          const name = p.name || p.title || p.product_name || "Produk";
-          const description = p.description || p.desc || "";
-          const priceParsed = parsePrice(p.price ?? p.harga ?? p.price_in_rupiah);
-          const category = (p.category || p.kategori || p.type || "").toString() || "lainnya";
-          const unit = p.unit || p.satuan || "";
-
-          return {
-            product_id: id,
-            name,
-            description,
-            price: priceParsed,
-            rawPrice: p.price,
-            image,
-            category,
-            unit,
-          };
-        });
-
-        if (mounted) setProducts(items);
-      } catch (err) {
-        console.error("Fetch Error:", err);
-        if (mounted) setError(err.message || "Gagal terhubung ke server backend.");
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
+    setProducts(items);
+  } catch (err) {
+    console.error("Fetch Error:", err);
+    setError(err.response?.data?.message || "Gagal memuat produk.");
+  } finally {
+    setLoading(false);
+  }
+};
 
     fetchProducts();
     return () => {

@@ -3,14 +3,12 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import NavbarBeforeLogin from "../../components/layout/NavbarBeforeLogin";
 import Footer from "../../components/layout/Footer";
+import API from "../../api/api";
 
 // Banner gambar katalog
 import CatalogBanner from "../../assets/images/banners/petani katalog.svg";
 // Ikon search
 import IconSearch from "../../assets/images/icons/pencarian.svg";
-
-// URL API Produk (ubah jika endpoint beda)
-const API_PRODUCT_URL = "http://localhost:5000/api/products";
 
 // Opsi kategori (sinkron dengan query string)
 const CATEGORY_OPTIONS = [
@@ -67,8 +65,8 @@ function CatalogBeforeLogin() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(API_PRODUCT_URL);
-        const json = await res.json();
+        const res = await API.get("/products");
+        const json = await  res.data;
 
         if (!res.ok) {
           // Jika API mengembalikan error message
@@ -78,57 +76,44 @@ function CatalogBeforeLogin() {
 
         // Mapping: sesuaikan struktur API dengan yang digunakan di UI.
         // Kita normalisasikan setiap product agar memiliki: product_id, name, description, price (number), image, category, unit (opsional)
-        const items = (Array.isArray(json?.products) ? json.products : Array.isArray(json) ? json : json?.data || [])
-          .map((p, idx) => {
-            const image =
-              p.image ||
-              p.imageUrl ||
-              p.photo_url ||
-              p.photoUrl ||
-              p.img ||
-              p.image_url ||
-              p.thumbnail ||
-              p.picture ||
-              ""; // fallback kosong (akan memuat alt)
-            const id = p.product_id || p.id || p.productId || idx;
-            const name = p.name || p.title || p.product_name || "Produk";
-            const description = p.description || p.desc || "";
-            const priceParsed = parsePrice(p.price ?? p.harga ?? p.price_in_rupiah);
-            const category =
-              (p.category || p.kategori || p.type || "").toString() || "lainnya";
-            const unit = p.unit || p.satuan || ""; // optional
+        const items = (
+        Array.isArray(json?.products)
+          ? json.products
+          : Array.isArray(json)
+          ? json
+          : json?.data || []
+      ).map((p, idx) => {
+        return {
+          product_id: p.product_id,
+          name: p.name,
+          description: p.description,
+          price: Number(p.price),
+          rawPrice: p.price,
+          image: p.image_url, // ✅ SESUAI DB
+          category: p.category,
+          unit: p.unit,
+        };
+      });
 
-            return {
-              product_id: id,
-              name,
-              description,
-              price: priceParsed,
-              rawPrice: p.price,
-              image,
-              category,
-              unit,
-            };
-          });
-
-        if (mounted) {
-          setProducts(items);
-        }
-      } catch (err) {
-        console.error("Fetch Error:", err);
-        if (mounted) {
-          setError(err.message || "Gagal terhubung ke server backend.");
-        }
-      } finally {
-        if (mounted) setLoading(false);
+      if (mounted) {
+        setProducts(items);
       }
-    };
+    } catch (err) {
+      console.error("Fetch Error:", err);
+      if (mounted) {
+        setError("Gagal terhubung ke server backend.");
+      }
+    } finally {
+      if (mounted) setLoading(false);
+    }
+  };
 
-    fetchProducts();
+  fetchProducts();
 
-    return () => {
-      mounted = false;
-    };
-  }, []); // Hanya saat mount
+  return () => {
+    mounted = false;
+  };
+}, []); // Hanya saat mount
 
   // Submit pencarian (tanpa reload)
   const handleSearchSubmit = (e) => {

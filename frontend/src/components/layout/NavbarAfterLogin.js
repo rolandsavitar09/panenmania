@@ -7,7 +7,9 @@ import IconCart from "../../assets/images/icons/cart.svg";
 import IconNotif from "../../assets/images/icons/notifikasi.svg";
 
 const NavbarAfterLogin = () => {
-  const token = localStorage.getItem("token");
+  const token =
+  localStorage.getItem("adminToken") ||
+  localStorage.getItem("token");
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
