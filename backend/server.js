@@ -3,8 +3,6 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-
-// Logger
 const morgan = require('morgan');
 
 // Routes
@@ -14,107 +12,117 @@ const cartRoutes = require('./src/routes/cartRoutes');
 const orderRoutes = require('./src/routes/orderRoutes');
 const adminUsersRoutes = require('./src/routes/adminUsers');
 
-
-// Tambahan baru
+// Controllers & middleware
 const authController = require('./src/controllers/authController');
 const { protect } = require('./src/middleware/authMiddleware');
 
+// DB
 const db = require('./src/config/db');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-// Logger dev
+/* ======================
+   LOGGER
+====================== */
 if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
-// Body parsers
+/* ======================
+   BODY PARSERS
+====================== */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Static
+/* ======================
+   STATIC FILES
+====================== */
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-// CORS
-const corsOptions = {
-  origin: process.env.FRONTEND_ORIGIN ? process.env.FRONTEND_ORIGIN.split(',') : ['http://localhost:3000'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-};
-app.use(cors(corsOptions));
+/* ======================
+   CORS (Netlify + Local)
+====================== */
+const allowedOrigins = process.env.FRONTEND_ORIGIN
+  ? process.env.FRONTEND_ORIGIN.split(',')
+  : [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'https://panenmania.netlify.app',
+    ];
 
-// Healthcheck
-app.get('/ping', (req, res) => res.json({ ok: true }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  })
+);
 
-// ===========================
-// MOUNT ROUTES UTAMA
-// ===========================
+/* ======================
+   HEALTH CHECK
+====================== */
+app.get('/api/health', async (req, res) => {
+  try {
+    if (db && typeof db.query === 'function') {
+      await db.query('SELECT 1');
+    }
+    res.status(200).json({
+      status: 'ok',
+      service: 'PanenMania API',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Database connection failed',
+    });
+  }
+});
+
+/* ======================
+   API ROUTES
+====================== */
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', adminUsersRoutes);
 
-// ===========================
-// RUTE BARU (ADMIN GET USERS)
-// ===========================
+// Admin get all users
 app.get('/api/users/admin/all', protect, authController.getUsers);
 
-// 404 handler
+/* ======================
+   404 HANDLER
+====================== */
 app.use((req, res) => {
-  res.status(404).json({ success: false, message: 'Route tidak ditemukan' });
+  res.status(404).json({
+    success: false,
+    message: 'Route tidak ditemukan',
+  });
 });
 
-// Global error handler
+/* ======================
+   GLOBAL ERROR HANDLER
+====================== */
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
-  const message = process.env.NODE_ENV === 'production' ? 'Server error' : err.message || 'Server error';
-  res.status(500).json({ success: false, message });
-});
-
-// Verify DB
-const verifyDbConnection = async () => {
-  if (!db || typeof db.query !== 'function') {
-    console.warn('db module tidak expose query() - skip verification.');
-    return;
-  }
-  try {
-    await db.query('SELECT 1');
-    console.log('✅ Database connected');
-  } catch (err) {
-    console.error('❌ Database connection failed:', err);
-  }
-};
-
-const server = app.listen(PORT, async () => {
-  console.log(
-    `🚀 Server berjalan di http://localhost:${PORT} (NODE_ENV=${process.env.NODE_ENV || 'development'})`
-  );
-  await verifyDbConnection();
-});
-
-// Graceful shutdown
-const shutdown = async () => {
-  console.log('Shutting down server...');
-  server.close(async () => {
-    if (db && typeof db.end === 'function') {
-      try {
-        await db.end();
-        console.log('DB pool closed.');
-      } catch (err) {
-        console.error('Error closing DB pool:', err);
-      }
-    }
-    process.exit(0);
+  res.status(500).json({
+    success: false,
+    message:
+      process.env.NODE_ENV === 'production'
+        ? 'Server error'
+        : err.message || 'Server error',
   });
+});
 
-  setTimeout(() => {
-    console.warn('Forcing shutdown.');
-    process.exit(1);
-  }, 10000);
-};
-
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
+/* ======================
+   EXPORT (WAJIB UNTUK VERCEL)
+====================== */
+module.exports = app;
