@@ -56,7 +56,16 @@ const SignUp = () => {
     setIsLoading(true);
 
     try {
-      const response = await API.post("/api/auth/register", formData);
+      // 🔥 MAPPING FE → BACKEND (WAJIB)
+      const payload = {
+        full_name: formData.nama,
+        email: formData.email,
+        password: formData.password,
+        phone_number: formData.phone,
+        gender: formData.gender,
+      };
+
+      const response = await API.post("/auth/register", payload);
 
       if (response.status === 201 || response.status === 200) {
         alert("Pendaftaran berhasil! Silakan masuk.");
