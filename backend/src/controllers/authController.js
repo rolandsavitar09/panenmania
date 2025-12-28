@@ -1,15 +1,23 @@
-// backend/src/controllers/authController.js
 const userModel = require('../models/userModel');
 const { hashPassword, comparePassword } = require('../utils/passwordUtils');
 const { generateToken } = require('../utils/jwtUtils');
 
 /**
- * Logika Pendaftaran Pengguna (Sign Up)
+ * ===============================
+ * REGISTER USER (SIGN UP)
+ * ===============================
  */
 const registerUser = async (req, res) => {
-  const { nama, email, password, phone, gender } = req.body;
+  const {
+    full_name,
+    email,
+    password,
+    phone_number,
+    gender
+  } = req.body;
 
-  if (!nama || !email || !password || !phone || !gender) {
+  // Validasi input (SESUAI DB)
+  if (!full_name || !email || !password || !phone_number || !gender) {
     return res.status(400).json({
       success: false,
       message: 'Semua field wajib diisi.'
@@ -17,6 +25,7 @@ const registerUser = async (req, res) => {
   }
 
   try {
+    // Cek email
     const existingUser = await userModel.findUserByEmail(email);
     if (existingUser) {
       return res.status(409).json({
@@ -25,31 +34,35 @@ const registerUser = async (req, res) => {
       });
     }
 
+    // Hash password
     const password_hash = await hashPassword(password);
 
+    // Data sesuai struktur tabel users
     const userData = {
-      full_name: nama,
+      full_name,
       email,
       password_hash,
-      phone_number: phone,
-      gender
+      phone_number,
+      gender,
+      role: 'customer'
     };
 
     const newUser = await userModel.createUser(userData);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Pendaftaran berhasil! Silakan masuk.',
       user: {
         id: newUser.user_id,
-        nama: newUser.full_name,
+        full_name: newUser.full_name,
         email: newUser.email,
-        role: newUser.role,
+        role: newUser.role
       }
     });
+
   } catch (error) {
     console.error('Error during registration:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Terjadi kesalahan pada server saat pendaftaran.'
     });
@@ -57,7 +70,9 @@ const registerUser = async (req, res) => {
 };
 
 /**
- * Logika Masuk Akun (Sign In) - Customer + Admin
+ * ===============================
+ * LOGIN USER (CUSTOMER + ADMIN)
+ * ===============================
  */
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -81,7 +96,6 @@ const loginUser = async (req, res) => {
     }
 
     const isMatch = await comparePassword(password, user.password_hash);
-
     if (!isMatch) {
       return res.status(401).json({
         success: false,
@@ -89,7 +103,7 @@ const loginUser = async (req, res) => {
       });
     }
 
-    // Role Validation
+    // Validasi role
     if (is_admin_attempt && user.role !== 'admin') {
       return res.status(403).json({
         success: false,
@@ -106,7 +120,7 @@ const loginUser = async (req, res) => {
 
     const token = generateToken(user);
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: 'Login berhasil!',
       token,
@@ -119,7 +133,7 @@ const loginUser = async (req, res) => {
 
   } catch (error) {
     console.error('Error during login:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Terjadi kesalahan pada server saat login.'
     });
@@ -127,7 +141,9 @@ const loginUser = async (req, res) => {
 };
 
 /**
- * ADMIN — Mendapatkan semua pengguna
+ * ===============================
+ * ADMIN — GET ALL USERS
+ * ===============================
  */
 const getUsers = async (req, res) => {
   try {
@@ -135,20 +151,22 @@ const getUsers = async (req, res) => {
 
     const formattedUsers = users.map(u => ({
       id: u.user_id,
-      name: u.role.toLowerCase() === 'admin' ? 'ADMIN PANEN MANIA' : u.full_name,
+      name: u.role === 'admin'
+        ? 'ADMIN PANEN MANIA'
+        : u.full_name,
       email: u.email,
       role: u.role,
       joinedAt: u.created_at
     }));
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       users: formattedUsers
     });
 
   } catch (error) {
     console.error('Error saat mengambil daftar pengguna Admin:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Gagal memuat daftar pengguna.'
     });

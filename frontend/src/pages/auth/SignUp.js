@@ -2,12 +2,12 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+// Axios instance global
+import API from "../../api/api";
+
 // Gambar ilustrasi dan ikon
 import FarmerSignup from "../../assets/images/banners/petani signup.svg";
 import GoogleIcon from "../../assets/images/icons/google.svg";
-
-// URL API Backend
-const API_BASE_URL = "http://localhost:5000/api/auth";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -23,8 +23,8 @@ const SignUp = () => {
 
   // State pesan kesalahan
   const [genderError, setGenderError] = useState("");
-  const [apiError, setApiError] = useState(""); // Untuk menampilkan error dari BE
-  const [isLoading, setIsLoading] = useState(false); // Untuk tombol loading
+  const [apiError, setApiError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // Perubahan nilai input teks
   const handleChange = (e) => {
@@ -32,7 +32,7 @@ const SignUp = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
-    setApiError(""); // Reset error saat ada input baru
+    setApiError("");
   };
 
   // Pilih jenis kelamin
@@ -42,61 +42,54 @@ const SignUp = () => {
     setApiError("");
   };
 
-  // Submit formulir (LOGIKA BARU - Panggilan API)
+  // Submit formulir
   const handleSubmit = async (e) => {
     e.preventDefault();
     setApiError("");
-    
-    // Validasi Sisi Klien
+
+    // Validasi sisi klien
     if (!formData.gender) {
       setGenderError("Silakan pilih salah satu jenis kelamin.");
       return;
     }
-    
+
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData), // Kirim data formulir
-      });
+      const response = await API.post("/api/auth/register", formData);
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // Pendaftaran berhasil (Status 201 Created)
+      if (response.status === 201 || response.status === 200) {
         alert("Pendaftaran berhasil! Silakan masuk.");
         navigate("/signin");
-      } else {
-        // Pendaftaran gagal (Status 4xx atau 5xx)
-        setApiError(data.message || "Gagal mendaftar. Silakan coba lagi.");
       }
     } catch (error) {
-      console.error("Network or API call error:", error);
-      setApiError(
-        "Tidak dapat terhubung ke server. Pastikan server backend berjalan di port 5000."
-      );
+      console.error("API error:", error);
+
+      const message =
+        error?.response?.data?.message ||
+        "Gagal mendaftar. Silakan coba lagi.";
+
+      setApiError(message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Kelas dasar input (dikecilkan padding dan teks)
+  // Kelas dasar input
   const inputClass =
     "w-full py-1 px-4 rounded-lg bg-[#3A5A40] border border-white text-[11px] sm:text-xs md:text-sm text-white placeholder-white/60 focus:outline-none";
 
   // Kelas tombol jenis kelamin
   const genderOptionClass = () =>
     "flex items-center gap-2 cursor-pointer text-[11px] sm:text-xs md:text-sm";
+
   const genderPillClass = (value) =>
     `px-5 py-1 rounded-[10px] border border-white font-semibold ${
       formData.gender === value
         ? "bg-white text-[#3A5A40]"
         : "bg-transparent text-white"
     }`;
+
   const genderCircleClass = (value) =>
     `w-4 h-4 rounded-full border border-white flex items-center justify-center ${
       formData.gender === value ? "bg-white" : "bg-transparent"
@@ -104,10 +97,9 @@ const SignUp = () => {
 
   return (
     <div className="bg-[#F8F8ED] min-h-screen flex justify-center items-center font-poppins px-4">
-      {/* Kartu utama */}
       <div className="max-w-4xl w-full bg-white rounded-[32px] border-2 border-[#588157] overflow-hidden h-auto lg:h-[580px]">
         <div className="grid grid-cols-1 lg:grid-cols-2 h-full">
-          {/* ============ BAGIAN KIRI ============ */}
+          {/* BAGIAN KIRI */}
           <div className="p-8 lg:p-10 flex flex-col items-center">
             <div className="flex flex-col items-center mt-2 lg:mt-4">
               <img
@@ -133,9 +125,8 @@ const SignUp = () => {
             </div>
           </div>
 
-          {/* ============ BAGIAN KANAN (FORM) ============ */}
+          {/* BAGIAN KANAN */}
           <div className="bg-[#3A5A40] text-white p-8 lg:p-10 relative flex flex-col h-full">
-            {/* Tab Masuk / Daftar */}
             <div className="absolute top-6 right-8 flex gap-4 text-xs sm:text-sm font-semibold">
               <Link to="/signin" className="opacity-80 hover:opacity-100">
                 Masuk
@@ -145,18 +136,15 @@ const SignUp = () => {
               </span>
             </div>
 
-            {/* Judul form */}
             <h2 className="text-xl sm:text-2xl font-bold mb-3 mt-6">
               Daftar Akun
             </h2>
 
-            {/* Form scrollable */}
             <div className="flex-1 overflow-y-auto pr-1">
               <form
                 onSubmit={handleSubmit}
                 className="space-y-2.5 text-[11px] sm:text-xs md:text-sm"
               >
-                {/* ============ Nama lengkap ============ */}
                 <div>
                   <label className="block mb-1">Nama Lengkap</label>
                   <input
@@ -169,7 +157,6 @@ const SignUp = () => {
                   />
                 </div>
 
-                {/* ============ Jenis kelamin ============ */}
                 <div>
                   <label className="block mb-2">Jenis Kelamin</label>
                   <div className="flex flex-wrap items-center gap-4 sm:gap-5">
@@ -202,7 +189,6 @@ const SignUp = () => {
                   )}
                 </div>
 
-                {/* ============ No. Telepon ============ */}
                 <div>
                   <label className="block mb-1">No. Telepon</label>
                   <input
@@ -215,7 +201,6 @@ const SignUp = () => {
                   />
                 </div>
 
-                {/* ============ E-mail ============ */}
                 <div>
                   <label className="block mb-1">E-mail</label>
                   <input
@@ -228,7 +213,6 @@ const SignUp = () => {
                   />
                 </div>
 
-                {/* ============ Kata sandi ============ */}
                 <div>
                   <label className="block mb-1">Kata Sandi</label>
                   <input
@@ -241,20 +225,17 @@ const SignUp = () => {
                   />
                 </div>
 
-                {/* ============ Error Message dari Backend ============ */}
                 {apiError && (
                   <p className="text-[10px] text-red-300 mt-1 font-semibold">
                     🚨 {apiError}
                   </p>
                 )}
 
-                {/* ============ Persetujuan ============ */}
                 <label className="flex items-center gap-2 text-[10px] leading-tight mt-0.5">
                   <input type="checkbox" required className="w-3 h-3" />
                   <span>Saya menyetujui ketentuan yang berlaku.</span>
                 </label>
 
-                {/* Tombol daftar */}
                 <button
                   type="submit"
                   disabled={isLoading}

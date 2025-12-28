@@ -5,6 +5,10 @@ const authController = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware'); 
 const { hashPassword } = require('../utils/passwordUtils'); 
 
+// =======================
+// AUTH ROUTES
+// =======================
+
 // Register Customer
 router.post('/register', authController.registerUser);
 
@@ -15,28 +19,34 @@ router.post('/login', authController.loginUser);
 router.post('/admin-login', authController.loginUser);
 
 // =======================
-// TEMPORARY HASH GENERATOR
+// TEMPORARY HASH GENERATOR (DEV ONLY)
+// ⚠️ HAPUS DI PRODUCTION
 // =======================
 router.get('/generate-admin-hash/:password', async (req, res) => {
-    try {
-        const password = req.params.password;
-        if (!password) return res.status(400).send('Password parameter missing');
-
-        const hash = await hashPassword(password);
-        res.json({ password, hash });
-    } catch (error) {
-        console.error('Error generating hash:', error);
-        res.status(500).send('Error generating hash');
+  try {
+    const password = req.params.password;
+    if (!password) {
+      return res.status(400).send('Password parameter missing');
     }
+
+    const hash = await hashPassword(password);
+    res.json({ password, hash });
+  } catch (error) {
+    console.error('Error generating hash:', error);
+    res.status(500).send('Error generating hash');
+  }
 });
 
-// Protected route: GET /api/auth/profile
+// =======================
+// PROTECTED ROUTE
+// GET /auth/profile
+// =======================
 router.get('/profile', protect, (req, res) => {
-    res.status(200).json({
-        success: true,
-        message: 'Akses diterima.',
-        user: req.user 
-    });
+  res.status(200).json({
+    success: true,
+    message: 'Akses diterima.',
+    user: req.user 
+  });
 });
 
 module.exports = router;
