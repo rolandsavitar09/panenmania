@@ -1,6 +1,8 @@
 // src/components/home/HomeContent.js
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import API from "../../api/api";
+
 
 // Banner
 import HeroFarmer from "../../assets/images/banners/petani.svg";
@@ -28,9 +30,6 @@ import IconMenungguPesanan from "../../assets/images/icons/menunggu pesanan.svg"
 
 // Ikon search
 import IconSearch from "../../assets/images/icons/pencarian.svg";
-
-// DITAMBAHKAN: Konstanta API dan Helper Format Rupiah & parsePrice
-const API_PRODUCT_URL = "http://localhost:5000/api/products";
 
 const parsePrice = (price) => {
   if (price === null || price === undefined) return null;
@@ -150,8 +149,8 @@ const HomeContent = ({ isLoggedIn }) => {
       setLoadingProducts(true);
       setErrorProducts(null);
       try {
-        const response = await fetch(API_PRODUCT_URL);
-        const data = await response.json();
+        const response = await API.get("/products");
+        const data = response.data;
 
         if (!response.ok) {
           const msg = data?.message || `Gagal memuat produk (status ${response.status})`;
