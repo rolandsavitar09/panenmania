@@ -90,47 +90,51 @@ const HomeContent = ({ isLoggedIn }) => {
      Fetch Products
   ===================== */
   useEffect(() => {
-    let mounted = true;
+  let mounted = true;
 
-    const fetchProducts = async () => {
-      try {
-        setLoadingProducts(true);
-        setErrorProducts(null);
+  const fetchProducts = async () => {
+    try {
+      setLoadingProducts(true);
+      setErrorProducts(null);
 
-        const res = await API.get("/products");
-        const data = res.data;
+      const res = await API.get("/products");
+      const data = res.data;
 
-        const products = Array.isArray(data?.products)
-          ? data.products
-          : Array.isArray(data)
-          ? data
-          : [];
+      const products = Array.isArray(data?.products)
+        ? data.products
+        : Array.isArray(data)
+        ? data
+        : [];
 
-        const normalized = products
-          .filter((p) => p.is_active === true)
-          .map((p) => ({
-            product_id: p.product_id,
-            name: p.name,
-            description: p.description,
-            price: Number(p.price),
-            stock: p.stock,
-            unit: p.unit,
-            image_url: p.image_url,
-            category: p.category,
-          }));
+      const normalized = products
+        .filter((p) => Boolean(p.is_active))
+        .map((p) => ({
+          product_id: p.product_id,
+          name: p.name,
+          description: p.description,
+          price: p.price !== null ? Number(p.price) : null,
+          stock: p.stock,
+          unit: p.unit,
+          image_url: p.image_url,
+          category: p.category,
+        }));
 
-        if (mounted) setLatestProducts(normalized.slice(0, 8));
-      } catch (err) {
-        console.error(err);
-        if (mounted) setErrorProducts("Gagal memuat produk.");
-      } finally {
-        if (mounted) setLoadingProducts(false);
+      if (mounted) setLatestProducts(normalized.slice(0, 8));
+    } catch (err) {
+      console.error(err);
+      if (mounted) {
+        setErrorProducts(
+          err?.response?.data?.message || "Gagal memuat produk."
+        );
       }
-    };
+    } finally {
+      if (mounted) setLoadingProducts(false);
+    }
+  };
 
-    fetchProducts();
-    return () => (mounted = false);
-  }, []);
+  fetchProducts();
+  return () => (mounted = false);
+}, []);
 
   const displayedProducts = useMemo(() => latestProducts, [latestProducts]);
 
