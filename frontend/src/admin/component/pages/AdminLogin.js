@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react"; // DITAMBAHKAN useEffect
 import { useNavigate } from "react-router-dom";
 
 // URL API Backend
-const API_ADMIN_LOGIN_URL = "http://localhost:5000/api/auth/admin-login";
+const API_ADMIN_LOGIN_URL = "https://panenmania-sigma.vercel.app";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
