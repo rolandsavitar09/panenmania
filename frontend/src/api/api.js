@@ -19,19 +19,29 @@ const API = axios.create({
 });
 
 /**
- * Cek apakah JWT token masih valid (berdasarkan exp)
+ * Helper: ambil token (admin > user)
+ */
+const getAuthToken = () => {
+  if (typeof window === "undefined") return null;
+  return (
+    localStorage.getItem("adminToken") ||
+    localStorage.getItem("token")
+  );
+};
+
+/**
+ * Cek apakah JWT token masih valid
  */
 export const isTokenValid = () => {
   try {
-    if (typeof window === "undefined") return false;
-
-    const raw = localStorage.getItem("token");
+    const raw = getAuthToken();
     if (!raw) return false;
 
-    const token = raw.startsWith("Bearer ") ? raw.split(" ")[1] : raw;
-    const payload = JSON.parse(atob(token.split(".")[1]));
+    const token = raw.startsWith("Bearer ")
+      ? raw.split(" ")[1]
+      : raw;
 
-    // Jika tidak ada exp → anggap valid
+    const payload = JSON.parse(atob(token.split(".")[1]));
     if (!payload.exp) return true;
 
     return Date.now() < payload.exp * 1000;
@@ -42,17 +52,17 @@ export const isTokenValid = () => {
 
 /**
  * REQUEST INTERCEPTOR
- * → otomatis pasang Authorization Bearer token
+ * → pasang Authorization Bearer token otomatis
  */
 API.interceptors.request.use(
   (config) => {
-    try {
-      const raw = localStorage.getItem("token");
-      if (raw) {
-        const token = raw.startsWith("Bearer ") ? raw.split(" ")[1] : raw;
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    } catch {}
+    const raw = getAuthToken();
+    if (raw) {
+      const token = raw.startsWith("Bearer ")
+        ? raw.split(" ")[1]
+        : raw;
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => Promise.reject(error)
@@ -64,7 +74,9 @@ API.interceptors.request.use(
 const signOut = () => {
   try {
     localStorage.removeItem("token");
+    localStorage.removeItem("adminToken");
     localStorage.removeItem("user");
+    localStorage.removeItem("adminUser");
     window.location.replace("/signin");
   } catch {}
 };
@@ -87,9 +99,6 @@ API.interceptors.response.use(
       status === 401 ||
       (status === 400 && message.toLowerCase().includes("token expired"))
     ) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-
       if (!isLoginRequest) {
         signOut();
       }
