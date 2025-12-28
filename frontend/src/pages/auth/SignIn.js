@@ -9,8 +9,6 @@ import API from "../../api/api";
 import FarmerSignup from "../../assets/images/banners/petani signup.svg";
 import GoogleIcon from "../../assets/images/icons/google.svg";
 
-// ❌ DIHAPUS: localhost tidak dipakai lagi
-// const API_BASE_URL = "http://localhost:5000/api/auth";
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -29,7 +27,7 @@ const SignIn = () => {
 
     try {
       // ✅ PERUBAHAN: fetch → API.post (endpoint TETAP SAMA)
-      const response = await API.post("/api/auth/login", {
+      const response = await API.post("/auth/login", {
         email,
         password,
       });
