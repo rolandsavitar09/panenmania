@@ -30,24 +30,26 @@ import IconMenungguPesanan from "../../assets/images/icons/menunggu pesanan.svg"
 // Ikon search
 import IconSearch from "../../assets/images/icons/pencarian.svg";
 
-/* =======================
+/* =====================
    Helper
-======================= */
-const formatRupiah = (num) => {
-  if (num == null || isNaN(Number(num))) return "-";
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(Number(num));
-};
+===================== */
+const formatRupiah = (num) =>
+  num == null || isNaN(num)
+    ? "-"
+    : new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 0,
+      }).format(num);
 
+/* =====================
+   Component
+===================== */
 const HomeContent = ({ isLoggedIn }) => {
   const navigate = useNavigate();
   const catalogBase = isLoggedIn ? "/catalog/login" : "/catalog";
 
   const [searchQuery, setSearchQuery] = useState("");
-
   const [latestProducts, setLatestProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [errorProducts, setErrorProducts] = useState(null);
@@ -59,21 +61,9 @@ const HomeContent = ({ isLoggedIn }) => {
   ];
 
   const kategoriItems = [
-    {
-      key: "buah",
-      title: "Buah",
-      desc: "Manis alami, penuh vitamin, dan langsung dipetik dari kebun petani lokal kami.",
-    },
-    {
-      key: "sayur",
-      title: "Sayur",
-      desc: "Ditanam tanpa bahan kimia berbahaya, menjaga kesegaran hingga ke dapur Anda.",
-    },
-    {
-      key: "beras",
-      title: "Beras",
-      desc: "Dipanen dari padi unggulan, menghasilkan nasi pulen dan harum.",
-    },
+    { key: "buah", title: "Buah", desc: "Manis alami dan penuh vitamin." },
+    { key: "sayur", title: "Sayur", desc: "Segar dan bebas bahan berbahaya." },
+    { key: "beras", title: "Beras", desc: "Pulen dan harum berkualitas." },
   ];
 
   const langkahBelanja = [
@@ -85,33 +75,30 @@ const HomeContent = ({ isLoggedIn }) => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    const raw = searchQuery.trim();
-
-    if (!raw) {
+    if (!searchQuery.trim()) {
       navigate(`${catalogBase}?category=all`);
       return;
     }
-
-    navigate(`${catalogBase}?search=${encodeURIComponent(raw)}`);
+    navigate(`${catalogBase}?search=${encodeURIComponent(searchQuery)}`);
   };
 
-  const handleGoToCategory = (key) => {
-    navigate(`${catalogBase}?category=${key}`);
+  const handleGoToCategory = (categoryKey) => {
+    navigate(`${catalogBase}?category=${categoryKey}`);
   };
 
-  /* =======================
-     FETCH PRODUK
-  ======================= */
+  /* =====================
+     Fetch Products
+  ===================== */
   useEffect(() => {
     let mounted = true;
 
-    const fetchLatestProducts = async () => {
+    const fetchProducts = async () => {
       try {
         setLoadingProducts(true);
         setErrorProducts(null);
 
-        const response = await API.get("/products");
-        const data = response.data;
+        const res = await API.get("/products");
+        const data = res.data;
 
         const products = Array.isArray(data?.products)
           ? data.products
@@ -126,6 +113,7 @@ const HomeContent = ({ isLoggedIn }) => {
             name: p.name,
             description: p.description,
             price: Number(p.price),
+            stock: p.stock,
             unit: p.unit,
             image_url: p.image_url,
             category: p.category,
@@ -133,14 +121,14 @@ const HomeContent = ({ isLoggedIn }) => {
 
         if (mounted) setLatestProducts(normalized.slice(0, 8));
       } catch (err) {
-        console.error("Fetch product error:", err);
+        console.error(err);
         if (mounted) setErrorProducts("Gagal memuat produk.");
       } finally {
         if (mounted) setLoadingProducts(false);
       }
     };
 
-    fetchLatestProducts();
+    fetchProducts();
     return () => (mounted = false);
   }, []);
 
@@ -148,75 +136,168 @@ const HomeContent = ({ isLoggedIn }) => {
 
   return (
     <div className="bg-[#FFFEF6]">
-      {/* ================= SEARCH ================= */}
-      <div className="flex justify-center pb-10">
-        <form onSubmit={handleSearchSubmit} className="w-full max-w-[520px] relative">
-          <input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari produk segar..."
-            className="w-full border-2 border-[#588157] rounded-full px-6 py-3"
-          />
-          <button className="absolute right-5 top-1/2 -translate-y-1/2">
-            <img src={IconSearch} alt="Cari" className="w-5" />
-          </button>
+      {/* SECTION SEARCH */}
+      <div className="flex justify-center items-center -mt-4 sm:-mt-6 pb-8 sm:pb-10">
+        <form onSubmit={handleSearchSubmit} className="w-full flex justify-center">
+          <div className="relative w-full max-w-[520px] min-w-[260px]">
+            <input
+              type="text"
+              placeholder="Cari produk segar..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full border-2 border-[#588157] rounded-full px-6 py-2.5 sm:py-3 pr-11 focus:outline-none bg-transparent text-sm sm:text-base"
+            />
+            <button
+              type="submit"
+              className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 flex items-center justify-center"
+              aria-label="Cari produk"
+            >
+              <img src={IconSearch} alt="Cari" className="w-5 h-5 object-contain" />
+            </button>
+          </div>
         </form>
       </div>
 
-      {/* ================= HERO ================= */}
+      {/* HERO SECTION */}
       <section className="w-full bg-[#B8D68F]/25">
         <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row">
-          <div className="md:w-[55%] px-6 py-10">
-            <h2 className="text-3xl font-extrabold text-[#344E41]">
-              Dari Ladang ke Tempat Anda,
-              <br />
-              Segarnya Tetap Terjaga.
-            </h2>
-            <p className="mt-4 text-[#3A5A40]">
-              Belanja hasil panen langsung dari petani Indonesia.
-            </p>
+          {/* Kiri: teks hero */}
+          <div className="w-full md:w-[55%] flex items-center">
+            <div className="px-4 sm:px-8 md:px-16 lg:px-20 py-10 md:py-12 max-w-xl">
+              <h2 className="text-[21px] sm:text-[26px] md:text-[25px] font-extrabold text-[#344E41] leading-snug mb-5 sm:mb-6">
+                Dari Ladang ke Tempat Anda,
+                <br />
+                Segarnya Tetap Terjaga.
+              </h2>
+
+              <p className="text-[#3A5A40] text-[13px] sm:text-[15px] leading-relaxed mb-8 sm:mb-10">
+                Belanja hasil panen kini lebih mudah dan menyenangkan! Temukan
+                sayur, buah, dan bahan segar langsung dari petani Indonesia.
+                Dijamin segar, sehat, dan sampai di rumah Anda dengan cepat.
+              </p>
+
+              <Link to={`${catalogBase}?category=all`}>
+                <button className="inline-flex items-center gap-3 border-2 border-[#344E41] text-[#344E41] font-semibold px-5 sm:px-6 py-2.5 sm:py-3 rounded-full hover:bg-[#344E41] hover:text-white transition-all text-sm sm:text-base">
+                  <span>Belanja Sekarang</span>
+                  <span className="text-lg sm:text-xl">→</span>
+                </button>
+              </Link>
+            </div>
           </div>
-          <div className="md:w-[45%]">
-            <img src={HeroFarmer} alt="hero" className="w-full h-full object-cover" />
+
+          {/* Kanan: gambar hero */}
+          <div className="w-full md:w-[45%] h-[220px] sm:h-[260px] md:h-[400px] lg:h-[430px]">
+            <img src={HeroFarmer} alt="hero-farmer" className="w-full h-full object-cover" />
           </div>
         </div>
       </section>
 
-      {/* ================= PRODUK TERBARU ================= */}
-      <section className="py-14 max-w-[1400px] mx-auto px-6">
-        <h2 className="text-2xl font-bold mb-8">Produk Terbaru</h2>
-
-        {loadingProducts && <p>Memuat produk...</p>}
-        {errorProducts && <p className="text-red-500">{errorProducts}</p>}
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {displayedProducts.map((p) => (
-            <Link
-              key={p.product_id}
-              to={isLoggedIn ? `/product/${p.product_id}` : `/product-before/${p.product_id}`}
+      {/* STATISTIK */}
+      <section className="w-full bg-[#FFFEF6] py-10 md:py-16">
+        <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-0 grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-6 md:gap-8 text-center">
+          {statistikItems.map((item, index) => (
+            <div
+              key={index}
+              className="rounded-[18px] sm:rounded-[28px] px-3 py-5 sm:px-6 sm:py-8 bg-[#588157]/25 flex flex-col justify-center items-center shadow-[0px_6px_12px_rgba(0,0,0,0.2)]"
             >
-              <div className="bg-white rounded-3xl border shadow hover:shadow-lg transition">
-                <div className="h-40 bg-[#F4F8F1] flex items-center justify-center">
-                  <img
-                    src={p.image_url || "/images/placeholder-product.png"}
-                    alt={p.name}
-                    className="h-full object-contain"
-                  />
-                </div>
-                <div className="p-4">
-                  <h3 className="font-bold line-clamp-2">
-                    {p.name} {p.unit && `(${p.unit})`}
-                  </h3>
-                  <p className="text-sm text-gray-600 line-clamp-2">
-                    {p.description}
-                  </p>
-                  <p className="mt-2 font-bold text-[#344E41]">
-                    {formatRupiah(p.price)}
-                  </p>
-                </div>
-              </div>
-            </Link>
+              <img src={item.icon} alt={item.label} className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 mb-2 sm:mb-3 md:mb-4 object-contain" />
+              <h3 className="text-[20px] sm:text-[28px] md:text-[32px] lg:text-[40px] font-extrabold text-[#3A5B40] leading-tight">7000+</h3>
+              <p className="text-[#3A5B40] mt-1 sm:mt-2 font-semibold text-[11px] sm:text-sm md:text-base">{item.label}</p>
+            </div>
           ))}
+        </div>
+      </section>
+
+      {/* PROMO SECTION */}
+      <section className="w-full bg-[#EEF2E6]">
+        <div className="max-w-[1400px] mx-auto grid grid-cols-2 md:grid-cols-2">
+          {/* Gambar promo */}
+          <div className="flex-1 min-h-[160px] sm:min-h-[220px] md:min-h-[350px] lg:min-h-[420px] overflow-hidden">
+            <img src={PromoVeg} alt="Sayuran Promo" className="w-full h-full object-cover block md:scale-[1.02]" />
+          </div>
+
+          {/* Teks promo */}
+          <div className="bg-[#6E8C6B] text-white flex items-center">
+            <div className="px-4 sm:px-8 md:px-12 lg:px-16 py-6 sm:py-8 md:py-0 max-w-xl">
+              <h3 className="text-base sm:text-xl md:text-3xl font-extrabold leading-snug mb-3 sm:mb-4 md:mb-6">Kesegaran Alami, Harga Terbaik.</h3>
+              <p className="text-[12px] sm:text-sm md:text-base leading-relaxed font-medium opacity-95">
+                Manfaatkan promo eksklusif hingga 90% untuk produk hasil panen
+                pilihan. Kami hadirkan kualitas terbaik langsung dari petani ke
+                meja Anda.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PRODUK TERBARU */}
+      <section className="w-full bg-[#FFFEF6] py-12 md:py-16">
+        <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-10">
+          {/* Header produk */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-8 sm:mb-10">
+            <h2 className="text-[22px] sm:text-[26px] md:text-[28px] font-bold text-[#344E41]">Produk Terbaru</h2>
+
+            <Link to={`${catalogBase}?category=all`} className="text-[#3A5A40] font-semibold text-[14px] sm:text-[15px] hover:underline flex items-center gap-1">
+              Lihat Semuanya &gt;
+            </Link>
+          </div>
+
+          {/* Loading dan Error State */}
+          {loadingProducts && (
+            <div className="text-center text-sm text-[#3A5A40] py-10">Memuat produk terbaru...</div>
+          )}
+
+          {errorProducts && (
+            <div className="text-center text-sm text-red-600 py-10">Error memuat produk: {errorProducts}</div>
+          )}
+
+          {/* Grid produk: mobile 2 produk per baris */}
+          {!loadingProducts && !errorProducts && (
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-8 gap-x-4 md:gap-y-12 md:gap-x-8">
+              {displayedProducts.map((product, i) => {
+                const productId = product.product_id ?? i + 1;
+                return (
+                  <Link key={productId} to={isLoggedIn ? `/product/${productId}` : `/product-before/${productId}`}>
+                    {/* Card produk: dibuat flex + tinggi terkendali */}
+                    <div className="bg-white rounded-3xl shadow-[0_4px_10px_rgba(0,0,0,0.08)] border border-[#E0E6D8] hover:shadow-xl transition-all duration-200 cursor-pointer w-full max-w-[310px] mx-auto h-full flex flex-col">
+                      {/* Gambar produk */}
+                      <div className="w-full bg-[#F4F8F1] rounded-t-3xl p-4 sm:p-6 h-[150px] sm:h-[190px] flex items-center justify-center">
+                        <img
+                          src={product.image || product.imageUrl || "/images/placeholder-product.png"}
+                          alt={product.name}
+                          className="h-full object-contain"
+                        />
+                      </div>
+
+                      {/* Detail produk: flex agar harga di bawah, teks tidak bikin card tinggi berlebihan */}
+                      <div className="p-4 sm:p-6 flex flex-col flex-1">
+                        <h3 className="text-[#344E41] font-bold text-[14px] sm:text-[16px] mb-1 line-clamp-2">
+                          {product.name} {product.unit ? `(${product.unit})` : ""}
+                        </h3>
+
+                        <p className="text-[#3A5A40] text-[11px] sm:text-[13px] mb-3 sm:mb-4 leading-relaxed line-clamp-2">
+                          {product.description}
+                        </p>
+
+                        <p className="mt-auto text-[#344E41] font-bold text-[14px] sm:text-[16px]">
+                          {product.price !== null && product.price !== undefined
+                            ? formatRupiah(product.price)
+                            : product.rawPrice
+                            ? product.rawPrice
+                            : "-"}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+
+              {/* Tampilkan pesan jika tidak ada produk */}
+              {displayedProducts.length === 0 && !loadingProducts && (
+                <div className="col-span-full text-center text-sm text-[#3A5A40]/70 py-6">Saat ini belum ada produk terbaru yang tersedia.</div>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
