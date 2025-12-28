@@ -46,7 +46,7 @@ app.use(
 );
 
 /* Health check */
-app.get('/api/health', async (req, res) => {
+app.get('/health', async (req, res) => {
   try {
     if (db && typeof db.query === 'function') {
       await db.query('SELECT 1');
@@ -58,14 +58,14 @@ app.get('/api/health', async (req, res) => {
 });
 
 /* Routes */
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/users', adminUsersRoutes);
+app.use('/auth', authRoutes);
+app.use('/products', productRoutes);
+app.use('/cart', cartRoutes);
+app.use('/orders', orderRoutes);
+app.use('/users', adminUsersRoutes);
 
-// Admin get users
-app.get('/api/users/admin/all', protect, authController.getUsers);
+// Admin
+app.get('/users/admin/all', protect, authController.getUsers);
 
 /* 404 */
 app.use((req, res) => {
