@@ -21,31 +21,52 @@ const db = require('./src/config/db');
 
 const app = express();
 
-/* Logger */
+/* ======================
+   LOGGER
+====================== */
 if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
-/* Body parser */
+/* ======================
+   BODY PARSER
+====================== */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* Static files */
+/* ======================
+   STATIC FILES
+====================== */
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-/* CORS */
-const allowedOrigins = process.env.FRONTEND_ORIGIN
-  ? process.env.FRONTEND_ORIGIN.split(',')
-  : ['http://localhost:3000'];
+/* ======================
+   CORS (FIXED)
+====================== */
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://panenmania.netlify.app',
+];
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      // Izinkan request tanpa origin (Postman, server-to-server)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   })
 );
 
-/* Health check */
+/* ======================
+   HEALTH CHECK
+====================== */
 app.get('/health', async (req, res) => {
   try {
     if (db && typeof db.query === 'function') {
@@ -57,20 +78,26 @@ app.get('/health', async (req, res) => {
   }
 });
 
-/* Routes */
+/* ======================
+   ROUTES
+====================== */
 app.use('/auth', authRoutes);
 app.use('/products', productRoutes);
 app.use('/cart', cartRoutes);
 app.use('/orders', orderRoutes);
 app.use('/users', adminUsersRoutes);
 
-// Admin
+// Admin (protected)
 app.get('/users/admin/all', protect, authController.getUsers);
 
-/* 404 */
+/* ======================
+   404 HANDLER
+====================== */
 app.use((req, res) => {
   res.status(404).json({ message: 'Route tidak ditemukan' });
 });
 
-/* Export for Vercel */
+/* ======================
+   EXPORT FOR VERCEL
+====================== */
 module.exports = app;
