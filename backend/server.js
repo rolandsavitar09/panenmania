@@ -12,7 +12,7 @@ const cartRoutes = require('./src/routes/cartRoutes');
 const orderRoutes = require('./src/routes/orderRoutes');
 const adminUsersRoutes = require('./src/routes/adminUsers');
 
-// Controllers & middleware
+// Controller & middleware
 const authController = require('./src/controllers/authController');
 const { protect } = require('./src/middleware/authMiddleware');
 
@@ -21,108 +21,56 @@ const db = require('./src/config/db');
 
 const app = express();
 
-/* ======================
-   LOGGER
-====================== */
+/* Logger */
 if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
-/* ======================
-   BODY PARSERS
-====================== */
+/* Body parser */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* ======================
-   STATIC FILES
-====================== */
+/* Static files */
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-/* ======================
-   CORS (Netlify + Local)
-====================== */
+/* CORS */
 const allowedOrigins = process.env.FRONTEND_ORIGIN
   ? process.env.FRONTEND_ORIGIN.split(',')
-  : [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'https://panenmania.netlify.app',
-    ];
+  : ['http://localhost:3000'];
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: allowedOrigins,
     credentials: true,
   })
 );
 
-/* ======================
-   HEALTH CHECK
-====================== */
+/* Health check */
 app.get('/api/health', async (req, res) => {
   try {
     if (db && typeof db.query === 'function') {
       await db.query('SELECT 1');
     }
-    res.status(200).json({
-      status: 'ok',
-      service: 'PanenMania API',
-      timestamp: new Date().toISOString(),
-    });
+    res.json({ status: 'ok', service: 'PanenMania API' });
   } catch (err) {
-    res.status(500).json({
-      status: 'error',
-      message: 'Database connection failed',
-    });
+    res.status(500).json({ status: 'error', message: 'DB error' });
   }
 });
 
-/* ======================
-   API ROUTES
-====================== */
+/* Routes */
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', adminUsersRoutes);
 
-// Admin get all users
+// Admin get users
 app.get('/api/users/admin/all', protect, authController.getUsers);
 
-/* ======================
-   404 HANDLER
-====================== */
+/* 404 */
 app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Route tidak ditemukan',
-  });
+  res.status(404).json({ message: 'Route tidak ditemukan' });
 });
 
-/* ======================
-   GLOBAL ERROR HANDLER
-====================== */
-app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
-  res.status(500).json({
-    success: false,
-    message:
-      process.env.NODE_ENV === 'production'
-        ? 'Server error'
-        : err.message || 'Server error',
-  });
-});
-
-/* ======================
-   EXPORT (WAJIB UNTUK VERCEL)
-====================== */
+/* Export for Vercel */
 module.exports = app;
