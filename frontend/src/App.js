@@ -34,7 +34,6 @@ import OrderHistoryDetail from "./pages/profile/OrderHistoryDetail";
 
 /** Admin */
 import AdminLogin from "./admin/component/pages/AdminLogin";
-import AdminTwoFA from "./admin/component/pages/AdminTwoFA";
 import AdminDashboard from "./admin/component/pages/AdminDashboard";
 import AdminProducts from "./admin/component/pages/AdminProducts";
 import AdminOrders from "./admin/component/pages/AdminOrders";
@@ -254,7 +253,6 @@ function App() {
 
         {/* Admin - public admin routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/2fa" element={<AdminTwoFA />} />
 
         {/* Admin - protected routes (AdminPrivate) */}
         <Route
