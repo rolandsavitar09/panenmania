@@ -29,7 +29,7 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     try {
-      const { data } = await API.post("/api/admin/login", {
+      const { data } = await API.post("/api/auth/admin-login", {
         email,
         password,
       });
