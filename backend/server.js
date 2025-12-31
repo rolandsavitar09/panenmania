@@ -64,6 +64,8 @@ app.use(
   })
 );
 
+app.options("*", cors());
+
 /* ======================
    HEALTH CHECK
 ====================== */
@@ -81,11 +83,11 @@ app.get('/health', async (req, res) => {
 /* ======================
    ROUTES
 ====================== */
-app.use('/auth', authRoutes);
-app.use('/products', productRoutes);
-app.use('/cart', cartRoutes);
-app.use('/orders', orderRoutes);
-app.use('/users', adminUsersRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/users', adminUsersRoutes);
 
 // Admin (protected)
 app.get('/users/admin/all', protect, authController.getUsers);
