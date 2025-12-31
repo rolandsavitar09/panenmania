@@ -76,7 +76,7 @@ const registerUser = async (req, res) => {
  */
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
-  const is_admin_attempt = req.route.path === '/admin-login';
+  const is_admin_attempt = req.originalUrl.includes('/admin-login');
 
   if (!email || !password) {
     return res.status(400).json({
