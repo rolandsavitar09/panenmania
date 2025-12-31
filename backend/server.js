@@ -46,6 +46,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   'https://panenmania.netlify.app',
+  'https://panenmania-web.vercel.app'
 ];
 
 app.use(
