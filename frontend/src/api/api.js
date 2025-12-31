@@ -89,7 +89,7 @@ API.interceptors.response.use(
     const url = error?.config?.url || "";
 
     const isLoginRequest =
-      url.includes("/login") || url.includes("/admin/login");
+      url.includes("/auth/login") || url.includes("/auth/admin-login");
 
     if (
       status === 401 ||

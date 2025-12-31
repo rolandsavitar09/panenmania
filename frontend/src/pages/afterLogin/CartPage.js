@@ -59,7 +59,7 @@ const CartPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await API.get("/cart");
+      const res = await API.get("/api/cart");
       const itemsWithChecked = (res.data.cart || []).map((item) => ({
         ...item,
         id: item.cart_item_id,

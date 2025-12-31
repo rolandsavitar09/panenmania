@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../../api/api";
-
+//localhost
 const formatRupiah = (number) => {
   if (number == null || isNaN(Number(number))) return "Rp 0";
   return new Intl.NumberFormat("id-ID", {
@@ -390,7 +390,7 @@ const AdminProducts = () => {
                           <div className="w-8 h-8 rounded-md bg-[#F5F5F5] flex items-center justify-center overflow-hidden">
                             {item.imageUrl ? (
                               <img
-                                src={`http://localhost:5000${item.imageUrl}`}
+                                src={item.imageUrl}
                                 alt={item.name}
                                 className="w-full h-full object-cover"
                               />

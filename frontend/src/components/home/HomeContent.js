@@ -97,7 +97,7 @@ const HomeContent = ({ isLoggedIn }) => {
       setLoadingProducts(true);
       setErrorProducts(null);
 
-      const res = await API.get("/products");
+      const res = await API.get("/api/products");
       const data = res.data;
 
       const products = Array.isArray(data?.products)

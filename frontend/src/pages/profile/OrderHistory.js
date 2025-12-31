@@ -185,26 +185,48 @@ const OrderHistory = () => {
 
       <div className="flex w-full mt-14 gap-4 lg:gap-8 flex-col lg:flex-row px-4 sm:px-6 lg:px-0">
         {/* SIDEBAR */}
-        <div className="w-full lg:w-72 bg-white px-4 sm:px-6 py-6 lg:py-8 rounded-[10px] shadow flex flex-col">
+        <div className="w-full lg:w-72 bg-white px-4 sm:px-6 py-6 lg:py-8 rounded-[10px] shadow flex flex-col overflow-y-auto">
           <div className="flex flex-col items-center text-center">
             <label className="relative cursor-pointer inline-block">
               <input type="file" className="hidden" onChange={handleUploadPic} />
-              <div className="w-28 h-28 lg:w-40 lg:h-40 bg-[#F2F2F2] rounded-full overflow-hidden">
-                {profilePic && (
-                  <img
-                    src={profilePic}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                )}
+              <div className="w-32 h-32 lg:w-40 lg:h-40 bg-[#F2F2F2] rounded-full overflow-hidden">
+                <img
+                  src={profilePic || ProfilePhoto}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <div className="absolute bottom-2 right-2 w-8 h-8 bg-white rounded-full shadow flex items-center justify-center">
+              <div className="absolute bottom-3 right-3 w-8 h-8 bg-white rounded-full shadow flex items-center justify-center">
                 <img src={EditIcon} alt="Edit" className="w-4 h-4" />
               </div>
             </label>
 
             <p className="mt-3 font-semibold">{profileData.fullName}</p>
-            <p className="text-xs text-gray-500">{profileData.email}</p>
+          </div>
+
+          {/* MENU */}
+          <div className="mt-8 space-y-6">
+            <div>
+              <div className="flex items-center gap-2">
+                <img src={ProfileIcon} alt="" className="w-5 h-5" />
+                <Link to="/profile">
+                  <p className={isActive("/profile") ? "font-semibold" : ""}>
+                    Profile
+                  </p>
+                </Link>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2">
+                <img src={CheckIcon} alt="" className="w-5 h-5" />
+                <Link to="/orders-history">
+                  <p className={isActive("/orders-history") ? "font-semibold" : ""}>
+                    Riwayat Pesanan
+                  </p>
+                </Link>
+              </div>
+            </div>
           </div>
 
           <button
@@ -217,7 +239,7 @@ const OrderHistory = () => {
         </div>
 
         {/* CONTENT */}
-        <div className="flex-1 bg-[#B8D68F40] p-6 rounded-[10px] shadow mt-6 lg:mt-10 mb-6 lg:mb-10">
+        <div className="flex-1 bg-[#B8D68F40] p-6 rounded-[10px] shadow mt-6 lg:mt-10 mb-6">
           <h2 className="text-xl font-bold mb-4">Riwayat Pesanan</h2>
 
           {orders.length === 0 && (
@@ -236,21 +258,23 @@ const OrderHistory = () => {
                   Tanggal: {formatDate(order.date)}
                 </p>
 
-                <div className="mt-2 font-semibold">
+                <p className="font-semibold mt-2">
                   {formatRupiah(order.total)}
-                </div>
+                </p>
 
                 <div className="mt-3 flex justify-between items-center">
                   <span className="px-3 py-1 rounded-full bg-[#3A5B40] text-white text-xs">
                     {order.status}
                   </span>
 
-                  <Link
-                    to={`/orders-history/${order.id}`}
+                  <button
+                    onClick={() =>
+                      navigate(`/orders-history/${order.id}`)
+                    }
                     className="text-sm font-semibold text-[#3A5B40] underline"
                   >
                     Detail Pesanan
-                  </Link>
+                  </button>
                 </div>
               </div>
             ))}

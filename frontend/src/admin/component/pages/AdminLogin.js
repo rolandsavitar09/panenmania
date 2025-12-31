@@ -1,9 +1,8 @@
-// src/pages/admin/AdminLogin.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../../api/api";
 
-// ✅ LOGO IMAGE
+// Logo
 import LogoImg from "../../../assets/images/icons/logo panenmaniaa.svg";
 
 const AdminLogin = () => {
@@ -15,11 +14,20 @@ const AdminLogin = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Cek status login admin saat mount
+  // Jika admin sudah login → langsung ke dashboard
   useEffect(() => {
     const token = localStorage.getItem("adminToken");
-    if (token) {
-      navigate("/admin/dashboard", { replace: true });
+    const user = localStorage.getItem("adminUser");
+
+    if (token && user) {
+      try {
+        const parsed = JSON.parse(user);
+        if (parsed?.role === "admin") {
+          navigate("/admin/dashboard", { replace: true });
+        }
+      } catch {
+        // abaikan
+      }
     }
   }, [navigate]);
 
@@ -29,20 +37,24 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     try {
-      const { data } = await API.post("/api/auth/admin-login", {
+      const res = await API.post("/api/auth/admin-login", {
         email,
         password,
       });
 
-      localStorage.setItem("adminToken", data.token);
-      localStorage.setItem("adminUser", JSON.stringify(data.user));
+      // Simpan token & user admin
+      localStorage.setItem("adminToken", res.data.token);
+      localStorage.setItem("adminUser", JSON.stringify(res.data.user));
 
+      // Redirect ke dashboard admin
       navigate("/admin/dashboard", { replace: true });
     } catch (err) {
       console.error("[AdminLogin] Error:", err);
+
+      // ⛔ PENTING: TIDAK redirect ke signin/signup
       setErrorMessage(
         err?.response?.data?.message ||
-          "Gagal login. Cek email dan kata sandi."
+          "Login admin gagal. Periksa email dan kata sandi."
       );
     } finally {
       setIsLoading(false);
@@ -54,28 +66,21 @@ const AdminLogin = () => {
       className="min-h-screen flex items-center justify-center px-4"
       style={{ backgroundColor: "#FFFEF6", fontFamily: '"Inter", sans-serif' }}
     >
-      <div
-        className="w-full max-w-[500px] h-[600px] bg-white border-[3px] border-[#3A5B40] rounded-[15px]
-                   shadow-[0_4px_6px_rgba(0,0,0,0.1)] flex flex-col items-center px-10 py-12"
-      >
-        {/* LOGO */}
+      <div className="w-full max-w-[500px] h-[600px] bg-white border-[3px] border-[#3A5B40] rounded-[15px] shadow flex flex-col items-center px-10 py-12">
+        {/* Logo */}
         <div className="w-24 h-24 mb-8 rounded-full bg-[#3A5B40]/10 border border-[#3A5B40] flex items-center justify-center">
-          <img
-            src={LogoImg}
-            alt="PanenMania Logo"
-            className="w-14 h-14 object-contain"
-          />
+          <img src={LogoImg} alt="PanenMania Logo" className="w-14 h-14" />
         </div>
 
-        {/* TITLE */}
-        <h1 className="text-[22px] font-bold text-[#3A5B40] mb-6 text-center">
+        {/* Title */}
+        <h1 className="text-[22px] font-bold text-[#3A5B40] mb-6">
           Login Admin
         </h1>
 
-        {/* FORM */}
+        {/* Form */}
         <form className="w-full space-y-5" onSubmit={handleSubmit}>
           {/* Email */}
-          <div className="flex flex-col gap-2">
+          <div>
             <label className="text-sm font-medium text-[#3A5B40]">
               Email Admin
             </label>
@@ -86,14 +91,14 @@ const AdminLogin = () => {
                 setEmail(e.target.value);
                 setErrorMessage("");
               }}
-              className="w-full h-[50px] border border-[#3A5B40] rounded-md px-4 text-sm text-[#3A5B40]
-                         outline-none focus:ring-1 focus:ring-[#3A5B40]"
-              placeholder="Masukkan email"
+              required
+              className="w-full h-[50px] border border-[#3A5B40] rounded-md px-4 text-sm outline-none"
+              placeholder="adminpanenmania@gmail.com"
             />
           </div>
 
           {/* Password */}
-          <div className="flex flex-col gap-2">
+          <div>
             <label className="text-sm font-medium text-[#3A5B40]">
               Kata Sandi
             </label>
@@ -105,46 +110,16 @@ const AdminLogin = () => {
                   setPassword(e.target.value);
                   setErrorMessage("");
                 }}
-                className="flex-1 text-sm text-[#3A5B40] outline-none bg-transparent"
-                placeholder="Masukkan Kata Sandi"
+                required
+                className="flex-1 text-sm outline-none bg-transparent"
+                placeholder="Masukkan kata sandi"
               />
-
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="ml-2 text-[#3A5B40]"
+                className="ml-2 text-[#3A5B40] text-sm"
               >
-                {showPassword ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5"
-                    />
-                  </svg>
-                )}
+                {showPassword ? "🙈" : "👁️"}
               </button>
             </div>
           </div>
@@ -153,21 +128,18 @@ const AdminLogin = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full h-[50px] rounded-md bg-[#3A5B40] text-white text-sm font-medium
-                       flex items-center justify-center hover:bg-[#324c36] transition disabled:opacity-60"
+            className="w-full h-[50px] rounded-md bg-[#3A5B40] text-white font-medium hover:bg-[#324c36] transition disabled:opacity-60"
           >
             {isLoading ? "Memproses..." : "Masuk"}
           </button>
         </form>
 
-        {/* ERROR */}
-        <div className="h-6 mt-4 flex items-center justify-center text-center px-2">
-          {errorMessage && (
-            <p className="text-sm text-red-600 font-semibold">
-              {errorMessage}
-            </p>
-          )}
-        </div>
+        {/* Error */}
+        {errorMessage && (
+          <p className="mt-4 text-sm text-red-600 font-semibold text-center">
+            {errorMessage}
+          </p>
+        )}
       </div>
     </div>
   );

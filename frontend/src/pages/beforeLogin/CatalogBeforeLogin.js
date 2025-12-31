@@ -51,7 +51,7 @@ function CatalogBeforeLogin() {
       setError(null);
 
       try {
-        const res = await API.get("/products"); // axios
+        const res = await API.get("/api/products");
         const data = res.data;
 
         const rawItems = Array.isArray(data?.products)
