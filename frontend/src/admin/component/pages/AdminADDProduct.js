@@ -2,8 +2,8 @@
 import React, { useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-// DITAMBAHKAN: Konstanta API dan Token Key
-const API_PRODUCT_URL = "http://localhost:5000/api/products/add";
+import API from "../../../api/api";
+
 const ADMIN_TOKEN_KEY = "adminToken";
 
 /* ---------- CUSTOM DROPDOWN: KATEGORI ---------- */
@@ -21,66 +21,40 @@ const CategoryDropdown = ({ value, onChange }) => {
   };
 
   return (
-    <div className="relative" style={{ width: '100%', minWidth: 0 }}>
-      {/* Trigger */}
+    <div className="relative" style={{ width: "100%", minWidth: 0 }}>
       <button
         type="button"
         onClick={() => setOpen((p) => !p)}
-        className="
-          w-full h-[44px]
-          rounded-md
-          px-3
-          text-sm
-          flex items-center justify-between
-          outline-none
-        "
+        className="w-full h-[44px] rounded-md px-3 text-sm flex items-center justify-between outline-none"
         style={{
           backgroundColor: "#3A5B40",
           border: "1px solid #3A5B40",
           color: "#FFFFFF",
-          minWidth: '220px'
+          minWidth: "220px",
         }}
       >
-        <span className="truncate" style={{ maxWidth: '85%' }}>
+        <span className="truncate" style={{ maxWidth: "85%" }}>
           {label === "" ? "Pilih Kategori" : label}
         </span>
-        <span
-          className={`text-xs transform transition-transform ${
-            open ? "rotate-180" : "rotate-0"
-          }`}
-        >
+        <span className={`text-xs transform transition-transform ${open ? "rotate-180" : "rotate-0"}`}>
           ▼
         </span>
       </button>
 
-      {/* Menu */}
       {open && (
         <div
-          className="
-            absolute left-0 mt-1
-            bg-white
-            rounded-md
-            text-sm
-            overflow-hidden
-            z-20
-          "
+          className="absolute left-0 mt-1 bg-white rounded-md text-sm overflow-hidden z-20"
           style={{
             boxShadow: "0 4px 6px rgba(0,0,0,0.10)",
             border: "1px solid #E5E7EB",
-            width: '100%'
+            width: "100%",
           }}
         >
-          {['Beras', 'Buah', 'Sayur', 'Batal'].map((opt) => (
+          {["Beras", "Buah", "Sayur", "Batal"].map((opt) => (
             <button
               key={opt}
               type="button"
-              className="
-                w-full
-                flex items-center
-                px-3 py-2
-                hover:bg-[#FFFEF6]
-                text-[#3A5B40]
-              "
+              className="w-full flex items-center px-3 py-2 hover:bg-[#FFFEF6] text-[#3A5B40]"
               onClick={() => handleSelect(opt)}
             >
               {opt}
@@ -96,140 +70,61 @@ const CategoryDropdown = ({ value, onChange }) => {
 const StockStatusDropdown = ({ value, onChange }) => {
   const [open, setOpen] = useState(false);
 
-  // mapping status -> label & warna bar
   const getConfig = (status) => {
     if (status === "available") {
-      return {
-        label: "Stok Tersedia",
-        bg: "#317220",
-        accent: "#317220",
-      };
+      return { label: "Stok Tersedia", bg: "#317220" };
     }
     if (status === "unavailable") {
-      return {
-        label: "Stok Tidak Tersedia",
-        bg: "#96352C",
-        accent: "#96352C",
-      };
+      return { label: "Stok Tidak Tersedia", bg: "#96352C" };
     }
-    // placeholder
-    return {
-      label: "Pilih Stok",
-      bg: "#3A5B40",
-      accent: "#3A5B40",
-    };
+    return { label: "Pilih Stok", bg: "#3A5B40" };
   };
 
   const config = getConfig(value);
 
   const handleSelect = (status) => {
-    if (status === "batal") {
-      onChange("");
-    } else {
-      onChange(status);
-    }
+    if (status === "batal") onChange("");
+    else onChange(status);
     setOpen(false);
   };
 
   return (
-    <div className="relative" style={{ width: '100%', minWidth: 0 }}>
-      {/* Trigger */}
+    <div className="relative" style={{ width: "100%", minWidth: 0 }}>
       <button
         type="button"
         onClick={() => setOpen((p) => !p)}
-        className="
-          w-full h-[44px]
-          rounded-md
-          px-3
-          text-sm
-          flex items-center justify-between
-          outline-none
-        "
+        className="w-full h-[44px] rounded-md px-3 text-sm flex items-center justify-between outline-none"
         style={{
           backgroundColor: config.bg,
           border: "1px solid #3A5B40",
           color: "#FFFFFF",
-          minWidth: '220px'
+          minWidth: "220px",
         }}
       >
-        <span className="truncate" style={{ maxWidth: '85%' }}>{config.label}</span>
-        <span
-          className={`text-xs transform transition-transform ${
-            open ? "rotate-180" : "rotate-0"
-          }`}
-        >
+        <span className="truncate" style={{ maxWidth: "85%" }}>
+          {config.label}
+        </span>
+        <span className={`text-xs transform transition-transform ${open ? "rotate-180" : "rotate-0"}`}>
           ▼
         </span>
       </button>
 
-      {/* Menu */}
       {open && (
         <div
-          className="
-            absolute left-0 mt-1
-            bg-white
-            rounded-md
-            text-sm
-            overflow-hidden
-            z-20
-          "
+          className="absolute left-0 mt-1 bg-white rounded-md text-sm overflow-hidden z-20"
           style={{
             boxShadow: "0 4px 6px rgba(0,0,0,0.10)",
             border: "1px solid #E5E7EB",
-            width: '100%'
+            width: "100%",
           }}
         >
-          {/* Stok Tersedia */}
-          <button
-            type="button"
-            className="
-              w-full flex items-center
-              px-3 py-2
-              hover:bg-[#FFFEF6]
-              text-[#3A5B40]
-            "
-            onClick={() => handleSelect("available")}
-          >
-            <span
-              className="inline-block h-4 w-1 rounded-full mr-2"
-              style={{ backgroundColor: "#317220" }}
-            />
+          <button className="w-full px-3 py-2 hover:bg-[#FFFEF6]" onClick={() => handleSelect("available")}>
             Stok Tersedia
           </button>
-
-          {/* Stok Tidak Tersedia */}
-          <button
-            type="button"
-            className="
-              w-full flex items-center
-              px-3 py-2
-              hover:bg-[#FFFEF6]
-              text-[#3A5B40]
-            "
-            onClick={() => handleSelect("unavailable")}
-          >
-            <span
-              className="inline-block h-4 w-1 rounded-full mr-2"
-              style={{ backgroundColor: "#96352C" }}
-            />
+          <button className="w-full px-3 py-2 hover:bg-[#FFFEF6]" onClick={() => handleSelect("unavailable")}>
             Stok Tidak Tersedia
           </button>
-
-          {/* Batal (reset) */}
-          <button
-            type="button"
-            className="
-              w-full flex items-center
-              px-3 py-2
-              hover:bg-[#FFFEF6]
-              text-[#3A5B40]
-            "
-            onClick={() => handleSelect("batal")}
-          >
-            <span
-              className="inline-block h-4 w-1 rounded-full mr-2"
-              style={{ backgroundColor: "rgba(58,91,64,0.3)" }}
-            />
+          <button className="w-full px-3 py-2 hover:bg-[#FFFEF6]" onClick={() => handleSelect("batal")}>
             Batal
           </button>
         </div>
@@ -238,137 +133,57 @@ const StockStatusDropdown = ({ value, onChange }) => {
   );
 };
 
-/* ---------- HALAMAN TAMBAHKAN / EDIT PRODUK ---------- */
+/* ---------- HALAMAN ---------- */
 const AdminAddProduct = () => {
   const bgPage = "#FFFEF6";
   const navigate = useNavigate();
   const location = useLocation();
 
-  // DATA DARI HALAMAN PRODUCTS (KETIKA EDIT)
   const editingProduct = location.state?.product || null;
+  const isEditMode = !!editingProduct;
 
-  // MODE EDIT / ADD
-  const [isEditMode] = useState(!!editingProduct);
-  const [productId] = useState(editingProduct?.id ?? null);
-
-  // DITAMBAHKAN: State untuk file, pesan, dan status submit
-  const [imageFile, setImageFile] = useState(null);
-  const [uploadMessage, setUploadMessage] = useState({ type: '', message: '' });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // STATE FORM (prefill jika edit)
-  const [form, setForm] = useState(() => {
-    if (!editingProduct) {
-      return {
-        name: "",
-        description: "",
-        category: "",
-        price: "",
-        discountPrice: "",
-        stock: "",
-        stockStatus: "available", // default
-        unit: "kg",
-      };
-    }
-
-    return {
-      name: editingProduct.name || "",
-      description: editingProduct.description || "",
-      category: editingProduct.category || "",
-      price: editingProduct.price || "",
-      discountPrice: editingProduct.discountPrice || "",
-      stock: typeof editingProduct.stock === "number" ? String(editingProduct.stock) : editingProduct.stock || "",
-      stockStatus: editingProduct.status || "available",
-      unit: editingProduct.unit || "kg",
-    };
+  const [form, setForm] = useState({
+    name: editingProduct?.name || "",
+    description: editingProduct?.description || "",
+    category: editingProduct?.category || "",
+    price: editingProduct?.price || "",
+    stock: editingProduct?.stock || "",
+    stockStatus: editingProduct?.status || "available",
+    unit: editingProduct?.unit || "kg",
   });
 
-  const handleChange = (field, value) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
+  const [imageFile, setImageFile] = useState(null);
+  const [uploadMessage, setUploadMessage] = useState({ type: "", message: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // file input ref & handlers
   const hiddenFileInput = useRef(null);
-  const handleClick = () => hiddenFileInput.current?.click();
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file.size > 10 * 1024 * 1024) {
-      setUploadMessage({ type: 'error', message: 'Ukuran file terlalu besar (>10MB).' });
-      setImageFile(null);
-      e.target.value = null;
-      return;
-    }
-    setImageFile(file || null);
-    setUploadMessage({ type: '', message: file ? `File terpilih: ${file.name}` : '' });
-  };
+  const handleChange = (field, value) =>
+    setForm((prev) => ({ ...prev, [field]: value }));
 
-  // submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!isEditMode && !imageFile) {
-      setUploadMessage({ type: 'error', message: 'Gambar produk wajib diunggah.' });
-      return;
-    }
-
-    setUploadMessage({ type: 'info', message: 'Mengunggah produk...' });
     setIsSubmitting(true);
 
-    const token = localStorage.getItem(ADMIN_TOKEN_KEY);
-    if (!token) {
-      setUploadMessage({ type: 'error', message: 'Sesi Admin berakhir. Silakan login ulang.' });
-      navigate('/admin/login');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('name', form.name);
-    formData.append('description', form.description);
-    formData.append('category', form.category);
-    formData.append('price', form.price);
-    formData.append('stock', form.stock);
-    formData.append('unit', form.unit);
-    formData.append('is_active', form.stockStatus === 'available' ? 'TRUE' : 'FALSE');
-
-    if (!isEditMode && imageFile) {
-      formData.append('image', imageFile);
-    }
-
-    const submitUrl = API_PRODUCT_URL;
-
     try {
-      const response = await fetch(submitUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        body: formData,
+      const formData = new FormData();
+      Object.entries(form).forEach(([k, v]) => formData.append(k, v));
+      if (imageFile) formData.append("image", imageFile);
+
+      await API.post("/api/products/add", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setUploadMessage({ type: 'success', message: data.message || 'Produk berhasil disimpan!' });
-        // navigate back after short feedback — keep immediate feedback but don't rely on background tasks
-        setTimeout(() => navigate('/admin/products'), 1200);
-      } else {
-        setUploadMessage({ type: 'error', message: data.message || 'Gagal menyimpan produk. Cek data.' });
-      }
+      setUploadMessage({ type: "success", message: "Produk berhasil disimpan!" });
+      setTimeout(() => navigate("/admin/products"), 1000);
     } catch (err) {
-      setUploadMessage({ type: 'error', message: 'Gagal terhubung ke server backend.' });
+      setUploadMessage({
+        type: "error",
+        message: err?.response?.data?.message || "Gagal menyimpan produk.",
+      });
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const pageTitle = isEditMode ? "Edit Produk" : "Tambahkan Produk";
-
-  const getMessageClass = (type) => {
-    if (type === 'error') return "text-red-600 font-semibold";
-    if (type === 'success') return "text-green-600 font-semibold";
-    if (type === 'info') return "text-blue-600";
-    return "text-[#3A5B40]";
   };
 
   return (

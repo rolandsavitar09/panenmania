@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
+import API from "../../../api/api";
+
 // ICONS (HARUS DI BAGIAN TERATAS)
 import deliveryIcon from "../../../assets/images/icons/delivery.png";
 import dollarIcon from "../../../assets/images/icons/dollar.png";
@@ -9,12 +11,11 @@ import likeIcon from "../../../assets/images/icons/like.png";
 import orderIcon from "../../../assets/images/icons/order.png";
 import packageIcon from "../../../assets/images/icons/package.png";
 
-// URL API & HELPER
-const API_ORDERS_ADMIN_URL = "http://localhost:5000/api/orders/admin/all";
-const API_UPDATE_STATUS = "http://localhost:5000/api/orders/admin/status"; // PUT /.../status/:id
-const API_ADMIN_DETAIL = "http://localhost:5000/api/orders/admin"; // GET /admin/:id
-const API_DELETE_ORDER = "http://localhost:5000/api/orders/admin";
-const getAdminToken = () => localStorage.getItem("adminToken");
+// URL API (PRODUCTION)
+const API_ORDERS_ADMIN_URL = "/api/orders/admin/all";
+const API_UPDATE_STATUS = "/api/orders/admin/status";
+const API_ADMIN_DETAIL = "/api/orders/admin";
+const API_DELETE_ORDER = "/api/orders/admin";
 
 const AdminOrders = () => {
   const bgPage = "#FFFEF6";
@@ -30,193 +31,152 @@ const AdminOrders = () => {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const statusOptions = ["PENDING","PROCESSING","SHIPPED","DELIVERED","SETTLED","CANCELLED"];
+  const statusOptions = [
+    "PENDING",
+    "PROCESSING",
+    "SHIPPED",
+    "DELIVERED",
+    "SETTLED",
+    "CANCELLED",
+  ];
 
   const getDisplayStatus = (status) => {
-    switch ((status || '').toUpperCase()) {
-      case 'PENDING': return 'Pesanan Dibuat';
-      case 'PROCESSING': return 'Pembayaran Dikonfirmasi';
-      case 'SHIPPED': return 'Pesanan Dikirim';
-      case 'DELIVERED': return 'Diterima User';
-      case 'SETTLED': return 'Selesai';
-      case 'CANCELLED': return 'Dibatalkan';
-      default: return 'Unknown';
+    switch ((status || "").toUpperCase()) {
+      case "PENDING":
+        return "Pesanan Dibuat";
+      case "PROCESSING":
+        return "Pembayaran Dikonfirmasi";
+      case "SHIPPED":
+        return "Pesanan Dikirim";
+      case "DELIVERED":
+        return "Diterima User";
+      case "SETTLED":
+        return "Selesai";
+      case "CANCELLED":
+        return "Dibatalkan";
+      default:
+        return "Unknown";
     }
   };
 
   const fetchOrders = useCallback(async () => {
-    const token = getAdminToken();
-    if (!token) {
-      setLoading(false);
-      return navigate("/admin/login");
-    }
     setLoading(true);
     setError(null);
-
     try {
-      const res = await fetch(API_ORDERS_ADMIN_URL, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (res.ok && data && Array.isArray(data.orders)) {
-        const mapped = data.orders.map(o => ({
-          id: o.order_id,
-          email: o.customer_email,
-          customerName: o.customer_name,
-          status: o.order_status,
-          total: Number(o.total_amount || 0),
-          dateTime: o.created_at ? new Date(o.created_at).toLocaleString('id-ID', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '',
-          shippingAddress: o.shipping_address,
-          // jika customer_phone kosong -> null (sama seperti OrderHistoryDetail)
-          phone: o.customer_phone ? o.customer_phone : null
-        }));
-        setOrders(mapped);
+      const { data } = await API.get(API_ORDERS_ADMIN_URL);
+
+      const mapped = (data.orders || []).map((o) => ({
+        id: o.order_id,
+        email: o.customer_email,
+        customerName: o.customer_name,
+        status: o.order_status,
+        total: Number(o.total_amount || 0),
+        dateTime: o.created_at
+          ? new Date(o.created_at).toLocaleString("id-ID")
+          : "",
+        shippingAddress: o.shipping_address,
+        phone: o.customer_phone || null,
+      }));
+
+      setOrders(mapped);
+    } catch (err) {
+      if (err.response?.status === 401) {
+        localStorage.removeItem("adminToken");
+        navigate("/admin/login");
       } else {
-        if (data && data.message && (data.message.toLowerCase().includes('token') || data.message.toLowerCase().includes('autentik'))) {
-          localStorage.removeItem('adminToken');
-          navigate('/admin/login');
-        }
-        setError(data.message || 'Gagal memuat daftar pesanan.');
+        setError(
+          err.response?.data?.message || "Gagal memuat daftar pesanan."
+        );
       }
-    } catch (e) {
-      console.error("Fetch Orders Error:", e);
-      setError("Gagal terhubung ke server.");
     } finally {
       setLoading(false);
     }
   }, [navigate]);
 
-  useEffect(() => { fetchOrders(); }, [fetchOrders]);
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const allChecked = selectedIds.length === orders.length && orders.length > 0;
 
   const formatRupiah = (num) =>
-    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(num);
-
-  const getSelectStyles = (status) => {
-    const normStatus = (status || '').toUpperCase();
-    switch (normStatus) {
-      case "PROCESSING": return { backgroundColor: "#FFF89D", color: "#3A5B40", borderColor: "#FFF89D" };
-      case "PENDING": return { backgroundColor: "#FFCC85", color: "#3A5B40", borderColor: "#FFCC85" };
-      case "SHIPPED": return { backgroundColor: "#AFD6FF", color: "#3A5B40", borderColor: "#AFD6FF" };
-      case "DELIVERED":
-      case "SETTLED": return { backgroundColor: "rgba(49,114,32,0.8)", color: "#FFFFFF", borderColor: "rgba(49,114,32,0.8)" };
-      case "CANCELLED": return { backgroundColor: "#D3554C", color: "#FFFFFF", borderColor: "#D3554C" };
-      default: return { backgroundColor: "#3A5B40", color: "#FFFFFF", borderColor: "#3A5B40" };
-    }
-  };
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0,
+    }).format(num);
 
   const toggleSelectAll = () => {
     if (allChecked) setSelectedIds([]);
-    else setSelectedIds(orders.map(o => o.id));
+    else setSelectedIds(orders.map((o) => o.id));
   };
 
   const toggleSelectOne = (id) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
   };
 
-  // ====== call admin detail endpoint and show detail UI (same structure as OrderHistoryDetail) ======
   const fetchAdminOrderDetails = async (id) => {
-    const token = getAdminToken();
-    if (!token) {
-      navigate('/admin/login');
-      return;
-    }
     setLoading(true);
     try {
-      const res = await fetch(`${API_ADMIN_DETAIL}/${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        if (data && data.message && (data.message.toLowerCase().includes('token') || data.message.toLowerCase().includes('autentik'))) {
-          localStorage.removeItem('adminToken');
-          navigate('/admin/login'); return;
-        }
-        setError(data.message || 'Gagal memuat detail pesanan.');
-        return;
-      }
+      const { data } = await API.get(`${API_ADMIN_DETAIL}/${id}`);
       const o = data.order;
-      // map to shape expected by renderDetail; set phone null if missing
+
       const mapped = {
-        id: o.order_id,
-        order_id: o.order_id,
-        order_status: o.order_status,
-        total_amount: o.total_amount,
-        shipping_address: o.shipping_address,
-        shipping_cost: o.shipping_cost || 0,
-        payment_method: o.payment_method,
-        created_at: o.created_at,
-        customerName: o.customer_name,
-        email: o.customer_email,
-        phone: o.customer_phone ? o.customer_phone : null, // <-- keep null if empty
-        items: (o.items || []).map(it => ({
-          order_item_id: it.order_item_id,
-          product_id: it.product_id,
-          name: it.name,
-          quantity: it.quantity,
-          unit: it.unit,
-          price_at_order: it.price_at_order,
-          imageUrl: it.imageUrl || it.image_url || (it.image_url ? `http://localhost:5000${it.image_url}` : null)
-        }))
+        ...o,
+        phone: o.customer_phone || null,
+        items: (o.items || []).map((it) => ({
+          ...it,
+          imageUrl: it.image_url
+            ? `${API.defaults.baseURL}${it.image_url}`
+            : null,
+        })),
       };
+
       setSelectedOrder(mapped);
-    } catch (e) {
-      console.error('fetchAdminOrderDetails error', e);
-      setError('Gagal terhubung ke server untuk memuat detail.');
+    } catch (err) {
+      if (err.response?.status === 401) {
+        localStorage.removeItem("adminToken");
+        navigate("/admin/login");
+      } else {
+        setError(
+          err.response?.data?.message || "Gagal memuat detail pesanan."
+        );
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // ====== UPDATED: handleStatusChange -> call backend AND notify via localStorage event ======
   const handleStatusChange = async (id, newStatus) => {
-    const token = getAdminToken();
-    if (!token) { navigate('/admin/login'); return; }
-
-    // optimistic update in list
     const prevOrders = [...orders];
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus } : o));
-    if (selectedOrder && selectedOrder.id === id) {
-      setSelectedOrder(prev => prev ? { ...prev, order_status: newStatus } : prev);
-    }
+    setOrders((o) =>
+      o.map((x) => (x.id === id ? { ...x, status: newStatus } : x))
+    );
 
     try {
-      const res = await fetch(`${API_UPDATE_STATUS}/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ status: newStatus })
+      const { data } = await API.put(`${API_UPDATE_STATUS}/${id}`, {
+        status: newStatus,
       });
-      const data = await res.json();
-      if (!res.ok) {
-        setOrders(prevOrders);
-        if (data && data.message && (data.message.toLowerCase().includes('token') || data.message.toLowerCase().includes('autentik'))) {
-          localStorage.removeItem('adminToken'); navigate('/admin/login'); return;
-        }
-        setError(data.message || 'Gagal memperbarui status.');
-      } else {
-        const updated = data.order;
-        // update list item
-        setOrders(prev => prev.map(o => o.id === id ? { ...o, status: updated.order_status } : o));
-        // if detail open, update it too
-        if (selectedOrder && selectedOrder.id === id) {
-          setSelectedOrder(prev => prev ? { ...prev, order_status: updated.order_status } : prev);
-        }
 
-        // NOTIFY other tabs/clients: write to localStorage (storage event fires on other tabs)
-        try {
-          const key = `order_update_${id}`;
-          const payload = { order_id: id, status: updated.order_status, ts: Date.now() };
-          localStorage.setItem(key, JSON.stringify(payload));
-        } catch (e) {
-          // ignore storage errors
-          console.warn('Could not write order update to localStorage', e);
-        }
+      setOrders((o) =>
+        o.map((x) =>
+          x.id === id ? { ...x, status: data.order.order_status } : x
+        )
+      );
+
+      if (selectedOrder?.id === id) {
+        setSelectedOrder((p) => ({
+          ...p,
+          order_status: data.order.order_status,
+        }));
       }
-    } catch (e) {
-      console.error('Update status error', e);
-      setError('Gagal menghubungi server untuk memperbarui status.');
+    } catch (err) {
       setOrders(prevOrders);
+      setError(
+        err.response?.data?.message || "Gagal memperbarui status pesanan."
+      );
     }
   };
 
@@ -224,37 +184,20 @@ const AdminOrders = () => {
     setDeleteTarget(order);
     setIsDeleteOpen(true);
   };
+
   const closeDeleteModal = () => {
     setIsDeleteOpen(false);
     setDeleteTarget(null);
   };
 
-  // ====== confirmDelete -> call backend DELETE ======
   const confirmDelete = async () => {
-    if (!deleteTarget) return;
-    const token = getAdminToken();
-    if (!token) { navigate('/admin/login'); return; }
-
     try {
-      const res = await fetch(`${API_DELETE_ORDER}/${deleteTarget.id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        if (data && data.message && (data.message.toLowerCase().includes('token') || data.message.toLowerCase().includes('autentik'))) {
-          localStorage.removeItem('adminToken'); navigate('/admin/login'); return;
-        }
-        setError(data.message || 'Gagal menghapus pesanan.');
-      } else {
-        setOrders(prev => prev.filter(o => o.id !== deleteTarget.id));
-        setSelectedIds(prev => prev.filter(id => id !== deleteTarget.id));
-        if (selectedOrder && selectedOrder.id === deleteTarget.id) setSelectedOrder(null);
-        closeDeleteModal();
-      }
-    } catch (e) {
-      console.error('Delete order error', e);
-      setError('Gagal menghubungi server untuk menghapus pesanan.');
+      await API.delete(`${API_DELETE_ORDER}/${deleteTarget.id}`);
+      setOrders((o) => o.filter((x) => x.id !== deleteTarget.id));
+      setSelectedOrder(null);
+      closeDeleteModal();
+    } catch (err) {
+      setError(err.response?.data?.message || "Gagal menghapus pesanan.");
     }
   };
 

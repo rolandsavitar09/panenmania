@@ -7,10 +7,11 @@ import FarmerIcon from "../../../assets/images/icons/farmer.svg";
 import DesaIcon from "../../../assets/images/icons/desa.svg";
 import PenggunaIcon from "../../../assets/images/icons/pengguna.svg";
 
-const API_DASHBOARD_STATS = "http://localhost:5000/api/users/dashboard/stats";
+import API from "../../../api/api";
+
 const getAdminToken = () => localStorage.getItem("adminToken");
 
-// Helper untuk format Rupiah (jika ingin menampilkan nilai rupiah)
+// Helper untuk format Rupiah
 const formatRupiah = (num) => {
   if (num == null || isNaN(Number(num))) return "Rp 0";
   return new Intl.NumberFormat("id-ID", {
@@ -25,40 +26,34 @@ const AdminDashboard = () => {
   const primary = "#3A5B40";
   const navigate = useNavigate();
 
-  // State untuk data dari API
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // State untuk menampilkan menu profile (hanya tombol KELUAR)
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
-  // Sapaan tetap "Admin"
   const adminName = "Admin";
 
-  // --- FETCH DASHBOARD DATA ---
+  // === FETCH DASHBOARD DATA (FIXED) ===
   const fetchStats = useCallback(async () => {
     const token = getAdminToken();
-    // tidak otomatis redirect agar UI lama tetap terasa; kalau mau redirect uncomment:
-    // if (!token) return navigate("/admin/login");
+    if (!token) {
+      navigate("/admin/login", { replace: true });
+      return;
+    }
 
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(API_DASHBOARD_STATS, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      const data = await response.json().catch(() => null);
+      const { data } = await API.get("/api/users/dashboard/stats");
 
-      if (response.ok && data) {
-        setStats(data.stats || data || {});
-      } else {
-        setError((data && data.message) || "Gagal memuat data dashboard.");
-      }
-    } catch (e) {
-      console.error("Fetch Dashboard Error:", e);
-      setError("Gagal terhubung ke server.");
+      setStats(data?.stats || data || {});
+    } catch (err) {
+      console.error("Fetch Dashboard Error:", err);
+      setError(
+        err?.response?.data?.message || "Gagal memuat data dashboard."
+      );
     } finally {
       setLoading(false);
     }
@@ -66,17 +61,14 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchStats();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchStats]);
 
-  // Logout handler sederhana (bersihkan token & arahkan ke login admin)
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
     setShowProfileMenu(false);
-    navigate("/admin/login");
+    navigate("/admin/login", { replace: true });
   };
 
-  // Data fallback (preserve UI lama look & feel)
   const fallbackSummary = [
     { label: "Petani Terdaftar", value: "7000 +" },
     { label: "Desa Terdaftar", value: "7000 +" },
@@ -84,12 +76,10 @@ const AdminDashboard = () => {
     { label: "Total Pesanan", value: "7000 +" },
   ];
 
-  // Jika stats tersedia, gunakan angka nyata, kalau tidak gunakan fallback
   const summaryCards = (() => {
     if (!stats) return fallbackSummary;
 
     const totalUsers = stats.totalUsers ?? null;
-    // Total Pesanan: pakai stats.totalOrders jika ada, jika tidak coba ambil panjang array orders jika tersedia
     const totalOrdersComputed =
       stats.totalOrders ??
       (Array.isArray(stats.orders) ? stats.orders.length : null);
@@ -98,15 +88,13 @@ const AdminDashboard = () => {
       {
         label: "Petani Terdaftar",
         value:
-          stats.totalFarmers?.toLocaleString?.("id-ID") ??
-          "7000 +",
+          stats.totalFarmers?.toLocaleString?.("id-ID") ?? "7000 +",
         icon: FarmerIcon,
       },
       {
         label: "Desa Terdaftar",
         value:
-          stats.totalVillages?.toLocaleString?.("id-ID") ??
-          "7000 +",
+          stats.totalVillages?.toLocaleString?.("id-ID") ?? "7000 +",
         icon: DesaIcon,
       },
       {
@@ -123,49 +111,45 @@ const AdminDashboard = () => {
           totalOrdersComputed != null
             ? totalOrdersComputed.toLocaleString("id-ID")
             : "7000 +",
-        icon: null, // kita akan buat badge otomatis, bisa reuse icon jika perlu
+        icon: null,
       },
     ];
   })();
 
-  // Untuk Produk & Kategori terlaris - jika tidak ada, tetap tampilkan data statis seperti UI lama
-  const topProducts = (stats && stats.topProducts && stats.topProducts.length > 0)
-    ? stats.topProducts
-    : [
-        { name: "Beras Rojo Lele 5kg", value: "100 Produk", width: "90%", sold: 100 },
-        { name: "Beras Pandan Wangi 5kg", value: "60 Produk", width: "70%", sold: 60 },
-        { name: "Bayam Hijau Segar 250g", value: "30 Produk", width: "40%", sold: 30 },
-      ];
+  const topProducts =
+    stats?.topProducts?.length > 0
+      ? stats.topProducts
+      : [
+          { name: "Beras Rojo Lele 5kg", value: "100 Produk", width: "90%", sold: 100 },
+          { name: "Beras Pandan Wangi 5kg", value: "60 Produk", width: "70%", sold: 60 },
+          { name: "Bayam Hijau Segar 250g", value: "30 Produk", width: "40%", sold: 30 },
+        ];
 
-  const topCategories = (stats && stats.topCategories && stats.topCategories.length > 0)
-    ? stats.topCategories
-    : [
-        { name: "Buah", value: "100 Produk", width: "90%", sold: 100 },
-        { name: "Beras", value: "60 Produk", width: "70%", sold: 60 },
-        { name: "Sayur", value: "30 Produk", width: "40%", sold: 30 },
-      ];
+  const topCategories =
+    stats?.topCategories?.length > 0
+      ? stats.topCategories
+      : [
+          { name: "Buah", value: "100 Produk", width: "90%", sold: 100 },
+          { name: "Beras", value: "60 Produk", width: "70%", sold: 60 },
+          { name: "Sayur", value: "30 Produk", width: "40%", sold: 30 },
+        ];
 
-  // === LOGIKA BULAN DINAMIS untuk grafik ===
-  // Buat nama bulan (singkatan) dan nama bulan penuh (Indonesia)
-  const MONTHS_SHORT = ["JAN", "FEB", "MAR", "APR", "MEI", "JUN", "JUL", "AUG", "SEP", "OKT", "NOV", "DES"];
+  const MONTHS_SHORT = ["JAN","FEB","MAR","APR","MEI","JUN","JUL","AUG","SEP","OKT","NOV","DES"];
   const MONTHS_FULL_ID = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
   const now = new Date();
-  const currentMonthIndex = now.getMonth(); // 0..11
+  const currentMonthIndex = now.getMonth();
 
-  // Ambil 6 bulan terakhir termasuk bulan sekarang, urut dari yang lebih lama ke sekarang
   const lastSixMonths = [];
   for (let i = 5; i >= 0; i--) {
     const idx = (currentMonthIndex - i + 12) % 12;
-    lastSixMonths.push({ short: MONTHS_SHORT[idx], full: MONTHS_FULL_ID[idx] });
+    lastSixMonths.push({
+      short: MONTHS_SHORT[idx],
+      full: MONTHS_FULL_ID[idx],
+    });
   }
 
-  // Judul grafik menyesuaikan ke bulan sekarang (full)
   const salesTitleMonth = MONTHS_FULL_ID[currentMonthIndex];
-
-  // Jika Anda ingin menampilkan data penjualan dinamis untuk tiap bulan dari API,
-  // server harus mengembalikan array/series; untuk sekarang kami tetap gunakan path dummy,
-  // hanya label bulan yang dinamis sehingga tidak muncul "NOV" statis.
 
   return (
     <div

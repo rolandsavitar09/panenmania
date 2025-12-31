@@ -1,10 +1,7 @@
 // src/admin/component/pages/AdminProducts.js
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-
-// URL API
-const API_PRODUCTS_URL = "http://localhost:5000/api/products";
-const getAdminToken = () => localStorage.getItem("adminToken");
+import API from "../../../api/api";
 
 const formatRupiah = (number) => {
   if (number == null || isNaN(Number(number))) return "Rp 0";
@@ -19,57 +16,47 @@ const AdminProducts = () => {
   const bgPage = "#FFFEF6";
   const navigate = useNavigate();
 
-  // Ganti initialProducts dengan state kosong
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // dropdown filter
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortLabel, setSortLabel] = useState("Urutkan Berdasarkan");
   const [filterCategory, setFilterCategory] = useState("Semua Kategori");
 
-  // checkbox select
   const [selectedProducts, setSelectedProducts] = useState([]);
 
-  // modal delete
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  // --- FUNGSI FETCH PRODUK ---
+  // ================= FETCH PRODUK =================
   const fetchProducts = useCallback(async () => {
-    const token = getAdminToken();
-    if (!token) {
-      setLoading(false);
-      return navigate("/admin/login");
-    }
-
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(API_PRODUCTS_URL, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
+      const { data } = await API.get("/api/products");
 
-      if (response.ok) {
-        const mappedProducts = (data.products || data.data || []).map((p) => ({
-          id: p.product_id,
-          name: p.name,
-          category: p.category_name || "Lainnya", // Asumsi category_name tersedia
-          price: formatRupiah(p.price),
-          stock: p.stock,
-          status: p.stock > 0 ? "available" : "unavailable",
-          imageUrl: p.image_url, // Path relatif dari backend
-        }));
-        setProducts(mappedProducts);
+      const mappedProducts = (data.products || data.data || []).map((p) => ({
+        id: p.product_id,
+        name: p.name,
+        category: p.category_name || "Lainnya",
+        price: formatRupiah(p.price),
+        stock: p.stock,
+        status: p.stock > 0 ? "available" : "unavailable",
+        imageUrl: p.image_url
+          ? `${API.defaults.baseURL}${p.image_url}`
+          : null,
+      }));
+
+      setProducts(mappedProducts);
+    } catch (err) {
+      if (err.response?.status === 401) {
+        localStorage.removeItem("adminToken");
+        navigate("/admin/login");
       } else {
-        setError(data.message || "Gagal memuat data produk dari server.");
+        setError(err.response?.data?.message || "Gagal memuat data produk.");
       }
-    } catch (e) {
-      console.error("Fetch Products Error:", e);
-      setError("Gagal terhubung ke server.");
     } finally {
       setLoading(false);
     }
@@ -95,7 +82,6 @@ const AdminProducts = () => {
     return products.filter((p) => p.category === filterCategory);
   }, [products, filterCategory]);
 
-  // SELECT ALL logic
   const filteredIds = filteredProducts.map((p) => p.id);
   const isAllSelected =
     filteredIds.length > 0 &&
@@ -121,7 +107,6 @@ const AdminProducts = () => {
     );
   };
 
-  // DELETE MODAL
   const openDeleteModal = (product) => {
     setDeleteTarget(product);
     setIsDeleteOpen(true);
@@ -132,12 +117,19 @@ const AdminProducts = () => {
     setDeleteTarget(null);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deleteTarget) return;
-    // Di sini harusnya ada logic API DELETE
-    setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id));
-    setSelectedProducts((prev) => prev.filter((id) => id !== deleteTarget.id));
-    closeDeleteModal();
+
+    try {
+      await API.delete(`/api/products/${deleteTarget.id}`);
+      setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id));
+      setSelectedProducts((prev) =>
+        prev.filter((id) => id !== deleteTarget.id)
+      );
+      closeDeleteModal();
+    } catch (err) {
+      setError(err.response?.data?.message || "Gagal menghapus produk.");
+    }
   };
 
   return (

@@ -1,12 +1,7 @@
 // src/admin/component/pages/AdminUsers.js
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-
-// URL API (bisa dioverride via env)
-const API_USERS_ADMIN_URL =
-  process.env.REACT_APP_API_USERS_ADMIN_URL ||
-  "http://localhost:5000/api/users/admin/all";
-const getAdminToken = () => localStorage.getItem("adminToken");
+import API from "../../../api/api";
 
 const formatDate = (dateString) => {
   if (!dateString) return "-";
@@ -27,7 +22,6 @@ const AdminUsers = () => {
   const bgPage = "#FFFEF6";
   const navigate = useNavigate();
 
-  // State
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,49 +29,27 @@ const AdminUsers = () => {
   const [selectedIds, setSelectedIds] = useState([]);
   const [isSortOpen, setIsSortOpen] = useState(false);
 
-  // Filter role
   const [roleFilter, setRoleFilter] = useState("Semua Role");
-  const sortLabel = roleFilter === "Semua Role" ? "Urutkan Berdasarkan" : roleFilter;
+  const sortLabel =
+    roleFilter === "Semua Role" ? "Urutkan Berdasarkan" : roleFilter;
 
-  // Robust fetch users
+  // ================= FETCH USERS =================
   const fetchUsers = useCallback(async () => {
-    const token = getAdminToken();
-    if (!token) {
-      setLoading(false);
-      return navigate("/admin/login");
-    }
-
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(API_USERS_ADMIN_URL, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      // Debug
-      console.log("Fetch users status:", response.status, response.statusText, "url:", API_USERS_ADMIN_URL);
-
-      const contentType = response.headers.get("content-type") || "";
-      let data = null;
-      if (contentType.includes("application/json")) {
-        data = await response.json();
+      const { data } = await API.get("/api/users/admin/all");
+      setUsers(data.users || []);
+    } catch (err) {
+      if (err.response?.status === 401) {
+        localStorage.removeItem("adminToken");
+        navigate("/admin/login");
       } else {
-        const text = await response.text();
-        console.warn("Response is not JSON:", text);
-        data = { message: text };
+        setError(
+          err.response?.data?.message || "Gagal memuat data pengguna."
+        );
       }
-
-      if (response.ok) {
-        setUsers(data.users || []);
-      } else {
-        const msg = data && data.message ? data.message : `Server returned ${response.status}`;
-        setError(msg);
-        console.error("Fetch users failed:", response.status, msg);
-      }
-    } catch (e) {
-      console.error("Fetch Users Error:", e);
-      setError("Gagal terhubung ke server.");
     } finally {
       setLoading(false);
     }
@@ -92,7 +64,6 @@ const AdminUsers = () => {
     setIsSortOpen(false);
   };
 
-  // normalize id & joinedAt so component tolerant ke schema backend
   const normalizeId = (u) => u.id ?? u._id ?? null;
   const normalizeJoinedAt = (u) => u.joinedAt ?? u.createdAt ?? null;
 
@@ -100,12 +71,11 @@ const AdminUsers = () => {
     roleFilter === "Semua Role"
       ? users
       : users.filter((u) => {
-          const role = (u.role || "").toString().toLowerCase();
-          return roleFilter.toLowerCase() === "admin"
-            ? role === "admin"
-            : role === "pengguna" || role === "user" || role === "member"
-            ? roleFilter.toLowerCase() === "pengguna"
-            : false;
+          const role = (u.role || "").toLowerCase();
+          if (roleFilter === "Admin") return role === "admin";
+          if (roleFilter === "Pengguna")
+            return role === "user" || role === "pengguna" || role === "member";
+          return false;
         });
 
   const allChecked =
@@ -115,11 +85,13 @@ const AdminUsers = () => {
   const toggleSelectAll = () => {
     if (allChecked) {
       setSelectedIds((prev) =>
-        prev.filter((id) => !filteredUsers.some((u) => normalizeId(u) === id))
+        prev.filter(
+          (id) => !filteredUsers.some((u) => normalizeId(u) === id)
+        )
       );
     } else {
-      const idsToAdd = filteredUsers.map((u) => normalizeId(u)).filter(Boolean);
-      setSelectedIds((prev) => Array.from(new Set([...prev, ...idsToAdd])));
+      const ids = filteredUsers.map((u) => normalizeId(u)).filter(Boolean);
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...ids])));
     }
   };
 
@@ -142,30 +114,10 @@ const AdminUsers = () => {
       </div>
 
       <nav className="flex-1 px-4 py-6 space-y-3 text-sm text-[#3A5B40]">
-        <button
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#FFFEF6]"
-          onClick={() => navigate("/admin/dashboard")}
-        >
-          <span>Beranda</span>
-        </button>
-        <button
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#FFFEF6]"
-          onClick={() => navigate("/admin/products")}
-        >
-          <span>Produk</span>
-        </button>
-        <button
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#FFFEF6]"
-          onClick={() => navigate("/admin/orders")}
-        >
-          <span>Pesanan</span>
-        </button>
-        <button
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-md bg-[#FFFEF6] font-semibold"
-          onClick={() => navigate("/admin/users")}
-        >
-          <span>Pengguna</span>
-        </button>
+        <button className="w-full px-3 py-2 rounded-md hover:bg-[#FFFEF6]" onClick={() => navigate("/admin/dashboard")}>Beranda</button>
+        <button className="w-full px-3 py-2 rounded-md hover:bg-[#FFFEF6]" onClick={() => navigate("/admin/products")}>Produk</button>
+        <button className="w-full px-3 py-2 rounded-md hover:bg-[#FFFEF6]" onClick={() => navigate("/admin/orders")}>Pesanan</button>
+        <button className="w-full px-3 py-2 rounded-md bg-[#FFFEF6] font-semibold" onClick={() => navigate("/admin/users")}>Pengguna</button>
       </nav>
     </aside>
   );
@@ -182,15 +134,7 @@ const AdminUsers = () => {
           <input
             type="text"
             placeholder="Cari sesuatu ..."
-            className="
-              w-full h-10
-              rounded-[10px]
-              px-4
-              text-sm
-              placeholder-[#3A5B40]
-              outline-none
-              border border-transparent
-            "
+            className="w-full h-10 rounded-[10px] px-4 text-sm placeholder-[#3A5B40] outline-none border border-transparent"
             style={{
               backgroundColor: "rgba(88,129,87,0.15)",
               color: "#3A5B40",
@@ -199,16 +143,7 @@ const AdminUsers = () => {
         </div>
 
         <button type="button" className="h-10 w-10 flex items-center justify-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#3A5B40"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="#3A5B40" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="7" />
             <line x1="16.5" y1="16.5" x2="21" y2="21" />
           </svg>

@@ -1,9 +1,10 @@
 // src/pages/admin/AdminLogin.js
-import React, { useState, useEffect } from "react"; // DITAMBAHKAN useEffect
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "../../api/api";
 
-// URL API Backend
-const API_ADMIN_LOGIN_URL = "https://panenmania-sigma.vercel.app";
+// ✅ LOGO IMAGE
+import LogoImg from "../../../assets/images/icons/logo panenmaniaa.svg";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -14,14 +15,13 @@ const AdminLogin = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // DITAMBAHKAN: Cek Status Login Saat Komponen Dimuat
+  // Cek status login admin saat mount
   useEffect(() => {
     const token = localStorage.getItem("adminToken");
     if (token) {
-      // Jika token ada, langsung arahkan ke dashboard dan ganti histori
       navigate("/admin/dashboard", { replace: true });
     }
-  }, [navigate]); // navigate ditambahkan dependency untuk memenuhi aturan ESLint
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,25 +29,20 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(API_ADMIN_LOGIN_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      const { data } = await API.post("/api/admin/login", {
+        email,
+        password,
       });
 
-      const data = await response.json();
+      localStorage.setItem("adminToken", data.token);
+      localStorage.setItem("adminUser", JSON.stringify(data.user));
 
-      if (response.ok) {
-        localStorage.setItem("adminToken", data.token);
-        localStorage.setItem("adminUser", JSON.stringify(data.user));
-        // MODIFIKASI: Gunakan {replace: true} untuk mencegah kembali ke halaman login
-        navigate("/admin/dashboard", { replace: true });
-      } else {
-        setErrorMessage(data.message || "Gagal login. Cek email/password.");
-      }
+      navigate("/admin/dashboard", { replace: true });
     } catch (err) {
+      console.error("[AdminLogin] Error:", err);
       setErrorMessage(
-        "Tidak dapat terhubung ke server. Pastikan backend berjalan."
+        err?.response?.data?.message ||
+          "Gagal login. Cek email dan kata sandi."
       );
     } finally {
       setIsLoading(false);
@@ -59,24 +54,31 @@ const AdminLogin = () => {
       className="min-h-screen flex items-center justify-center px-4"
       style={{ backgroundColor: "#FFFEF6", fontFamily: '"Inter", sans-serif' }}
     >
-      {/* CARD FIXED HEIGHT */}
       <div
         className="w-full max-w-[500px] h-[600px] bg-white border-[3px] border-[#3A5B40] rounded-[15px]
                    shadow-[0_4px_6px_rgba(0,0,0,0.1)] flex flex-col items-center px-10 py-12"
       >
         {/* LOGO */}
         <div className="w-24 h-24 mb-8 rounded-full bg-[#3A5B40]/10 border border-[#3A5B40] flex items-center justify-center">
-          <span className="text-xs text-[#3A5B40]">LOGO</span>
+          <img
+            src={LogoImg}
+            alt="PanenMania Logo"
+            className="w-14 h-14 object-contain"
+          />
         </div>
 
         {/* TITLE */}
-        <h1 className="text-[22px] font-bold text-[#3A5B40] mb-6 text-center">Login Admin</h1>
+        <h1 className="text-[22px] font-bold text-[#3A5B40] mb-6 text-center">
+          Login Admin
+        </h1>
 
         {/* FORM */}
         <form className="w-full space-y-5" onSubmit={handleSubmit}>
           {/* Email */}
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-[#3A5B40]">Email Admin</label>
+            <label className="text-sm font-medium text-[#3A5B40]">
+              Email Admin
+            </label>
             <input
               type="email"
               value={email}
@@ -92,7 +94,9 @@ const AdminLogin = () => {
 
           {/* Password */}
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-[#3A5B40]">Kata Sandi</label>
+            <label className="text-sm font-medium text-[#3A5B40]">
+              Kata Sandi
+            </label>
             <div className="w-full h-[50px] border border-[#3A5B40] rounded-md flex items-center px-4">
               <input
                 type={showPassword ? "text" : "password"}
@@ -105,21 +109,40 @@ const AdminLogin = () => {
                 placeholder="Masukkan Kata Sandi"
               />
 
-              {/* Toggle Password */}
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="ml-2 text-[#3A5B40]"
-                aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
               >
                 {showPassword ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.5a10.523 10.523 0 01-4.293 5.774" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5"
+                    />
                   </svg>
                 ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5"
+                    />
                   </svg>
                 )}
               </button>
@@ -137,10 +160,12 @@ const AdminLogin = () => {
           </button>
         </form>
 
-        {/* ERROR (reserved space biar card tidak goyang) */}
+        {/* ERROR */}
         <div className="h-6 mt-4 flex items-center justify-center text-center px-2">
           {errorMessage && (
-            <p className="text-sm text-red-600 font-semibold">{errorMessage}</p>
+            <p className="text-sm text-red-600 font-semibold">
+              {errorMessage}
+            </p>
           )}
         </div>
       </div>
