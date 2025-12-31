@@ -2,7 +2,7 @@
 import React, { useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import API from "../../../api/api";
+import API from "../../api/api";
 
 const ADMIN_TOKEN_KEY = "adminToken";
 

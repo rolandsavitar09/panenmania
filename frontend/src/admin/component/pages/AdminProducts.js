@@ -1,7 +1,7 @@
 // src/admin/component/pages/AdminProducts.js
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../../../api/api";
+import API from "../../api/api";
 
 const formatRupiah = (number) => {
   if (number == null || isNaN(Number(number))) return "Rp 0";

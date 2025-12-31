@@ -1,7 +1,7 @@
 // src/admin/component/pages/AdminUsers.js
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../../../api/api";
+import API from "../../api/api";
 
 const formatDate = (dateString) => {
   if (!dateString) return "-";

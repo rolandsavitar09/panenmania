@@ -7,7 +7,7 @@ import FarmerIcon from "../../../assets/images/icons/farmer.svg";
 import DesaIcon from "../../../assets/images/icons/desa.svg";
 import PenggunaIcon from "../../../assets/images/icons/pengguna.svg";
 
-import API from "../../../api/api";
+import API from "../../api/api";
 
 const getAdminToken = () => localStorage.getItem("adminToken");
 

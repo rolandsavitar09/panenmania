@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
-import API from "../../../api/api";
+import API from "../../api/api";
 
 // ICONS (HARUS DI BAGIAN TERATAS)
 import deliveryIcon from "../../../assets/images/icons/delivery.png";
