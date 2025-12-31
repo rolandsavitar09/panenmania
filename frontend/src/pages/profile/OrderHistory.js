@@ -10,6 +10,7 @@ import EditIcon from "../../assets/images/icons/edit.svg";
 import ProfileIcon from "../../assets/images/icons/profile.svg";
 import CheckIcon from "../../assets/images/icons/ceklis.svg";
 import OutIcon from "../../assets/images/icons/out.svg";
+import DefaultProfilePhoto from "../../assets/images/icons/profile.svg";
 
 // =======================
 // FORMAT & HELPER
@@ -191,7 +192,7 @@ const OrderHistory = () => {
               <input type="file" className="hidden" onChange={handleUploadPic} />
               <div className="w-32 h-32 lg:w-40 lg:h-40 bg-[#F2F2F2] rounded-full overflow-hidden">
                 <img
-                  src={profilePic || ProfilePhoto}
+                  src={profilePic || DefaultProfilePhoto}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
@@ -297,3 +298,4 @@ const OrderHistory = () => {
 };
 
 export default OrderHistory;
+//profilepic
