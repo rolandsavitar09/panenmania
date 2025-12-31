@@ -158,6 +158,40 @@ const AdminAddProduct = () => {
 
   const hiddenFileInput = useRef(null);
 
+  const pageTitle = isEditMode ? "Edit Produk" : "Tambah Produk";
+
+  const getMessageClass = (type) => {
+    if (type === "success") return "text-green-700";
+    if (type === "error") return "text-red-700";
+    return "text-[#3A5B40]";
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    // validasi size max 10MB
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadMessage({
+        type: "error",
+        message: "Ukuran file maksimal 10MB",
+      });
+      return;
+    }
+
+    setImageFile(file);
+    setUploadMessage({
+      type: "success",
+      message: "File berhasil dipilih",
+    });
+  };
+
+  const handleClick = () => {
+    if (hiddenFileInput.current) {
+      hiddenFileInput.current.click();
+    }
+  };
+
   const handleChange = (field, value) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 

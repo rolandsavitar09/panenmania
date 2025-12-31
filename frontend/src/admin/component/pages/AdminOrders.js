@@ -106,6 +106,53 @@ const AdminOrders = () => {
       maximumFractionDigits: 0,
     }).format(num);
 
+  const getSelectStyles = (status) => {
+    switch ((status || "").toUpperCase()) {
+      case "PENDING":
+        return {
+          backgroundColor: "rgba(58,91,64,0.12)",
+          color: "#3A5B40",
+          border: "1px solid #3A5B40",
+        };
+      case "PROCESSING":
+        return {
+          backgroundColor: "rgba(255,193,7,0.18)",
+          color: "#7A5C00",
+          border: "1px solid #FFC107",
+        };
+      case "SHIPPED":
+        return {
+          backgroundColor: "rgba(33,150,243,0.18)",
+          color: "#0D47A1",
+          border: "1px solid #2196F3",
+        };
+      case "DELIVERED":
+        return {
+          backgroundColor: "rgba(49,114,32,0.9)",
+          color: "#FFFFFF",
+          border: "1px solid #317220",
+        };
+      case "SETTLED":
+        return {
+          backgroundColor: "rgba(46,125,50,0.9)",
+          color: "#FFFFFF",
+          border: "1px solid #2E7D32",
+        };
+      case "CANCELLED":
+        return {
+          backgroundColor: "rgba(150,53,44,0.9)",
+          color: "#FFFFFF",
+          border: "1px solid #96352C",
+        };
+      default:
+        return {
+          backgroundColor: "#FFFFFF",
+          color: "#3A5B40",
+          border: "1px solid #3A5B40",
+        };
+    }
+  };
+
   const toggleSelectAll = () => {
     if (allChecked) setSelectedIds([]);
     else setSelectedIds(orders.map((o) => o.id));
