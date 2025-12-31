@@ -10,7 +10,6 @@ import EditIcon from "../../assets/images/icons/edit.svg";
 import ProfileIcon from "../../assets/images/icons/profile.svg";
 import CheckIcon from "../../assets/images/icons/ceklis.svg";
 import OutIcon from "../../assets/images/icons/out.svg";
-// import ProfilePhoto from "../../assets/images/icons/pp.svg"; // DIHILANGKAN SESUAI INSTRUKSI
 
 // =======================
 // FORMAT & HELPER
@@ -84,7 +83,16 @@ const OrderHistory = () => {
     try {
       const { data } = await API.get("/api/orders/history");
 
-      const normalized = (data.orders || []).map((o) => {
+      // 🔑 FIX UTAMA (ANTI BACKEND FORMAT BEDA-BEDA)
+      const rawOrders = Array.isArray(data)
+        ? data
+        : Array.isArray(data.orders)
+        ? data.orders
+        : Array.isArray(data.data)
+        ? data.data
+        : [];
+
+      const normalized = rawOrders.map((o) => {
         let id = null;
         if (Number.isInteger(o.order_id)) {
           id = o.order_id;

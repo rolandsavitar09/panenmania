@@ -10,7 +10,6 @@ const AdminTwoFA = () => {
   const handleChange = (value, index) => {
     // hanya angka 0–9
     if (!/^[0-9]?$/.test(value)) return;
-
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
