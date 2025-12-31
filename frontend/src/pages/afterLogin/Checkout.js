@@ -272,7 +272,7 @@ const Checkout = () => {
     };
 
     try {
-      const res = await API.post("/orders/checkout", payload);
+      const res = await API.post("/api/orders/checkout", payload);
       const orderId =
         res.data?.order?.order_id ?? res.data?.order_id ?? `local-${Date.now()}`;
 

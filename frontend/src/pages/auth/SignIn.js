@@ -26,8 +26,7 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
-      // ✅ PERUBAHAN: fetch → API.post (endpoint TETAP SAMA)
-      const response = await API.post("/auth/login", {
+      const response = await API.post("/api/auth/login", {
         email,
         password,
       });

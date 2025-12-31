@@ -65,7 +65,7 @@ const SignUp = () => {
         gender: formData.gender,
       };
 
-      const response = await API.post("/auth/register", payload);
+      const response = await API.post("/api/auth/register", payload);
 
       if (response.status === 201 || response.status === 200) {
         alert("Pendaftaran berhasil! Silakan masuk.");

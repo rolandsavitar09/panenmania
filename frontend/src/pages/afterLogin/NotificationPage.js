@@ -3,14 +3,6 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import NavbarAfterLogin from "../../components/layout/NavbarAfterLogin";
 
-/**
- * NotificationPage (revisi)
- * - Mengambil data notifikasi dari localStorage 'orderHistory'
- * - Hanya menampilkan notifikasi untuk pesanan yang statusnya 'created' (berhasil)
- * - Auto-refresh saat localStorage berubah (storage event) atau saat tab visible kembali
- * - Komentar singkat dalam Bahasa Indonesia (formal)
- */
-
 const safeParse = (s) => {
   try {
     return JSON.parse(s);

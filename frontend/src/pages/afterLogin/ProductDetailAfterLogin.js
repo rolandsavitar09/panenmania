@@ -121,7 +121,7 @@ const ProductDetailAfterLogin = () => {
 
   const handleAddToCart = async () => {
     try {
-      await API.post("/cart", {
+      await API.post("/api/cart", {
         productId: product.product_id,
         quantity,
       });

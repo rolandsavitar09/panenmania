@@ -1,10 +1,6 @@
 // src/api/api.js
 import axios from "axios";
 
-/**
- * BASE URL BACKEND (PRODUCTION)
- * ⛔ JANGAN pakai /api
- */
 export const API_BASE_URL = "https://panenmania-sigma.vercel.app";
 
 /**

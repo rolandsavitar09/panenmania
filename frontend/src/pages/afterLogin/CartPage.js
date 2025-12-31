@@ -133,7 +133,7 @@ const CartPage = () => {
     );
 
     try {
-      await API.post("/cart", {
+      await API.post("/api/cart", {
         productId: item.product_id,
         quantity: delta,
       });

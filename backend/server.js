@@ -90,7 +90,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/users', adminUsersRoutes);
 
 // Admin (protected)
-app.get('/users/admin/all', protect, authController.getUsers);
+app.get('/api/users/admin/all', protect, authController.getUsers);
 
 /* ======================
    404 HANDLER
