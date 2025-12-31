@@ -1,7 +1,7 @@
 // src/pages/admin/AdminLogin.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../../api/api";
+import API from "../../../api/api";
 
 // ✅ LOGO IMAGE
 import LogoImg from "../../../assets/images/icons/logo panenmaniaa.svg";
