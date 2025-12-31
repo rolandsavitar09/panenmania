@@ -30,15 +30,15 @@ const CheckoutSuccess = () => {
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xl">
           <Link
-            to="/"
-            className="flex-1 bg-[#3A5B40] text-[#FFFFFF] font-semibold py-3 rounded-lg hover:bg-gray-300 transition"
+            to="/home"
+            className="flex-1 bg-[#3A5B40] text-white font-semibold py-3 rounded-lg hover:bg-[#2F4537] transition"
           >
             Kembali ke Beranda
           </Link>
 
           <Link
             to="/orders-status"
-            className="flex-1 bg-[#3A5B40] text-[#FFFFFF] font-semibold py-3 rounded-lg hover:bg-gray-300 transition"
+            className="flex-1 bg-[#3A5B40] text-white font-semibold py-3 rounded-lg hover:bg-[#2F4537] transition"
           >
             Status Pesanan
           </Link>
