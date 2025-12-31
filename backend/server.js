@@ -6,18 +6,18 @@ const path = require('path');
 const morgan = require('morgan');
 
 // Routes
-const authRoutes = require('./backend/src/routes/authRoutes');
-const productRoutes = require('./backend/src/routes/productRoutes');
-const cartRoutes = require('./backend/src/routes/cartRoutes');
-const orderRoutes = require('./backend/src/routes/orderRoutes');
-const adminUsersRoutes = require('./backend/src/routes/adminUsers');
+const authRoutes = require('./src/routes/authRoutes');
+const productRoutes = require('./src/routes/productRoutes');
+const cartRoutes = require('./src/routes/cartRoutes');
+const orderRoutes = require('./src/routes/orderRoutes');
+const adminUsersRoutes = require('./src/routes/adminUsers');
 
 // Controller & middleware
-const authController = require('./backend/src/controllers/authController');
-const { protect } = require('./backend/src/middleware/authMiddleware');
+const authController = require('./src/controllers/authController');
+const { protect } = require('./src/middleware/authMiddleware');
 
 // DB
-const db = require('./backend/src/config/db');
+const db = require('./src/config/db');
 
 const app = express();
 
