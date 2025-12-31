@@ -1,4 +1,3 @@
-// backend/server.js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -21,86 +20,61 @@ const db = require('./src/config/db');
 
 const app = express();
 
-/* ======================
-   LOGGER
-====================== */
+// Logger (dev only)
 if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
-/* ======================
-   BODY PARSER
-====================== */
+// Body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* ======================
-   STATIC FILES
-====================== */
+// Static files
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-/* ======================
-   CORS (FIXED)
-====================== */
+// CORS config
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   'https://panenmania.netlify.app',
-  'https://panenmania-web.vercel.app'
+  'https://panenmania-web.vercel.app',
 ];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Izinkan request tanpa origin (Postman, server-to-server)
+    origin(origin, callback) {
       if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
+      if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
   })
 );
 
-app.options("*", cors());
-
-/* ======================
-   HEALTH CHECK
-====================== */
+// Health check
 app.get('/api/health', async (req, res) => {
   try {
-    if (db && typeof db.query === 'function') {
-      await db.query('SELECT 1');
-    }
+    if (db?.query) await db.query('SELECT 1');
     res.json({ status: 'ok', service: 'PanenMania API' });
-  } catch (err) {
+  } catch {
     res.status(500).json({ status: 'error', message: 'DB error' });
   }
 });
 
-/* ======================
-   ROUTES
-====================== */
+// API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', adminUsersRoutes);
 
-// Admin (protected)
+// Admin route
 app.get('/api/users/admin/all', protect, authController.getUsers);
 
-/* ======================
-   404 HANDLER
-====================== */
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: 'Route tidak ditemukan' });
 });
 
-/* ======================
-   EXPORT FOR VERCEL
-====================== */
+// Export for Vercel
 module.exports = app;
